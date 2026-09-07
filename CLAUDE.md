@@ -281,6 +281,15 @@ source-shift result; update those, not the three dated snapshots below them.
   0.9621. Every pruned point is dominated. 99% of ViT-L is its 24 blocks, so
   reaching 17.9 MB needs ~3 of them. **Selection beats compression** — spend a
   GPU on evaluating breadth, not on compressing.
+- **Inference-side levers at a small byte budget** (`SMALL_FRONTIER_FINDINGS.md`).
+  All three are null at K=490 against `mobileclip2_s2`'s 0.6236 species: the `C`
+  sweep **+0.0006** (the default of 10, never examined before, was fine), an
+  `s0 ⊕ s2` ensemble **+0.0011** and −1.1pp genus, and 6-view TTA **+0.0070
+  [−0.0015, +0.0154]** paired, at 6× latency. The 17.9 → 43 MB step is **14.4pp
+  of species** and none of these touch it: it is an encoder-quality gap. **The
+  one lever left is domain-adapting a small encoder** — `plantclef24`'s advantage
+  *is* fine-tuning on 7,806 Pl@ntNet species, and nobody has done that to a
+  17.9 MB model. Note this is all K=490; `s2` at K=20 is a different story.
 - **Reading an earlier layer** (`LAYER_FINDINGS.md`). Perception Encoder reports
   mid-stack embeddings beat the output for contrastive encoders. Not here: every
   intermediate layer is worse, monotonically, and concatenation adds +0.0000.
