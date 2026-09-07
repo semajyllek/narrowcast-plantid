@@ -298,3 +298,49 @@ and the mixed-species gain may fall with `r` for that reason alone.
   species to save 6.3pp on reserved at `r = 0.20`; those magnitudes imply the
   break-even sits somewhere near `r ≈ 0.3`, and if it lands far from that the
   reasoning above is wrong somewhere.
+
+---
+
+# Addendum 5 — the label set is user-chosen, so sweep K
+
+Written before the sweep was run.
+
+**Everything measured so far is at K = 345 species. The product runs at
+K = 10–50.** A user chooses their own list, `build` fits a head on it, and that
+is the regime every decision here should be made in. The reserved-fraction sweep
+varied composition at fixed K and never asked whether the effect survives the
+label set actually shipping.
+
+It may not. The damage mechanism is competition in a single argmax: a reserved
+species loses when some class that gained in-source data overtakes it. With 19
+competitors rather than 344, there are far fewer chances for that to happen, and
+`BAKEOFF`/`EMBEDDED` already establish that top-1 rises steeply as K falls —
+leaving less room for the mix to help *or* hurt.
+
+## Design
+
+Sweep `K ∈ {10, 20, 50, 100, 345}`, drawing random species subsets from the 345,
+**15 draws per K** (the convention used by `analysis/subset_frontier.py`), with
+the reserved fraction held at `r = 0.10` — one species in ten having no in-source
+data, which is the plausible product case rather than the 20% fitted earlier.
+Arms unchanged: `P-full`, single `mixed`, `T1`, `T1-control`. K = 345 is a single
+draw and reproduces the existing measurement.
+
+**Endpoints**, averaged over draws with the spread reported: Δ on reserved
+species and Δ on mixed species against `P-full`, and the architecture-matched
+`T1 − T1-control` on reserved species.
+
+## Prediction, declared
+
+**The damage shrinks with K and may vanish by K = 20.** If it does, the entire
+trade-off documented in `SOURCE_MIX_MIDDLE_FINDINGS.md` is an artifact of
+measuring at a catalogue size the product does not use, and the answer becomes
+simply *mix, and tell the user which of their species had no in-source data* —
+which is what `plan` already does for crowded genera.
+
+If the damage instead **persists at small K**, that is the stronger result: it
+would mean the effect is about distributional coverage rather than the number of
+competitors, and the T1-versus-single-head decision is real at product scale.
+
+Either way this is the measurement that should have come first, and the sweep at
+K = 345 answered a question about a catalogue nobody ships.
