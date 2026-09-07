@@ -151,3 +151,56 @@ could be *damaged* by the mix. Nobody has checked, and a catalogue that grows by
 adding species will always have some in that position. A negative result here
 would be a reason not to adopt the mix that has nothing to do with evidential
 standing.
+
+---
+
+# Addendum 2 — pre-registering the per-class balancing fix
+
+Written before any balanced head was fitted.
+
+`SOURCE_MIX_MIDDLE_FINDINGS.md` (M2) found that mixing in-source data for 80% of
+species makes the reserved 20% **worse**, −0.0278 [−0.0423, −0.0154]. It named
+per-class balancing as the untried fix, on the hypothesis that the damage is a
+**row-count artifact**: mixed classes simply have more training rows than
+reserved ones, so the head favours them.
+
+**One thing to check first, and it may be the whole story.** The production head
+in `eval/inat_fusion.py:build_heads` fits with `class_weight="balanced"`. The
+analysis code these results come from — `analysis/domain_shift.py:fit`, inherited
+by every source-mix arm — does **not**. If balancing removes the damage, then M2
+measured an artifact of the analysis script rather than a property of the
+production configuration, and `SOURCE_MIX_MIDDLE_FINDINGS.md` needs retracting in
+place.
+
+## Arms
+
+All on the M2 split: 20% of species reserved, no iNaturalist row of theirs in
+training, both heads scored on identical test rows.
+
+| arm | fit |
+|---|---|
+| `P-full` / `mixed` | unweighted — reproduces M2 |
+| `P-full-bal` / `mixed-bal` | `class_weight="balanced"` — equal total weight per class |
+| `mixed-cap-k` | unweighted, in-source rows capped at `k = 10` per species |
+
+The cap is a different lever from the weighting and is declared separately: it
+limits how far the *distribution* of a mixed class moves, where balancing only
+equalises how much each class contributes.
+
+**Primary endpoint.** Δ species top-1 on the reserved species, mixed head minus
+`P-full`, under matched fitting — `mixed-bal` against `P-full-bal`. Paired over
+species, same bootstrap.
+
+## The prediction, declared
+
+**Balancing will reduce the damage but not remove it.** The hypothesised
+mechanism in M2 is not row count. It is that mixed classes have training rows
+drawn from the *test* distribution and reserved classes do not. Equal weight on a
+class whose rows match the test distribution still wins more argmaxes than equal
+weight on a class whose rows do not. If that reading is right, balancing helps at
+the margin and the reserved species stay below baseline.
+
+If instead balancing removes the damage entirely, the M2 mechanism is wrong, its
+finding is an artifact of unweighted fitting, and it gets retracted in place —
+which is the outcome this addendum exists to make checkable rather than
+deniable.
