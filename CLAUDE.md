@@ -185,9 +185,17 @@ These exist because things failed without them. Follow them.
   three architectures with three supervision signals, none dermatological, all
   land in the same place. Against the plant curve *fitted on the same encoder*
   the residual is still 1.5–2.2×. Ruled out in order: label-set size, class
-  distribution, baseline accuracy, encoder family. Best remaining reading: here
+  distribution, baseline accuracy, encoder family. Best remaining reading: there
   the source variable is a property of the **subject** (skin tone is in every
-  pixel) where in plants it is a property of the **photographer**. Side note worth keeping: a random 20-species plant
+  pixel) where in plants it is a property of the **photographer**. **Audio tested
+  that reading and confirms it** (`SOURCE_MIX_FINDINGS.md` in `narrowcast-kws`):
+  Speech Commands with speaker population as the source — a voice is in every
+  frame — gives damage **flat across K and largest at the narrow end**, −0.214 at
+  K=5 and −0.186 at K=10 where plants are *zero*, at 2.1–2.6× the plant curve
+  against derm's 1.9–2.1×. Two domains sharing no modality, encoder, task or
+  source variable land in the same place. Quote the **shape**, never the
+  magnitude: audio's source variable is constructed by k-means, so its level is
+  chosen rather than measured. Side note worth keeping: a random 20-species plant
   set scores **0.9345 on two training images per species**. The accuracy lives in
   the encoder's representation, not the head's training data, which is why
   starving the head cannot make plants hard and relatedness can.

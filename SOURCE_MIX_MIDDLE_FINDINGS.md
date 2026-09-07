@@ -437,6 +437,19 @@ the curve is consistent but weak on its own. The honest statement is that
 a factor of roughly two** — and that "something else" is where the makeup of the
 images would live, if it lives anywhere.
 
+**And audio agrees with dermatology.** Speech Commands, 35 words, wav2vec2, with
+speaker population as the source variable — chosen because a speaker's voice
+pervades every frame of a clip the way skin tone pervades every pixel of a
+lesion, and unlike the framing convention that separates two photograph corpora.
+Damage is **flat across the sweep and largest at the narrow end**: −0.214 at
+K = 5, −0.186 at K = 10, −0.181 at K = 20. Plants are *zero* at K = 10. Against
+the plant curve, audio sits at 2.1–2.6× and dermatology at 1.9–2.1× — two domains
+sharing no modality, encoder, task or source variable, landing in the same place.
+The magnitude is not evidence there: audio's source variable is constructed by
+k-means, so its level is chosen rather than measured, and the pre-registration
+said so before the run. The *shape* is the result. See `SOURCE_MIX_FINDINGS.md`
+in `narrowcast-kws`.
+
 **It is not the encoder.** The dermatology arm ran on one embedding set, so the
 residual was confounded with encoder family. Re-embedding those same images with
 `mobileclip2_s0` and `bioclip2` — the two the plant curve is fitted on — leaves
