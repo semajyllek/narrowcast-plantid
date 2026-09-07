@@ -256,3 +256,45 @@ not a fix, and the two endpoints will be read together.
 **Primary endpoint** for both arms, as in M3: Δ species top-1 on reserved
 species against the matched `P-full` baseline, paired over species; with the
 mixed-species Δ reported beside it in every case.
+
+---
+
+# Addendum 4 — sweeping the reserved fraction
+
+Written before the sweep was run. `SOURCE_MIX_MIDDLE_FINDINGS.md` names this as
+the open item: 20% was declared, not derived, and it sets where the crossover
+between T1 and the single mixed head falls. That crossover is now the decision
+variable — the damage itself is understood.
+
+**Sweep** `r ∈ {0.05, 0.10, 0.20, 0.35, 0.50}` of species reserved, everything
+else held to the design already fitted: same species set, same `q < 0.4` test
+rows, same arms (`P-full`, single `mixed`, `T1`, `T1-control`).
+
+**Not a confound, but say it anyway.** As `r` grows the mixed pool shrinks, so
+there is less in-source training data in total. That is not an artifact to
+correct — a catalogue where half the species have no in-source data really does
+have half the in-source data — but it means the sweep varies two things at once
+and the mixed-species gain may fall with `r` for that reason alone.
+
+## Endpoints
+
+1. **Δ on reserved species**, per arm, against `P-full`.
+2. **The architecture-matched data effect**, `T1 − T1-control`, which is the
+   quantity that isolated the fix.
+3. **Catalogue-mean accuracy** — macro over *all* species, which weights the two
+   groups by their actual prevalence. **This is what locates the crossover**:
+   the `r` at which T1 stops costing average accuracy and starts saving it.
+
+## Predictions, declared
+
+- **The damage grows as the reserved fraction shrinks.** A reserved species at
+  `r = 0.05` competes against 95% of the field having improved; at `r = 0.50`
+  only half the field has. Fewer reserved species should mean *more* damage each,
+  not less — which is the uncomfortable direction, because it means the problem
+  is worst exactly when it looks least important.
+- **T1's reserved-species protection holds across the sweep**, since the
+  mechanism it removes does not depend on `r`.
+- **The crossover exists and is at a low `r`.** T1 gives up 3.3pp on mixed
+  species to save 6.3pp on reserved at `r = 0.20`; those magnitudes imply the
+  break-even sits somewhere near `r ≈ 0.3`, and if it lands far from that the
+  reasoning above is wrong somewhere.
