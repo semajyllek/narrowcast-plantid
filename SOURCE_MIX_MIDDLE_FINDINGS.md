@@ -361,6 +361,33 @@ the user which of their species had no in-source data** — the same thing `plan
 already does for crowded genera, and for the same reason. Do not build the
 two-head architecture to solve a problem that K = 20 dissolves.
 
+### Carried to a second domain, where it does not hold
+
+The K-dissolution was taken to `narrowcast-derm` — Fitzpatrick17k, DINOv2, skin
+type as the source variable — with the prediction declared in advance that a
+*harder* domain should show the effects persisting to smaller K, because the
+mechanism is the accuracy ceiling rather than the label count.
+
+| K | plants: damage | gain | top-1 | dermatology: damage | gain | top-1 |
+|---|---|---|---|---|---|---|
+| 10 | **0.0000** | +0.0083 | ~0.99 | **−0.1354** | +0.0893 | 0.7177 |
+| 20 | **−0.0093** | +0.0138 | ~0.97 | **−0.1475** | +0.1293 | 0.6319 |
+
+**Confirmed by about an order of magnitude.** Dermatology never approaches the
+ceiling — top-1 is 0.80 even at K = 5 — and the effects never vanish.
+
+So the conclusion above stands **where it was measured and nowhere else**. "Do
+not build the two-head architecture, K = 20 dissolves the problem" is right for
+this catalogue and this encoder, and would be wrong advice on that corpus, where
+at K = 20 the damage is 14.8 points and a fix is worth having. Any guidance
+narrowcast gives has to key on the *measured accuracy of the build*, never on the
+label count.
+
+One thing the cross-domain test did **not** establish: a quantitative rule. At
+the same baseline accuracy of 0.80, plants lose 3.1 points and dermatology 10.7,
+so remaining headroom orders the effects within a domain and does not explain the
+level between them. See `K_FINDINGS.md` in that repo.
+
 > **This is the measurement that should have come first**, and the
 > pre-registration says so. Four rounds of analysis were spent characterising a
 > trade-off at a catalogue size the tool does not use. The finding survived every

@@ -165,6 +165,15 @@ These exist because things failed without them. Follow them.
   number for the 490-species app**; for the tool at K=10–50 the mix buys 1–2pp,
   costs about 1pp inside draw spread, and **T1 is not worth building**. Mix if
   convenient and tell the user which of their species had no in-source data.
+  **Carried to narrowcast-derm and it does not generalise** (`K_FINDINGS.md`
+  there): the mechanism is the accuracy ceiling, not the label count, so at
+  matched K a harder domain keeps the effects. At K=20 derm shows damage
+  **−0.148** and gain **+0.129** against these plants' −0.009 / +0.014; at K=10,
+  where plants show *exactly zero*, derm loses 13.5pp. Predicted in advance and
+  confirmed ~10×. **"Small label sets are safe from this" is false in general** —
+  key any guidance on the build's measured accuracy, never on K. Headroom orders
+  the effects *within* a domain and not *between*: at the same 0.80 baseline,
+  plants lose 3.1pp and derm 10.7pp.
   Separately, the evidential worry was
   the wrong one — holding out 40% instead of 100% *narrows* the interval
   (0.0375 vs 0.0540), because the bootstrap resamples species, the species count
