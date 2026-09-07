@@ -307,8 +307,17 @@ report drops the label-level share.
   offline competitor, no API, needs a manual comparison. Published figures are
   from a 2020-era model on easier data.
 - **near-OOD** is the weakest bucket: 22% answered wrong, and it cannot be fixed
-  by fetching — only 172 catalogue genera exist and 120 are covered. Needs a
-  within-genus margin score rather than summed genus mass.
+  by fetching — only 172 catalogue genera exist and 120 are covered. The 22% is
+  almost entirely the 20% *species* answers, which are wrong by construction.
+  ~~Needs a within-genus margin score rather than summed genus mass.~~
+  **Retracted before it was fitted** (`NEAR_OOD_PREREG.md`): the within-genus
+  share `s/own` has AUROC **0.472** — worse than chance and *inverted*, because
+  **101 of the 172 genera hold exactly one species**, where the ratio is 1 by
+  construction, and near-OOD lands on a singleton genus more often than
+  in-catalogue does (38.7% vs 21.2%). Every posterior-derived score is
+  closed-set and cannot express "none of these". The replacement under test is a
+  **geometric** novelty score — cosine to the nearest catalogue centroid, AUROC
+  0.848 — with the caveat that it correlates +0.72 with `genus_conf`.
 - **32 catalogue species still unevaluated**, mostly cultivated-only plants
   iNaturalist grades "casual".
 - **The catalogue was selected by image availability**, not by any product
