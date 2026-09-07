@@ -212,14 +212,15 @@ def cluster_bootstrap(values, clusters, n=2000, seed=0):
 
 def build_observations(emb_path, cache_dir=DATA_PROCESSED, min_photos=2, combiner=trimmed,
                        temperatures=None, keep_posterior=False, name_fn=curated_name,
-                       variant="bioclip2"):
+                       variant="bioclip2", C=10.0):
     """One row per observation: truth, bucket, and the fused posterior scores.
 
     `keep_posterior` additionally returns the full fused posterior per
     observation, which re-ranking experiments need and the decision path does
     not.
     """
-    heads, proj, classes = build_heads(cache_dir=cache_dir, name_fn=name_fn, variant=variant)
+    heads, proj, classes = build_heads(cache_dir=cache_dir, name_fn=name_fn, variant=variant,
+                                       C=C)
     router, router_acc = build_router(cache_dir=cache_dir, variant=variant)
     oi = int(np.flatnonzero(classes == OTHER)[0])
     mask = np.ones(len(classes), bool)
