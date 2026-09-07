@@ -344,3 +344,64 @@ competitors, and the T1-versus-single-head decision is real at product scale.
 
 Either way this is the measurement that should have come first, and the sweep at
 K = 345 answered a question about a catalogue nobody ships.
+
+---
+
+# Addendum 6 — is it accuracy, or is it the images?
+
+Written before any head in this design was fitted.
+
+`K_FINDINGS.md` in `narrowcast-derm` confirmed that the effects track the
+accuracy curve rather than the label count, and closed by noting that remaining
+headroom orders the effects *within* a domain but not *between* them: at a
+baseline of 0.80, plants lose 3.1pp and dermatology 10.7pp.
+
+**That between-domain comparison is confounded and should not have been made.**
+It paired **plants at K = 345** against **dermatology at K = 5**. Matched
+accuracy, mismatched label count, mismatched images per class, mismatched class
+balance. It cannot distinguish "the images differ" from "everything else
+differs."
+
+## The design that separates them
+
+Hold K fixed at 20 — where both domains are measured — and **degrade the plant
+arm until it is as inaccurate as dermatology**, by capping training rows per
+class. If accuracy is the whole story, a plant build at baseline 0.63 should show
+dermatology's damage of −0.148. If it does not, something about the corpus beyond
+its accuracy is carrying the difference.
+
+**Sweep** the per-class training cap `B ∈ {2, 3, 5, 8, 15, 30, all}` at K = 20,
+`r = 0.10`, 15 random species subsets per point — the same estimator as both
+existing sweeps.
+
+**The ratio of the two sources is held fixed**, because changing it would itself
+change how much the in-source rows can move the boundaries. Out-of-source rows
+are capped at `B` per class and in-source rows at `max(1, round(B / 4))`,
+preserving the roughly 4:1 ratio the uncapped arm has (66 Pl@ntNet against ~16
+iNaturalist per species).
+
+**Endpoint.** Damage to reserved species plotted against the arm's own baseline
+top-1, read against dermatology's `(0.632, −0.148)` at the same K = 20.
+
+## Predictions, declared
+
+- **Damage rises monotonically as the cap falls**, since baseline accuracy falls
+  with it. This is close to arithmetic and is a check that the design works, not
+  a finding.
+- **The plant curve will sit below dermatology's point.** I expect plants at
+  baseline 0.63 to show damage smaller than 0.148 in magnitude — because the two
+  corpora differ in class separability and in how the source difference is
+  expressed in the embedding, not only in accuracy. If instead the plant curve
+  passes through dermatology's point, accuracy is sufficient, the between-domain
+  gap was an artifact of comparing at mismatched K, and the `K_FINDINGS.md`
+  caveat should be struck.
+
+## Ways this comes out uninformative
+
+1. **Capping at `B = 2` or `3` may fail to reach 0.63.** Plants at K = 20 are
+   easy; if the floor of the sweep is still above dermatology's accuracy there is
+   no overlap to compare at and the question stays open.
+2. **Capping changes more than accuracy.** Fewer rows per class also means a
+   noisier decision boundary, which is not the same thing as a harder problem.
+   This design cannot separate those two, and a positive result should be read as
+   "accuracy *level*, however reached" rather than "task difficulty".
