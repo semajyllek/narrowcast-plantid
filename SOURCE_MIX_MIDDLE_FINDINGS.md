@@ -437,6 +437,15 @@ the curve is consistent but weak on its own. The honest statement is that
 a factor of roughly two** — and that "something else" is where the makeup of the
 images would live, if it lives anywhere.
 
+**It is not the encoder.** The dermatology arm ran on one embedding set, so the
+residual was confounded with encoder family. Re-embedding those same images with
+`mobileclip2_s0` and `bioclip2` — the two the plant curve is fitted on — leaves
+the damage at K = 20 essentially unchanged: −0.185 and −0.148 against DINOv2's
+−0.148. Compared against the plant curve *fitted on the same encoder*, the
+residual is 1.5–2.2×, the same as before, and all twelve dermatology points across
+three encoders sit above their matched curve. So: ruled out in order — label-set
+size, class distribution, baseline accuracy, encoder family. See `K_FINDINGS.md`.
+
 > **This is the measurement that should have come first**, and the
 > pre-registration says so. Four rounds of analysis were spent characterising a
 > trade-off at a catalogue size the tool does not use. The finding survived every

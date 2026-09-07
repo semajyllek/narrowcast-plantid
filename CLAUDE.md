@@ -179,7 +179,15 @@ These exist because things failed without them. Follow them.
   with class count fixed: **damage = −0.194 + 0.181 × baseline, R² = 0.61**. So
   it is mostly accuracy and **not** the class distribution; derm still sits above
   the plant curve but by **~1.9×, not 3.5×**, at one-to-three standard errors —
-  suggestive, not established. Side note worth keeping: a random 20-species plant
+  suggestive, not established. **And it is not the encoder**: re-embedding the
+  identical derm images with `mobileclip2_s0` and `bioclip2` leaves the damage at
+  K=20 essentially unchanged — −0.185 and −0.148 against DINOv2's −0.148 — so
+  three architectures with three supervision signals, none dermatological, all
+  land in the same place. Against the plant curve *fitted on the same encoder*
+  the residual is still 1.5–2.2×. Ruled out in order: label-set size, class
+  distribution, baseline accuracy, encoder family. Best remaining reading: here
+  the source variable is a property of the **subject** (skin tone is in every
+  pixel) where in plants it is a property of the **photographer**. Side note worth keeping: a random 20-species plant
   set scores **0.9345 on two training images per species**. The accuracy lives in
   the encoder's representation, not the head's training data, which is why
   starving the head cannot make plants hard and relatedness can.
