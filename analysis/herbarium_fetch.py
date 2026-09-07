@@ -86,7 +86,12 @@ def grab(url: str, dest: Path) -> bool:
 
 def main(per_species: int, max_species: int | None, sleep: float):
     OUT.mkdir(parents=True, exist_ok=True)
+    # Shuffled, not alphabetical. The fetch is slow enough that it may be stopped
+    # part-way, and alphabetical order is ordered by genus -- so a partial run
+    # would be a biased sample of the catalogue rather than a random one.
     species = catalogue_species()
+    import random
+    random.Random(0).shuffle(species)
     if max_species:
         species = species[:max_species]
     manifest_path = DATA_PROCESSED / "herbarium_index.parquet"
