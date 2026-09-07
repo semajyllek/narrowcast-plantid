@@ -125,7 +125,18 @@ These exist because things failed without them. Follow them.
   an out-of-source measurement, and spending it would require re-qualifying
   `DOMAIN_SHIFT`, `CONTAMINATION` and `COMPETITIVE`. No contradiction with the
   source-shift null: the Pl@ntNet head is not *losing* to the source change, it
-  is failing to exploit the easier corpus.
+  is failing to exploit the easier corpus. **But it is not a uniform gain**
+  (`SOURCE_MIX_MIDDLE_FINDINGS.md`): reserve 20% of species from the mix and they
+  get **worse**, −0.0278 [−0.0423, −0.0154] on fp32 and −0.0361 on int4, while the
+  mixed species gain +0.077. One multinomial, one argmax — adding in-source rows
+  moves the mixed classes' boundaries toward the test distribution and the
+  reserved ones lose ties they used to win. **The reserved position is not
+  hypothetical**: 32 catalogue species are "casual"-grade with no research-grade
+  data, and a user-chosen catalogue adds species that may have none at all. Try
+  per-class balancing before anything else. Separately, the evidential worry was
+  the wrong one — holding out 40% instead of 100% *narrows* the interval
+  (0.0375 vs 0.0540), because the bootstrap resamples species, the species count
+  is fixed, and a better head has less between-species variance.
 - **Cosine does not predict accuracy.** Checked three times: it under-predicted
   the cost of int4 (0.932 → −1.3pp), wildly over-predicted distillation (0.956 →
   nothing), and was right once (0.982 → −0.1pp). It bounds how much *could* have
@@ -292,10 +303,11 @@ report drops the label-level share.
 ## Open
 
 - **Whether to spend the clean evaluation for ~7pp.** `SOURCE_MIX_FINDINGS.md`
-  prices it; the decision is a product judgement and is not made. A middle path
-  is untested and measurable: hold out a fixed slice of iNaturalist observations
-  permanently, mix the rest into training, and check whether the smaller held-out
-  set keeps the intervals useful.
+  prices it and `SOURCE_MIX_MIDDLE_FINDINGS.md` measures the middle path; the
+  decision is a product judgement and is not made. The blocker is no longer
+  evidential — it is that the mix *damages* species without in-source data, which
+  is the direction a user-chosen catalogue grows. **Per-class balancing is the
+  untried fix** and should be tested before the trade-off is decided at all.
 - **The size decision** above, now three-way: 17.9 MB (unsafe, and fragile to
   any distribution change), 43 MB (`plantclef24`, slower), 152 MB (fastest).
   Source shift is now a column in it and does not follow byte order the way
