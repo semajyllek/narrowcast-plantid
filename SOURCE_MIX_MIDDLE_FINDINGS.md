@@ -120,23 +120,57 @@ strongly positive today. For a catalogue that grows by user request, it is not
 obviously positive at all, and it degrades in the direction the product is
 heading.
 
-## What would resolve it
+## M3 — per-class balancing does not fix it, as predicted
 
-Untested and cheap, in rough order of value:
+The named fix, pre-registered in addendum 2 **including the possibility that it
+would retract M2 entirely**. The production head fits with
+`class_weight="balanced"`; the analysis code inherited from `domain_shift.py`
+does not. If the damage were a row-count artifact of unweighted fitting, M2 would
+have been measuring the analysis script rather than the shipped configuration.
 
-1. **Per-class balancing.** The damage may be an artifact of the mixed classes
-   simply having more rows. Weighting classes to equal effective count, or
-   capping in-source rows per species, might keep most of the +7.7pp without the
-   −2.8pp. This is the obvious first thing to try and it was not part of the
-   pre-registered design.
-2. **Sweep the reserved fraction.** 20% was declared, not derived. Whether the
+| group | arm | baseline | arm | Δ |
+|---|---|---|---|---|
+| **reserved** | unweighted | 0.8033 | 0.7755 | −0.0278 [−0.0423, −0.0154] |
+| **reserved** | **`class_weight="balanced"`** | 0.8090 | 0.7878 | **−0.0211 [−0.0375, −0.0068]** |
+| **reserved** | in-source capped at 10/species | 0.8033 | 0.7848 | **−0.0186 [−0.0287, −0.0095]** |
+| mixed | unweighted | 0.7942 | 0.8712 | +0.0770 [+0.0577, +0.0977] |
+| mixed | `balanced` | 0.8112 | 0.8780 | +0.0668 [+0.0482, +0.0866] |
+| mixed | capped at 10/species | 0.7942 | 0.8605 | +0.0663 [+0.0489, +0.0852] |
+
+**Both fixes reduce the damage and neither removes it.** Every reserved-species
+interval still excludes zero. Replicated on `bioclip2_cml4`: −0.0361 unweighted,
+−0.0203 balanced, −0.0185 capped, all excluding zero.
+
+**M2 stands and is not retracted.** The prediction declared in advance was that
+balancing would help at the margin and not eliminate the effect, because the
+mechanism is not row count — it is that mixed classes have training rows drawn
+from the *test* distribution and reserved classes do not. Equal weight on a class
+whose rows match the test distribution still wins more argmaxes than equal weight
+on a class whose rows do not. That is what the numbers show.
+
+**The cap is the best trade of the three**, and it was the cheaper lever:
+
+| arm | gain on mixed | damage to reserved | ratio |
+|---|---|---|---|
+| unweighted | +0.0770 | −0.0278 | 2.8 |
+| `balanced` | +0.0668 | −0.0211 | 3.2 |
+| **capped at 10** | +0.0663 | **−0.0186** | **3.6** |
+
+Ten in-source photographs per species collects 86% of the available gain while
+cutting the damage by a third — consistent with `SOURCE_MIX_FINDINGS.md`'s
+finding that the gain saturates fast. If the mix is ever adopted, cap it.
+
+## What is still untested
+
+1. **Sweep the reserved fraction.** 20% was declared, not derived. Whether the
    damage scales with how *few* species are reserved is unmeasured, and a
    catalogue where 95% have in-source data may behave differently from one where
    80% do.
-3. **Two heads rather than one.** If the competition in a single argmax is the
-   mechanism, a per-source head with a routed or averaged posterior would avoid
-   it. Considerably more machinery, and it should not be built before (1) is
-   tried.
+2. **Two heads rather than one.** The mechanism is competition in a single
+   argmax, so a per-source head with a routed or averaged posterior is the
+   principled fix rather than a mitigation. Considerably more machinery, and now
+   the obvious next thing to try — the cheap levers have been tried and they
+   cap out at a third of the damage.
 
 ## Reproduce
 

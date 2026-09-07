@@ -23,9 +23,12 @@ import pandas as pd
 from analysis.domain_shift import (
     B, MIN_TEST, N_BOOT, SEED, fit, inat_table, per_species, plantnet_table,
 )
+from sklearn.linear_model import LogisticRegression
+
 from plantid.config import DATA_PROCESSED
 
 HOLDOUTS = (1.0, 0.8, 0.6, 0.4, 0.2)
+CAP_K = 10            # in-source rows per species, for the capped arm
 RESERVE_FRAC = 0.20   # of species, for M2
 
 
@@ -61,10 +64,24 @@ def setup(variant):
     return species, pn_tr, ina, E, len(Epn)
 
 
-def head(pn_tr, ina_train, E, off):
+def head(pn_tr, ina_train, E, off, balanced=False):
     idx = np.concatenate([pn_tr["emb_row"].to_numpy(), ina_train["emb_row"].to_numpy() + off])
     y = np.concatenate([pn_tr["cn"].to_numpy(), ina_train["cn"].to_numpy()])
-    return fit(E, idx, y)
+    if not balanced:
+        return fit(E, idx, y)
+    # `class_weight="balanced"` is what the production head uses and what the
+    # analysis code inherited from `domain_shift.py` does not.
+    return LogisticRegression(max_iter=4000, C=10.0, class_weight="balanced").fit(E[idx], y)
+
+
+def cap_per_species(df, k, rng):
+    """At most `k` rows per species, so every mixed class gets the same in-source
+    boost regardless of how many observations it happens to have."""
+    keep = []
+    for _, g in df.groupby("cn"):
+        idx = g.index.to_numpy()
+        keep.append(idx if len(idx) <= k else rng.choice(idx, k, replace=False))
+    return df.loc[np.concatenate(keep)]
 
 
 def boot(v, species, n=N_BOOT, seed=SEED):
@@ -125,6 +142,49 @@ def run_m2(variant):
     return pd.DataFrame(rows)
 
 
+def run_m3(variant):
+    """Does per-class balancing remove the damage to reserved species?"""
+    species, pn_tr, ina, E, off = setup(variant)
+    rng = np.random.default_rng(SEED + 1)
+    sp = np.array(species)
+    rng.shuffle(sp)
+    res = set(sp[: int(round(RESERVE_FRAC * len(sp)))])
+    mixed = [s for s in species if s not in res]
+    reserved = [s for s in species if s in res]
+
+    te = ina[ina.q < 0.4]
+    tr_all = ina[ina.q >= 0.4]
+    tr_mixed = tr_all[tr_all.cn.isin(mixed)]
+    capped = cap_per_species(tr_mixed, CAP_K, np.random.default_rng(SEED))
+    empty = tr_mixed.iloc[:0]
+
+    heads = {
+        "P-full": head(pn_tr, empty, E, off),
+        "mixed": head(pn_tr, tr_mixed, E, off),
+        "P-full-bal": head(pn_tr, empty, E, off, balanced=True),
+        "mixed-bal": head(pn_tr, tr_mixed, E, off, balanced=True),
+        f"mixed-cap-{CAP_K}": head(pn_tr, capped, E, off),
+    }
+    pairs = [("mixed", "P-full"), ("mixed-bal", "P-full-bal"),
+             (f"mixed-cap-{CAP_K}", "P-full")]
+
+    rows = []
+    for name, group in (("reserved", reserved), ("mixed", mixed)):
+        teg = te[te.cn.isin(group)]
+        teg = teg.assign(emb_row=teg.emb_row + off)
+        acc = {k: per_species(h, E, teg, group).to_numpy() for k, h in heads.items()}
+        draws = np.random.default_rng(SEED).integers(0, len(group), (N_BOOT, len(group)))
+        for arm, ref in pairs:
+            d = acc[arm][draws].mean(1) - acc[ref][draws].mean(1)
+            lo, hi = np.percentile(d, [2.5, 97.5])
+            rows.append({"group": name, "arm": arm, "vs": ref,
+                         "ref": round(float(np.nanmean(acc[ref])), 4),
+                         "arm_acc": round(float(np.nanmean(acc[arm])), 4),
+                         "delta": round(float(np.nanmean(acc[arm]) - np.nanmean(acc[ref])), 4),
+                         "lo": round(float(lo), 4), "hi": round(float(hi), 4)})
+    return pd.DataFrame(rows)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", default="bioclip2")
@@ -138,6 +198,11 @@ if __name__ == "__main__":
     m2 = run_m2(a.variant)
     print(f"\n== M2: {int(RESERVE_FRAC * 100)}% of species reserved from the mix entirely")
     print(m2.to_string(index=False))
+
+    m3 = run_m3(a.variant)
+    print(f"\n== M3: does per-class balancing remove the damage?")
+    print(m3.to_string(index=False))
+    m3.to_csv(DATA_PROCESSED / "source_mix_m3.csv", index=False)
 
     m1.to_csv(DATA_PROCESSED / "source_mix_m1.csv", index=False)
     m2.to_csv(DATA_PROCESSED / "source_mix_m2.csv", index=False)

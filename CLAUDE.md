@@ -132,8 +132,14 @@ These exist because things failed without them. Follow them.
   moves the mixed classes' boundaries toward the test distribution and the
   reserved ones lose ties they used to win. **The reserved position is not
   hypothetical**: 32 catalogue species are "casual"-grade with no research-grade
-  data, and a user-chosen catalogue adds species that may have none at all. Try
-  per-class balancing before anything else. Separately, the evidential worry was
+  data, and a user-chosen catalogue adds species that may have none at all.
+  ~~Try per-class balancing before anything else.~~ **Tried, and it does not fix
+  it** — `class_weight="balanced"` (what production already uses) takes the damage
+  to −0.021 and capping in-source rows at 10/species to −0.019, both still
+  excluding zero. Not a row-count artifact: mixed classes have rows from the
+  *test* distribution and reserved ones do not, and equal weighting does not
+  address that. Capping is the best trade (86% of the gain, a third less damage)
+  and the principled fix is two heads rather than one argmax. Separately, the evidential worry was
   the wrong one — holding out 40% instead of 100% *narrows* the interval
   (0.0375 vs 0.0540), because the bootstrap resamples species, the species count
   is fixed, and a better head has less between-species variance.
