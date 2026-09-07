@@ -383,10 +383,59 @@ at K = 20 the damage is 14.8 points and a fix is worth having. Any guidance
 narrowcast gives has to key on the *measured accuracy of the build*, never on the
 label count.
 
-One thing the cross-domain test did **not** establish: a quantitative rule. At
-the same baseline accuracy of 0.80, plants lose 3.1 points and dermatology 10.7,
-so remaining headroom orders the effects within a domain and does not explain the
-level between them. See `K_FINDINGS.md` in that repo.
+One thing the cross-domain test did **not** establish: a quantitative rule. See
+`K_FINDINGS.md` in that repo, and the correction below.
+
+### Is it the accuracy, or is it the images?
+
+The between-domain claim above was first made by comparing **plants at K = 345
+against dermatology at K = 5**, on the grounds that both sit at baseline 0.80.
+Matched accuracy, mismatched label count, images per class and class balance —
+it could not separate "the corpora differ" from "everything differs."
+
+Redone properly: hold **K = 20**, where both domains are measured, and vary only
+difficulty — encoder (`bioclip2`, `mobileclip2_s0`), set shape (random species
+versus congener-crowded blocks) and a training cap of 2–30 rows per species. 28
+arms, class count and roughly the images-per-class regime held fixed throughout.
+
+> **Capping alone could not do it, which is itself worth recording.** A random
+> 20-species plant set is separated at **0.9345 on two training images per
+> species**. The accuracy is carried by the encoder's representation, not by the
+> head's training data, and starving the head cannot make plants hard. Relatedness
+> can: congener-crowded blocks take `bioclip2` to 0.65 and `mobileclip2_s0` to
+> 0.35.
+
+Across those 28 arms, with everything structural fixed:
+
+> **damage = −0.194 + 0.181 × baseline top-1**, `r = 0.78`, **R² = 0.61**
+
+**So it is mostly the accuracy, and it is not the class distribution.** Holding K,
+class count and training regime fixed and moving only how hard the problem is
+reproduces most of the effect. The original comparison was confounded and the
+confound was doing real work.
+
+**A residual remains, and it is about half what was claimed.** Extrapolating the
+plant curve to dermatology's baselines:
+
+| baseline | dermatology | plant curve | residual | ratio |
+|---|---|---|---|---|
+| 0.799 | −0.1072 | −0.0490 | −0.058 | 2.2× |
+| 0.718 | −0.1354 | −0.0637 | −0.072 | 2.1× |
+| 0.632 | −0.1475 | −0.0792 | −0.068 | 1.9× |
+| 0.553 | −0.1260 | −0.0936 | −0.032 | 1.3× |
+
+Dermatology sits above the plant curve at every point — **~1.9× in the middle of
+the range, against the 3.5× the confounded comparison implied.** The declared
+prediction in addendum 6 was that the plant curve would sit below dermatology's
+point, and it does.
+
+**But treat the residual as suggestive, not established.** Per-arm standard
+errors are 0.012–0.031 and dermatology's are ~0.024, so residuals of 0.032–0.072
+are one to three standard errors. Four of four dermatology points falling above
+the curve is consistent but weak on its own. The honest statement is that
+**accuracy explains most of the between-domain gap and something else may explain
+a factor of roughly two** — and that "something else" is where the makeup of the
+images would live, if it lives anywhere.
 
 > **This is the measurement that should have come first**, and the
 > pre-registration says so. Four rounds of analysis were spent characterising a

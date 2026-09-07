@@ -171,9 +171,18 @@ These exist because things failed without them. Follow them.
   **−0.148** and gain **+0.129** against these plants' −0.009 / +0.014; at K=10,
   where plants show *exactly zero*, derm loses 13.5pp. Predicted in advance and
   confirmed ~10×. **"Small label sets are safe from this" is false in general** —
-  key any guidance on the build's measured accuracy, never on K. Headroom orders
+  key any guidance on the build's measured accuracy, never on K. ~~Headroom orders
   the effects *within* a domain and not *between*: at the same 0.80 baseline,
-  plants lose 3.1pp and derm 10.7pp.
+  plants lose 3.1pp and derm 10.7pp.~~ **That comparison was confounded** — it
+  paired plants at K=345 with derm at K=5. Redone at matched K=20 by degrading
+  the plant arm (weak encoder, congener-crowded sets, training caps), 28 arms
+  with class count fixed: **damage = −0.194 + 0.181 × baseline, R² = 0.61**. So
+  it is mostly accuracy and **not** the class distribution; derm still sits above
+  the plant curve but by **~1.9×, not 3.5×**, at one-to-three standard errors —
+  suggestive, not established. Side note worth keeping: a random 20-species plant
+  set scores **0.9345 on two training images per species**. The accuracy lives in
+  the encoder's representation, not the head's training data, which is why
+  starving the head cannot make plants hard and relatedness can.
   Separately, the evidential worry was
   the wrong one — holding out 40% instead of 100% *narrows* the interval
   (0.0375 vs 0.0540), because the bootstrap resamples species, the species count
