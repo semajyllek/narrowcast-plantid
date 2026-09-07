@@ -51,12 +51,12 @@ def acc_by_species(pred, truth, group):
     return hit.groupby(pd.Series(truth)).mean().reindex(group).to_numpy()
 
 
-def run(variant):
+def run(variant, reserve_frac=RESERVE_FRAC, extra=False):
     species, pn_tr, ina, E, off = setup(variant)
     rng = np.random.default_rng(SEED + 1)
     sp = np.array(species)
     rng.shuffle(sp)
-    res = set(sp[: int(round(RESERVE_FRAC * len(sp)))])
+    res = set(sp[: int(round(reserve_frac * len(sp)))])
     mixed = [s for s in species if s not in res]
     reserved = [s for s in species if s in res]
 
@@ -105,7 +105,7 @@ def run(variant):
         "T2 cap + centring": lambda X: softmax(centred(h_cap, E, ref)(X), axis=1),
     }
 
-    rows = []
+    rows, keep = [], {}
     for name, group in (("reserved", reserved), ("mixed", mixed)):
         teg = te[te.cn.isin(group)]
         r = teg["emb_row"].to_numpy() + off
@@ -134,6 +134,9 @@ def run(variant):
                      "delta": round(float(np.nanmean(acc["T1 two-head avg"])
                                           - np.nanmean(acc["T1-control (no iNat)"])), 4),
                      "lo": round(float(lo), 4), "hi": round(float(hi), 4)})
+        keep[name] = acc
+    if extra:
+        return pd.DataFrame(rows), keep, {"reserved": reserved, "mixed": mixed}
     return pd.DataFrame(rows)
 
 

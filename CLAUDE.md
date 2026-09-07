@@ -146,8 +146,18 @@ These exist because things failed without them. Follow them.
   *with no iNaturalist data anywhere*, so the naive reading is ensembling.
   Architecture-matched, the data contributes **−0.000 [−0.013, +0.013]** to
   reserved and **+0.066** to mixed, on both encoders. Cost is 3.3pp on the mixed
-  species: T1 loses to the single mixed head on today's 80/20 average and wins as
-  the reserved fraction grows, which is where a user-chosen catalogue goes.
+  species. ~~T1 wins as the reserved fraction grows, which is where a user-chosen
+  catalogue goes.~~ **Both halves wrong, retracted after the sweep.** Break-even
+  is `r ≈ 0.48` on fp32 and **never reached in range on int4** (−0.014 at
+  `r = 0.05` to −0.005 at `r = 0.50`); and which way a user catalogue leans was
+  asserted, never measured. What the sweep *did* establish: **the damage is worst
+  when it looks least important** — −0.047 at `r = 0.05` against −0.021 at
+  `r = 0.50` (−0.059 → −0.028 on int4), because a species competes against
+  however much of the field improved. **A user adding one species to an existing
+  catalogue is the maximally damaged case.** T1's protection holds at every `r`
+  on both encoders. So: mean accuracy picks the single head, "no species worse
+  off than today" picks T1 at 0.5–1.6pp, and the harmed set is knowable before
+  shipping — which makes reporting it a third option.
   Separately, the evidential worry was
   the wrong one — holding out 40% instead of 100% *narrows* the interval
   (0.0375 vs 0.0540), because the bootstrap resamples species, the species count

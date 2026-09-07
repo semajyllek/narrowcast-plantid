@@ -244,15 +244,84 @@ and a user-chosen catalogue adds species that may have no in-source data at all.
 **T1 is the choice that does not degrade as the product moves in the direction it
 is going.**
 
+## The sweep — the damage is worst when it looks least important
+
+Reserved fraction `r` swept, everything else held fixed. Both damage predictions
+in addendum 4 held; the crossover prediction did not.
+
+| `r` | reserved species | **single head: Δ reserved** | Δ mixed | **T1 data effect on reserved** |
+|---|---|---|---|---|
+| 0.05 | 17 | **−0.0472** | +0.0698 | +0.0135 [−0.0110, +0.0486] |
+| 0.10 | 34 | −0.0370 | +0.0744 | +0.0026 [−0.0143, +0.0207] |
+| 0.20 | 69 | −0.0278 | +0.0770 | −0.0001 [−0.0134, +0.0126] |
+| 0.35 | 121 | −0.0199 | +0.0786 | +0.0012 [−0.0120, +0.0132] |
+| 0.50 | 172 | −0.0207 | +0.0754 | +0.0029 [−0.0037, +0.0097] |
+
+**The damage grows as the reserved fraction shrinks**, as predicted, and the
+direction is the uncomfortable one. A species without in-source data loses 4.7pp
+when only 5% of the catalogue is in its position, against 2.1pp when half of it
+is. It competes against however much of the field improved, so **the fewer such
+species there are, the worse each one is treated.** On `bioclip2_cml4` the same
+shape and steeper: −0.0587 at `r = 0.05` falling to −0.0284 at `r = 0.50`.
+
+That matters most for the case the product creates. **A user adding one new
+species to an established catalogue sits at `r → 0`** — off the left end of this
+sweep, at its worst point. The newly added species is the maximally damaged one.
+
+**T1's protection holds everywhere.** The architecture-matched data effect on
+reserved species includes zero at every `r` on both encoders. Whatever the
+composition, adding in-source data under two heads costs the species that lack it
+nothing.
+
+### The crossover, and a prediction that was wrong
+
+Addendum 4 predicted break-even near `r ≈ 0.3`. Catalogue-mean accuracy, macro
+over all species:
+
+| `r` | `P-full` | single mixed head | T1 | **T1 − single** |
+|---|---|---|---|---|
+| 0.05 | 0.7960 | 0.8601 | 0.8509 | −0.0092 |
+| 0.10 | 0.7960 | 0.8594 | 0.8477 | −0.0117 |
+| 0.20 | 0.7960 | 0.8521 | 0.8383 | −0.0138 |
+| 0.35 | 0.7960 | 0.8401 | 0.8322 | −0.0079 |
+| 0.50 | 0.7960 | 0.8235 | 0.8243 | **+0.0008** |
+
+Break-even is near `r ≈ 0.48`, not 0.3 — and on `bioclip2_cml4`, **the encoder
+that would actually ship, it is never reached in range**: −0.0136 at `r = 0.05`
+narrowing to −0.0051 at `r = 0.50`, still negative.
+
+> **Retracted in place.** This document previously said T1 "wins as the reserved
+> fraction grows, which is where a user-chosen catalogue goes." Wrong twice.
+> T1 needs roughly half the catalogue to lack in-source data before it wins on
+> mean accuracy, and never wins in range on int4. And the second clause was
+> asserted, not measured — a user picking common plants would have a *low*
+> reserved fraction, not a high one. Nothing here establishes which way a real
+> user catalogue leans.
+
+## Where this leaves the decision
+
+The measurement is finished and the remaining question is not empirical.
+
+- **Optimising catalogue-mean accuracy selects the single mixed head**, across
+  the entire realistic range on the deployable encoder. It buys 5–7pp on average.
+- **Requiring that no species be worse off than today selects T1**, at a cost of
+  **0.5–1.6pp of mean accuracy**, maximal near `r = 0.2` and falling either side.
+- The harm the single head does is **concentrated, predictable and identifiable
+  in advance**: it falls on exactly the species with no in-source data, it is
+  3–6pp, and it is worst when those species are fewest.
+
+That is a judgement about concentrated harm against average gain, and it is not
+a question more measurement answers. What can be said is that the harmed set is
+knowable before shipping, so a third option exists: **ship the single mixed head
+and report per-species which ones sit in the reserved position** — which is what
+this project's own card discipline would demand of anyone else.
+
 ## What is still untested
 
-1. **Sweep the reserved fraction.** 20% was declared, not derived. It sets where
-   the T1-versus-single-head crossover falls, and that crossover is now the
-   decision variable rather than the damage itself.
-2. **A weighted or routed combination** instead of a flat average. T1 uses 0.5/0.5
-   with nothing tuned. A weight fitted on the calibration split might recover part
-   of the 3.3pp it gives up on the mixed species, and by this project's
-   conventions the weight has to be declared before it is fitted.
+**A weighted or routed combination** instead of a flat average. T1 uses 0.5/0.5
+with nothing tuned. A weight fitted on the calibration split might recover part
+of the mean-accuracy gap and would move the crossover left; by this project's
+conventions the weight has to be declared before it is fitted.
 
 ## Reproduce
 
