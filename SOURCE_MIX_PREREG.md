@@ -204,3 +204,55 @@ If instead balancing removes the damage entirely, the M2 mechanism is wrong, its
 finding is an artifact of unweighted fitting, and it gets retracted in place —
 which is the outcome this addendum exists to make checkable rather than
 deniable.
+
+---
+
+# Addendum 3 — two heads, and the arm the mechanism actually implies
+
+Written before either head was fitted. M3 exhausted the cheap levers: balancing
+and capping each cut the damage to reserved species by about a third and neither
+removed it.
+
+## T1 — two heads, averaged
+
+Both heads span the **full** label space, so no class is missing from either:
+
+- **head P** — every Pl@ntNet training row, all species.
+- **head i** — iNaturalist rows for the mixed species, and Pl@ntNet rows for the
+  reserved species, which is the only data they have.
+
+Final posterior is the mean of the two. Rationale: the reserved classes are
+represented in both heads rather than competing against a specialist they have no
+counterpart in.
+
+**Declared prediction: this will not fix it either.** Averaging still lets the
+mixed classes' improved scores compete in one argmax; it changes the weight on
+the improvement, not its nature. If the damage is a *relative* effect — mixed
+classes score higher on iNaturalist imagery in general, not only when they are
+correct — then any combination rule that improves mixed classes without improving
+reserved ones reproduces it at reduced size.
+
+## T2 — per-class logit centring, which is what the mechanism implies
+
+If the damage is that mixed classes' scores rise *everywhere* on iNaturalist
+imagery rather than only where they are right, the fix is to remove each class's
+general propensity to fire rather than to rearrange the heads.
+
+For each class, compute its mean logit over a **reference pool of
+iNaturalist-source photographs that are out-of-catalogue** — the existing
+`near_ood` / `regional_ood` / `distant_ood` buckets — and subtract it. The pool
+is unlabelled with respect to the 345 classes, is not part of the in-catalogue
+test set, and is available at build time, so this leaks nothing.
+
+Every class is centred by the same rule, including reserved ones. A class whose
+scores inflated on iNaturalist imagery gets centred back by exactly that
+inflation.
+
+**Declared risk:** centring may remove the *legitimate* part of the in-source
+gain along with the spurious part, so the mixed species' +0.067 could shrink
+substantially. An arm that fixes the reserved species by giving back the gain is
+not a fix, and the two endpoints will be read together.
+
+**Primary endpoint** for both arms, as in M3: Δ species top-1 on reserved
+species against the matched `P-full` baseline, paired over species; with the
+mixed-species Δ reported beside it in every case.
