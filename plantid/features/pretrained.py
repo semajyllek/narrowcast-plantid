@@ -42,6 +42,13 @@ ENCODERS = {
     # heads it feeds are 768-wide. Needs the checkpoint below to exist.
     "bioclip1_distil": {"loader": "distil", "spec": "distil/student.pt"},
     "mobileclip2_s2": {"loader": "open_clip", "spec": "hf-hub:timm/MobileCLIP2-S2-OpenCLIP"},
+    # MobileCLIP2-S2's image tower fine-tuned on Pl@ntNet-300K and refrozen --
+    # the same recipe that produced plantclef24, one encoder-scale down. Trained
+    # by `notebooks/adapt_s2_colab.ipynb`; drop the checkpoint at the path below.
+    # See ADAPT_PREREG.md for what it can and cannot be claimed to be.
+    "mobileclip2_s2_ft": {"loader": "open_clip_ft",
+                          "spec": "hf-hub:timm/MobileCLIP2-S2-OpenCLIP",
+                          "checkpoint": "adapted/mobileclip2_s2_plantnet.pt"},
     # In-domain: DINOv2 ViT-B/14 (reg4) fine-tuned on PlantCLEF 2024 (7,806
     # species). Published as a bare safetensors checkpoint with no timm config,
     # so the architecture is constructed explicitly and the weights loaded in.
@@ -116,6 +123,24 @@ def load_encoder(variant: str, device: str | None = None):
         import open_clip
 
         model, _, preprocess = open_clip.create_model_and_transforms(cfg["spec"])
+        model = _ImageTower(model)
+    elif cfg["loader"] == "open_clip_ft":
+        import open_clip
+
+        from plantid.config import DATA_PROCESSED
+
+        ckpt = DATA_PROCESSED / cfg["checkpoint"]
+        if not ckpt.exists():
+            raise FileNotFoundError(
+                f"no adapted checkpoint at {ckpt} — train one with "
+                "notebooks/adapt_s2_colab.ipynb, then copy the .pt here")
+        model, _, preprocess = open_clip.create_model_and_transforms(cfg["spec"])
+        state = torch.load(ckpt, map_location="cpu")
+        state = state.get("visual", state)
+        missing, unexpected = model.visual.load_state_dict(state, strict=False)
+        if missing or unexpected:
+            raise RuntimeError(f"adapted checkpoint mismatch: "
+                               f"missing={missing[:4]} unexpected={unexpected[:4]}")
         model = _ImageTower(model)
     else:  # pragma: no cover - guarded by ENCODERS
         raise ValueError(f"unknown loader {cfg['loader']}")

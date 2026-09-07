@@ -1,0 +1,2126 @@
+{
+ "source": "Pl@ntNet-300K species ids",
+ "n": 530,
+ "species": {
+  "1355868": {
+   "plantnet_name": "Lactuca virosa L.",
+   "curated": "Lactuca virosa"
+  },
+  "1355932": {
+   "plantnet_name": "Pelargonium graveolens L'Hér.",
+   "curated": "Pelargonium graveolens"
+  },
+  "1355936": {
+   "plantnet_name": "Cirsium arvense (L.) Scop.",
+   "curated": "Cirsium arvense"
+  },
+  "1355937": {
+   "plantnet_name": "Cirsium vulgare (Savi) Ten.",
+   "curated": "Cirsium vulgare"
+  },
+  "1355959": {
+   "plantnet_name": "Pelargonium peltatum (L.) L'Hér.",
+   "curated": "Pelargonium peltatum"
+  },
+  "1355978": {
+   "plantnet_name": "Pelargonium zonale (L.) L'Hér.",
+   "curated": "Pelargonium zonale"
+  },
+  "1355990": {
+   "plantnet_name": "Mercurialis annua L.",
+   "curated": "Mercurialis annua"
+  },
+  "1356003": {
+   "plantnet_name": "Phyllanthus tenellus Roxb.",
+   "curated": "Phyllanthus tenellus"
+  },
+  "1356022": {
+   "plantnet_name": "Hypericum perforatum L.",
+   "curated": "Hypericum perforatum"
+  },
+  "1356075": {
+   "plantnet_name": "Tradescantia fluminensis Vell.",
+   "curated": "Tradescantia fluminensis"
+  },
+  "1356076": {
+   "plantnet_name": "Tradescantia zebrina Heynh. ex Bosse",
+   "curated": "Tradescantia zebrina"
+  },
+  "1356111": {
+   "plantnet_name": "Lamium amplexicaule L.",
+   "curated": "Lamium amplexicaule"
+  },
+  "1356126": {
+   "plantnet_name": "Lavandula dentata L.",
+   "curated": "Lavandula dentata"
+  },
+  "1356257": {
+   "plantnet_name": "Melilotus albus Medik.",
+   "curated": "Melilotus albus"
+  },
+  "1356278": {
+   "plantnet_name": "Trifolium fragiferum L.",
+   "curated": "Trifolium fragiferum"
+  },
+  "1356380": {
+   "plantnet_name": "Dryopteris affinis (Lowe) Fraser-Jenk.",
+   "curated": "Dryopteris affinis"
+  },
+  "1356382": {
+   "plantnet_name": "Dryopteris filix-mas (L.) Schott",
+   "curated": "Dryopteris filix-mas"
+  },
+  "1356420": {
+   "plantnet_name": "Nephrolepis cordifolia (L.) C. Presl",
+   "curated": "Nephrolepis cordifolia"
+  },
+  "1356421": {
+   "plantnet_name": "Nephrolepis exaltata (L.) Schott",
+   "curated": "Nephrolepis exaltata"
+  },
+  "1356428": {
+   "plantnet_name": "Osmunda regalis L.",
+   "curated": "Osmunda regalis"
+  },
+  "1356469": {
+   "plantnet_name": "Achyranthes aspera L.",
+   "curated": "Achyranthes aspera"
+  },
+  "1356692": {
+   "plantnet_name": "Lithodora fruticosa (L.) Griseb.",
+   "curated": "Lithodora fruticosa"
+  },
+  "1356781": {
+   "plantnet_name": "Humulus lupulus L.",
+   "curated": "Humulus lupulus"
+  },
+  "1356816": {
+   "plantnet_name": "Vaccaria hispanica (Mill.) Rauschert",
+   "curated": "Vaccaria hispanica"
+  },
+  "1356901": {
+   "plantnet_name": "Moehringia trinervia (L.) Clairv.",
+   "curated": "Moehringia trinervia"
+  },
+  "1357330": {
+   "plantnet_name": "Calendula officinalis L.",
+   "curated": "Calendula officinalis"
+  },
+  "1357331": {
+   "plantnet_name": "Calendula stellata Cav.",
+   "curated": "Calendula stellata"
+  },
+  "1357379": {
+   "plantnet_name": "Carthamus lanatus L.",
+   "curated": "Carthamus lanatus"
+  },
+  "1357506": {
+   "plantnet_name": "Cirsium monspessulanum (L.) Hill",
+   "curated": "Cirsium monspessulanum"
+  },
+  "1357635": {
+   "plantnet_name": "Helminthotheca echioides (L.) Holub",
+   "curated": "Helminthotheca echioides"
+  },
+  "1357652": {
+   "plantnet_name": "Hyoseris radiata L.",
+   "curated": "Hyoseris radiata"
+  },
+  "1357677": {
+   "plantnet_name": "Lactuca muralis (L.) Gaertn.",
+   "curated": "Lactuca muralis"
+  },
+  "1357681": {
+   "plantnet_name": "Lactuca saligna L.",
+   "curated": "Lactuca saligna"
+  },
+  "1357705": {
+   "plantnet_name": "Limbarda crithmoides (L.) Dumort.",
+   "curated": "Limbarda crithmoides"
+  },
+  "1358094": {
+   "plantnet_name": "Sedum acre L.",
+   "curated": "Sedum acre"
+  },
+  "1358095": {
+   "plantnet_name": "Sedum album L.",
+   "curated": "Sedum album"
+  },
+  "1358096": {
+   "plantnet_name": "Sedum amplexicaule DC.",
+   "curated": "Sedum amplexicaule"
+  },
+  "1358099": {
+   "plantnet_name": "Sedum brevifolium DC.",
+   "curated": "Sedum brevifolium"
+  },
+  "1358101": {
+   "plantnet_name": "Sedum caeruleum L.",
+   "curated": "Sedum caeruleum"
+  },
+  "1358103": {
+   "plantnet_name": "Sedum cepaea L.",
+   "curated": "Sedum cepaea"
+  },
+  "1358105": {
+   "plantnet_name": "Sedum dasyphyllum L.",
+   "curated": "Sedum dasyphyllum"
+  },
+  "1358108": {
+   "plantnet_name": "Sedum forsterianum Sm.",
+   "curated": "Sedum forsterianum"
+  },
+  "1358112": {
+   "plantnet_name": "Sedum hirsutum All.",
+   "curated": "Sedum hirsutum"
+  },
+  "1358132": {
+   "plantnet_name": "Sedum rubens L.",
+   "curated": "Sedum rubens"
+  },
+  "1358133": {
+   "plantnet_name": "Sedum sediforme (Jacq.) Pau",
+   "curated": "Sedum sediforme"
+  },
+  "1358150": {
+   "plantnet_name": "Alliaria petiolata (M. Bieb.) Cavara & Grande",
+   "curated": "Alliaria petiolata"
+  },
+  "1358519": {
+   "plantnet_name": "Acalypha virginica L.",
+   "curated": "Acalypha virginica"
+  },
+  "1358605": {
+   "plantnet_name": "Mercurialis perennis L.",
+   "curated": "Mercurialis perennis"
+  },
+  "1358689": {
+   "plantnet_name": "Hypericum androsaemum L.",
+   "curated": "Hypericum androsaemum"
+  },
+  "1358699": {
+   "plantnet_name": "Hypericum hircinum L.",
+   "curated": "Hypericum hircinum"
+  },
+  "1358700": {
+   "plantnet_name": "Hypericum hirsutum L.",
+   "curated": "Hypericum hirsutum"
+  },
+  "1358701": {
+   "plantnet_name": "Hypericum humifusum L.",
+   "curated": "Hypericum humifusum"
+  },
+  "1358704": {
+   "plantnet_name": "Hypericum montanum L.",
+   "curated": "Hypericum montanum"
+  },
+  "1358706": {
+   "plantnet_name": "Hypericum perfoliatum L.",
+   "curated": "Hypericum perfoliatum"
+  },
+  "1358710": {
+   "plantnet_name": "Hypericum tetrapterum Fr.",
+   "curated": "Hypericum tetrapterum"
+  },
+  "1358749": {
+   "plantnet_name": "Lamium flexuosum Ten.",
+   "curated": "Lamium flexuosum"
+  },
+  "1358751": {
+   "plantnet_name": "Lamium hybridum Vill.",
+   "curated": "Lamium hybridum"
+  },
+  "1358752": {
+   "plantnet_name": "Lamium purpureum L.",
+   "curated": "Lamium purpureum"
+  },
+  "1358760": {
+   "plantnet_name": "Lavandula multifida L.",
+   "curated": "Lavandula multifida"
+  },
+  "1358766": {
+   "plantnet_name": "Lavandula stoechas L.",
+   "curated": "Lavandula stoechas"
+  },
+  "1359197": {
+   "plantnet_name": "Galega officinalis L.",
+   "curated": "Galega officinalis"
+  },
+  "1359332": {
+   "plantnet_name": "Lupinus micranthus Guss.",
+   "curated": "Lupinus micranthus"
+  },
+  "1359483": {
+   "plantnet_name": "Trifolium angustifolium L.",
+   "curated": "Trifolium angustifolium"
+  },
+  "1359485": {
+   "plantnet_name": "Trifolium arvense L.",
+   "curated": "Trifolium arvense"
+  },
+  "1359486": {
+   "plantnet_name": "Trifolium aureum Pollich",
+   "curated": "Trifolium aureum"
+  },
+  "1359488": {
+   "plantnet_name": "Trifolium campestre Schreb.",
+   "curated": "Trifolium campestre"
+  },
+  "1359495": {
+   "plantnet_name": "Trifolium hirtum All.",
+   "curated": "Trifolium hirtum"
+  },
+  "1359497": {
+   "plantnet_name": "Trifolium hybridum L.",
+   "curated": "Trifolium hybridum"
+  },
+  "1359498": {
+   "plantnet_name": "Trifolium incarnatum L.",
+   "curated": "Trifolium incarnatum"
+  },
+  "1359508": {
+   "plantnet_name": "Trifolium montanum L.",
+   "curated": "Trifolium montanum"
+  },
+  "1359510": {
+   "plantnet_name": "Trifolium ochroleucon Huds.",
+   "curated": "Trifolium ochroleucon"
+  },
+  "1359517": {
+   "plantnet_name": "Trifolium pratense L.",
+   "curated": "Trifolium pratense"
+  },
+  "1359518": {
+   "plantnet_name": "Trifolium purpureum Loisel.",
+   "curated": "Trifolium purpureum"
+  },
+  "1359519": {
+   "plantnet_name": "Trifolium resupinatum L.",
+   "curated": "Trifolium resupinatum"
+  },
+  "1359525": {
+   "plantnet_name": "Trifolium stellatum L.",
+   "curated": "Trifolium stellatum"
+  },
+  "1359528": {
+   "plantnet_name": "Trifolium subterraneum L.",
+   "curated": "Trifolium subterraneum"
+  },
+  "1359530": {
+   "plantnet_name": "Trifolium tomentosum L.",
+   "curated": "Trifolium tomentosum"
+  },
+  "1359616": {
+   "plantnet_name": "Punica granatum L.",
+   "curated": "Punica granatum"
+  },
+  "1359620": {
+   "plantnet_name": "Alcea rosea L.",
+   "curated": "Alcea rosea"
+  },
+  "1359622": {
+   "plantnet_name": "Althaea cannabina L.",
+   "curated": "Althaea cannabina"
+  },
+  "1359625": {
+   "plantnet_name": "Althaea officinalis L.",
+   "curated": "Althaea officinalis"
+  },
+  "1359669": {
+   "plantnet_name": "Nymphaea alba L.",
+   "curated": "Nymphaea alba"
+  },
+  "1359815": {
+   "plantnet_name": "Papaver atlanticum (Ball) Coss.",
+   "curated": "Papaver atlanticum"
+  },
+  "1360147": {
+   "plantnet_name": "Adonis aestivalis L.",
+   "curated": "Adonis aestivalis"
+  },
+  "1360148": {
+   "plantnet_name": "Adonis annua L.",
+   "curated": "Adonis annua"
+  },
+  "1360150": {
+   "plantnet_name": "Adonis flammea Jacq.",
+   "curated": "Adonis flammea"
+  },
+  "1360153": {
+   "plantnet_name": "Anemone coronaria L.",
+   "curated": "Anemone coronaria"
+  },
+  "1360427": {
+   "plantnet_name": "Oldenlandia corymbosa L.",
+   "curated": "Oldenlandia corymbosa"
+  },
+  "1360550": {
+   "plantnet_name": "Hyoscyamus albus L.",
+   "curated": "Hyoscyamus albus"
+  },
+  "1360555": {
+   "plantnet_name": "Hyoscyamus niger L.",
+   "curated": "Hyoscyamus niger"
+  },
+  "1360588": {
+   "plantnet_name": "Daphne gnidium L.",
+   "curated": "Daphne gnidium"
+  },
+  "1360590": {
+   "plantnet_name": "Daphne laureola L.",
+   "curated": "Daphne laureola"
+  },
+  "1360618": {
+   "plantnet_name": "Berula erecta (Huds.) Coville",
+   "curated": "Berula erecta"
+  },
+  "1360671": {
+   "plantnet_name": "Chaerophyllum temulum L.",
+   "curated": "Chaerophyllum temulum"
+  },
+  "1360759": {
+   "plantnet_name": "Meum athamanticum Jacq.",
+   "curated": "Meum athamanticum"
+  },
+  "1360808": {
+   "plantnet_name": "Thapsia garganica L.",
+   "curated": "Thapsia garganica"
+  },
+  "1360811": {
+   "plantnet_name": "Thapsia villosa L.",
+   "curated": "Thapsia villosa"
+  },
+  "1360835": {
+   "plantnet_name": "Centranthus calcitrapae (L.) Dufr.",
+   "curated": "Centranthus calcitrapae"
+  },
+  "1360978": {
+   "plantnet_name": "Pancratium maritimum L.",
+   "curated": "Pancratium maritimum"
+  },
+  "1360998": {
+   "plantnet_name": "Anthericum liliago L.",
+   "curated": "Anthericum liliago"
+  },
+  "1361024": {
+   "plantnet_name": "Butomus umbellatus L.",
+   "curated": "Butomus umbellatus"
+  },
+  "1361508": {
+   "plantnet_name": "Oncostema peruviana (L.) Speta",
+   "curated": "Oncostema peruviana"
+  },
+  "1361524": {
+   "plantnet_name": "Elodea canadensis Michx.",
+   "curated": "Elodea canadensis"
+  },
+  "1361656": {
+   "plantnet_name": "Ophrys apifera Huds.",
+   "curated": "Ophrys apifera"
+  },
+  "1361660": {
+   "plantnet_name": "Ophrys fusca Link",
+   "curated": "Ophrys fusca"
+  },
+  "1361663": {
+   "plantnet_name": "Ophrys lutea Cav.",
+   "curated": "Ophrys lutea"
+  },
+  "1361666": {
+   "plantnet_name": "Ophrys scolopax Cav.",
+   "curated": "Ophrys scolopax"
+  },
+  "1361668": {
+   "plantnet_name": "Ophrys speculum Link",
+   "curated": "Ophrys speculum"
+  },
+  "1361672": {
+   "plantnet_name": "Ophrys tenthredinifera Willd.",
+   "curated": "Ophrys tenthredinifera"
+  },
+  "1361745": {
+   "plantnet_name": "Myosoton aquaticum (L.) Moench",
+   "curated": "Myosoton aquaticum"
+  },
+  "1361759": {
+   "plantnet_name": "Cirsium palustre (L.) Scop.",
+   "curated": "Cirsium palustre"
+  },
+  "1361823": {
+   "plantnet_name": "Lamium galeobdolon (L.) L.",
+   "curated": "Lamium galeobdolon"
+  },
+  "1361824": {
+   "plantnet_name": "Lavandula angustifolia Mill.",
+   "curated": "Lavandula angustifolia"
+  },
+  "1361847": {
+   "plantnet_name": "Casuarina cunninghamiana Miq.",
+   "curated": "Casuarina cunninghamiana"
+  },
+  "1361850": {
+   "plantnet_name": "Trifolium rubens L.",
+   "curated": "Trifolium rubens"
+  },
+  "1361891": {
+   "plantnet_name": "Falcaria vulgaris Bernh.",
+   "curated": "Falcaria vulgaris"
+  },
+  "1362080": {
+   "plantnet_name": "Nymphaea lotus L.",
+   "curated": "Nymphaea lotus"
+  },
+  "1362294": {
+   "plantnet_name": "Epipactis helleborine (L.) Crantz",
+   "curated": "Epipactis helleborine"
+  },
+  "1362385": {
+   "plantnet_name": "Thesium humifusum DC.",
+   "curated": "Thesium humifusum"
+  },
+  "1362434": {
+   "plantnet_name": "Centranthus angustifolius (Mill.) DC.",
+   "curated": "Centranthus angustifolius"
+  },
+  "1362435": {
+   "plantnet_name": "Centranthus lecoqii Jord.",
+   "curated": "Centranthus lecoqii"
+  },
+  "1362489": {
+   "plantnet_name": "Sedum anglicum Huds.",
+   "curated": "Sedum anglicum"
+  },
+  "1362490": {
+   "plantnet_name": "Sedum rupestre L.",
+   "curated": "Sedum rupestre"
+  },
+  "1362516": {
+   "plantnet_name": "Ophrys insectifera L.",
+   "curated": "Ophrys insectifera"
+  },
+  "1362582": {
+   "plantnet_name": "Freesia refracta (Jacq.) Klatt",
+   "curated": "Freesia refracta"
+  },
+  "1362927": {
+   "plantnet_name": "Tradescantia pallida (Rose) D.R. Hunt",
+   "curated": "Tradescantia pallida"
+  },
+  "1362954": {
+   "plantnet_name": "Schefflera actinophylla (Endl.) Harms",
+   "curated": "Schefflera actinophylla"
+  },
+  "1363021": {
+   "plantnet_name": "Cenchrus setaceus (Forssk.) Morrone",
+   "curated": "Cenchrus setaceus"
+  },
+  "1363110": {
+   "plantnet_name": "Anemone hortensis L.",
+   "curated": "Anemone hortensis"
+  },
+  "1363117": {
+   "plantnet_name": "Tradescantia cerinthoides Kunth",
+   "curated": "Tradescantia cerinthoides"
+  },
+  "1363126": {
+   "plantnet_name": "Papaver argemone L.",
+   "curated": "Papaver argemone"
+  },
+  "1363127": {
+   "plantnet_name": "Papaver hybridum L.",
+   "curated": "Papaver hybridum"
+  },
+  "1363128": {
+   "plantnet_name": "Papaver rhoeas L.",
+   "curated": "Papaver rhoeas"
+  },
+  "1363129": {
+   "plantnet_name": "Papaver dubium L.",
+   "curated": "Papaver dubium"
+  },
+  "1363130": {
+   "plantnet_name": "Papaver somniferum L.",
+   "curated": "Papaver somniferum"
+  },
+  "1363227": {
+   "plantnet_name": "Daucus carota L.",
+   "curated": "Daucus carota"
+  },
+  "1363336": {
+   "plantnet_name": "Smilax aspera L.",
+   "curated": "Smilax aspera"
+  },
+  "1363451": {
+   "plantnet_name": "Secale cereale L.",
+   "curated": "Secale cereale"
+  },
+  "1363463": {
+   "plantnet_name": "Cenchrus ciliaris L.",
+   "curated": "Cenchrus ciliaris"
+  },
+  "1363489": {
+   "plantnet_name": "Phalaris aquatica L.",
+   "curated": "Phalaris aquatica"
+  },
+  "1363490": {
+   "plantnet_name": "Phalaris arundinacea L.",
+   "curated": "Phalaris arundinacea"
+  },
+  "1363491": {
+   "plantnet_name": "Phalaris canariensis L.",
+   "curated": "Phalaris canariensis"
+  },
+  "1363613": {
+   "plantnet_name": "Sedum hispanicum L.",
+   "curated": "Sedum hispanicum"
+  },
+  "1363699": {
+   "plantnet_name": "Lupinus angustifolius L.",
+   "curated": "Lupinus angustifolius"
+  },
+  "1363700": {
+   "plantnet_name": "Lupinus luteus L.",
+   "curated": "Lupinus luteus"
+  },
+  "1363703": {
+   "plantnet_name": "Lupinus albus L.",
+   "curated": "Lupinus albus"
+  },
+  "1363737": {
+   "plantnet_name": "Trifolium dubium Sibth.",
+   "curated": "Trifolium dubium"
+  },
+  "1363739": {
+   "plantnet_name": "Trifolium nigrescens Viv.",
+   "curated": "Trifolium nigrescens"
+  },
+  "1363740": {
+   "plantnet_name": "Trifolium repens L.",
+   "curated": "Trifolium repens"
+  },
+  "1363749": {
+   "plantnet_name": "Melilotus indicus (L.) All.",
+   "curated": "Melilotus indicus"
+  },
+  "1363750": {
+   "plantnet_name": "Melilotus officinalis (L.) Pall.",
+   "curated": "Melilotus officinalis"
+  },
+  "1363764": {
+   "plantnet_name": "Acacia dealbata Link",
+   "curated": "Acacia dealbata"
+  },
+  "1363769": {
+   "plantnet_name": "Acacia longifolia (Andrews) Willd.",
+   "curated": "Acacia longifolia"
+  },
+  "1363770": {
+   "plantnet_name": "Acacia mearnsii De Wild.",
+   "curated": "Acacia mearnsii"
+  },
+  "1363772": {
+   "plantnet_name": "Acacia pycnantha Benth.",
+   "curated": "Acacia pycnantha"
+  },
+  "1363778": {
+   "plantnet_name": "Acacia retinodes Schltdl.",
+   "curated": "Acacia retinodes"
+  },
+  "1363871": {
+   "plantnet_name": "Barbarea verna (Mill.) Asch.",
+   "curated": "Barbarea verna"
+  },
+  "1363872": {
+   "plantnet_name": "Barbarea intermedia Boreau",
+   "curated": "Barbarea intermedia"
+  },
+  "1363991": {
+   "plantnet_name": "Fragaria vesca L.",
+   "curated": "Fragaria vesca"
+  },
+  "1364000": {
+   "plantnet_name": "Duchesnea indica (Jacks.) Focke",
+   "curated": "Duchesnea indica"
+  },
+  "1364099": {
+   "plantnet_name": "Centranthus ruber (L.) DC.",
+   "curated": "Centranthus ruber"
+  },
+  "1364158": {
+   "plantnet_name": "Tagetes minuta L.",
+   "curated": "Tagetes minuta"
+  },
+  "1364159": {
+   "plantnet_name": "Tagetes patula L.",
+   "curated": "Tagetes patula"
+  },
+  "1364161": {
+   "plantnet_name": "Calendula arvensis (Vaill.) L.",
+   "curated": "Calendula arvensis"
+  },
+  "1364164": {
+   "plantnet_name": "Lapsana communis L.",
+   "curated": "Lapsana communis"
+  },
+  "1364165": {
+   "plantnet_name": "Carthamus tinctorius L.",
+   "curated": "Carthamus tinctorius"
+  },
+  "1364172": {
+   "plantnet_name": "Lactuca sativa L.",
+   "curated": "Lactuca sativa"
+  },
+  "1364173": {
+   "plantnet_name": "Lactuca serriola L.",
+   "curated": "Lactuca serriola"
+  },
+  "1367432": {
+   "plantnet_name": "Lupinus polyphyllus Lindl.",
+   "curated": "Lupinus polyphyllus"
+  },
+  "1369887": {
+   "plantnet_name": "Trachelospermum jasminoides (Lindl.) Lem.",
+   "curated": "Trachelospermum jasminoides"
+  },
+  "1369960": {
+   "plantnet_name": "Tradescantia spathacea Sw.",
+   "curated": "Tradescantia spathacea"
+  },
+  "1370279": {
+   "plantnet_name": "Gymnosporia putterlickioides Loes.",
+   "curated": "Gymnosporia putterlickioides"
+  },
+  "1371691": {
+   "plantnet_name": "Mussaenda erythrophylla Schumach. & Thonn.",
+   "curated": "Mussaenda erythrophylla"
+  },
+  "1372016": {
+   "plantnet_name": "Morinda citrifolia L.",
+   "curated": "Morinda citrifolia"
+  },
+  "1373530": {
+   "plantnet_name": "Gynura aurantiaca (Blume) DC.",
+   "curated": "Gynura aurantiaca"
+  },
+  "1374048": {
+   "plantnet_name": "Tagetes erecta L.",
+   "curated": "Tagetes erecta"
+  },
+  "1375966": {
+   "plantnet_name": "Phyllanthus amarus Schumach. & Thonn.",
+   "curated": "Phyllanthus amarus"
+  },
+  "1376366": {
+   "plantnet_name": "Triadica sebifera (L.) Small",
+   "curated": "Triadica sebifera"
+  },
+  "1376703": {
+   "plantnet_name": "Petiveria alliacea L.",
+   "curated": "Petiveria alliacea"
+  },
+  "1376726": {
+   "plantnet_name": "Peperomia pellucida (L.) Kunth",
+   "curated": "Peperomia pellucida"
+  },
+  "1379513": {
+   "plantnet_name": "Hypericum annulatum Moris",
+   "curated": "Hypericum annulatum"
+  },
+  "1379556": {
+   "plantnet_name": "Mussaenda philippica A. Rich.",
+   "curated": "Mussaenda philippica"
+  },
+  "1383149": {
+   "plantnet_name": "Casuarina equisetifolia L.",
+   "curated": "Casuarina equisetifolia"
+  },
+  "1384485": {
+   "plantnet_name": "Cucurbita pepo L.",
+   "curated": "Cucurbita pepo"
+  },
+  "1384499": {
+   "plantnet_name": "Lagenaria siceraria (Molina) Standl.",
+   "curated": "Lagenaria siceraria"
+  },
+  "1385700": {
+   "plantnet_name": "Barringtonia asiatica (L.) Kurz",
+   "curated": "Barringtonia asiatica"
+  },
+  "1385701": {
+   "plantnet_name": "Couroupita guianensis Aubl.",
+   "curated": "Couroupita guianensis"
+  },
+  "1385937": {
+   "plantnet_name": "Zamioculcas zamiifolia (Lodd.) Engl.",
+   "curated": "Zamioculcas zamiifolia"
+  },
+  "1387107": {
+   "plantnet_name": "Kniphofia linearifolia Baker",
+   "curated": "Kniphofia linearifolia"
+  },
+  "1389044": {
+   "plantnet_name": "Lactuca plumieri (L.) Gren. & Godr.",
+   "curated": "Lactuca plumieri"
+  },
+  "1389230": {
+   "plantnet_name": "Phedimus aizoon (L.) 't Hart",
+   "curated": "Phedimus aizoon"
+  },
+  "1389231": {
+   "plantnet_name": "Phedimus spurius (M.Bieb) 't Hart",
+   "curated": "Phedimus spurius"
+  },
+  "1389294": {
+   "plantnet_name": "Nephrolepis cordifolia (L.) C.Presl",
+   "curated": "Nephrolepis cordifolia"
+  },
+  "1389297": {
+   "plantnet_name": "Cereus jamacaru DC.",
+   "curated": "Cereus jamacaru"
+  },
+  "1389307": {
+   "plantnet_name": "Sedum pachyphyllum Rose",
+   "curated": "Sedum pachyphyllum"
+  },
+  "1389308": {
+   "plantnet_name": "Sedum dendroideum Moc. & Sessé ex DC.",
+   "curated": "Sedum dendroideum"
+  },
+  "1389442": {
+   "plantnet_name": "Atocion rupestre (L.) B.Oxelman",
+   "curated": "Atocion rupestre"
+  },
+  "1389492": {
+   "plantnet_name": "Tagetes tenuifolia Cav.",
+   "curated": "Tagetes tenuifolia"
+  },
+  "1389510": {
+   "plantnet_name": "Aegopodium podagraria L.",
+   "curated": "Aegopodium podagraria"
+  },
+  "1389553": {
+   "plantnet_name": "Acacia melanoxylon R.Br.",
+   "curated": "Acacia melanoxylon"
+  },
+  "1389567": {
+   "plantnet_name": "Acacia saligna (Labill.) H.L.Wendl.",
+   "curated": "Acacia saligna"
+  },
+  "1389630": {
+   "plantnet_name": "Perovskia abrotanoides Kar.",
+   "curated": "Perovskia abrotanoides"
+  },
+  "1389633": {
+   "plantnet_name": "Ophrys occidentalis (Scappaticci) Scappaticci & M.Demange",
+   "curated": "Ophrys sphegodes"
+  },
+  "1389921": {
+   "plantnet_name": "Erechtites hieraciifolius (L.) Raf. ex DC.",
+   "curated": "Erechtites hieraciifolius"
+  },
+  "1389966": {
+   "plantnet_name": "Cenchrus longisetus M.C.Johnst.",
+   "curated": "Cenchrus longisetus"
+  },
+  "1390637": {
+   "plantnet_name": "Calendula arvensis L.",
+   "curated": "Calendula arvensis"
+  },
+  "1390956": {
+   "plantnet_name": "Carthamus carduncellus L.",
+   "curated": "Carthamus carduncellus"
+  },
+  "1390957": {
+   "plantnet_name": "Carthamus mitissimus L.",
+   "curated": "Carthamus mitissimus"
+  },
+  "1391110": {
+   "plantnet_name": "Chaerophyllum aureum L.",
+   "curated": "Chaerophyllum aureum"
+  },
+  "1391112": {
+   "plantnet_name": "Chaerophyllum hirsutum L.",
+   "curated": "Chaerophyllum hirsutum"
+  },
+  "1391192": {
+   "plantnet_name": "Cirsium eriophorum (L.) Scop.",
+   "curated": "Cirsium eriophorum"
+  },
+  "1391193": {
+   "plantnet_name": "Cirsium erisithales (Jacq.) Scop.",
+   "curated": "Cirsium erisithales"
+  },
+  "1391209": {
+   "plantnet_name": "Cirsium heterophyllum (L.) Hill",
+   "curated": "Cirsium heterophyllum"
+  },
+  "1391226": {
+   "plantnet_name": "Cirsium oleraceum (L.) Scop.",
+   "curated": "Cirsium oleraceum"
+  },
+  "1391235": {
+   "plantnet_name": "Cirsium rivulare (Jacq.) All.",
+   "curated": "Cirsium rivulare"
+  },
+  "1391250": {
+   "plantnet_name": "Cirsium tuberosum (L.) All.",
+   "curated": "Cirsium tuberosum"
+  },
+  "1391326": {
+   "plantnet_name": "Collomia grandiflora Douglas ex Lindl.",
+   "curated": "Collomia grandiflora"
+  },
+  "1391483": {
+   "plantnet_name": "Cucurbita maxima Duchesne",
+   "curated": "Cucurbita maxima"
+  },
+  "1391529": {
+   "plantnet_name": "Cytinus hypocistis (L.) L.",
+   "curated": "Cytinus hypocistis"
+  },
+  "1391530": {
+   "plantnet_name": "Cytinus ruber Fritsch",
+   "curated": "Cytinus ruber"
+  },
+  "1391648": {
+   "plantnet_name": "Daphne alpina L.",
+   "curated": "Daphne alpina"
+  },
+  "1391649": {
+   "plantnet_name": "Daphne cneorum L.",
+   "curated": "Daphne cneorum"
+  },
+  "1391652": {
+   "plantnet_name": "Daphne mezereum L.",
+   "curated": "Daphne mezereum"
+  },
+  "1391654": {
+   "plantnet_name": "Daphne striata Tratt.",
+   "curated": "Daphne striata"
+  },
+  "1391762": {
+   "plantnet_name": "Dorotheanthus bellidiformis (Burm.f.) N.E.Br.",
+   "curated": "Dorotheanthus bellidiformis"
+  },
+  "1391797": {
+   "plantnet_name": "Dryas octopetala L.",
+   "curated": "Dryas octopetala"
+  },
+  "1391805": {
+   "plantnet_name": "Dryopteris carthusiana (Vill.) H.P.Fuchs",
+   "curated": "Dryopteris carthusiana"
+  },
+  "1391807": {
+   "plantnet_name": "Dryopteris cristata (L.) A.Gray",
+   "curated": "Dryopteris cristata"
+  },
+  "1391809": {
+   "plantnet_name": "Dryopteris dilatata (Hoffm.) A.Gray",
+   "curated": "Dryopteris dilatata"
+  },
+  "1391868": {
+   "plantnet_name": "Empetrum nigrum L.",
+   "curated": "Empetrum nigrum"
+  },
+  "1391953": {
+   "plantnet_name": "Epipactis atrorubens (Hoffm.) Besser",
+   "curated": "Epipactis atrorubens"
+  },
+  "1391962": {
+   "plantnet_name": "Epipactis muelleri Godfery",
+   "curated": "Epipactis muelleri"
+  },
+  "1391963": {
+   "plantnet_name": "Epipactis palustris (L.) Crantz",
+   "curated": "Epipactis palustris"
+  },
+  "1392093": {
+   "plantnet_name": "Erucastrum gallicum (Willd.) O.E.Schulz",
+   "curated": "Erucastrum gallicum"
+  },
+  "1392094": {
+   "plantnet_name": "Erucastrum incanum (L.) W.D.J.Koch",
+   "curated": "Erucastrum incanum"
+  },
+  "1392096": {
+   "plantnet_name": "Erucastrum nasturtiifolium (Poir.) O.E.Schulz",
+   "curated": "Erucastrum nasturtiifolium"
+  },
+  "1392254": {
+   "plantnet_name": "Fedia graciliflora Fisch. & C.A.Mey.",
+   "curated": "Fedia graciliflora"
+  },
+  "1392361": {
+   "plantnet_name": "Fragaria moschata Weston",
+   "curated": "Fragaria moschata"
+  },
+  "1392365": {
+   "plantnet_name": "Freesia x hybrida L.H.Bailey",
+   "curated": "Freesia x hybrida"
+  },
+  "1392475": {
+   "plantnet_name": "Alliaria petiolata (M.Bieb.) Cavara & Grande",
+   "curated": "Alliaria petiolata"
+  },
+  "1392601": {
+   "plantnet_name": "Geropogon hybridus (L.) Sch.Bip.",
+   "curated": "Geropogon hybridus"
+  },
+  "1392653": {
+   "plantnet_name": "Gomphocarpus fruticosus (L.) R.Br.",
+   "curated": "Gomphocarpus fruticosus"
+  },
+  "1392654": {
+   "plantnet_name": "Gomphocarpus physocarpus E.Mey.",
+   "curated": "Gomphocarpus physocarpus"
+  },
+  "1392658": {
+   "plantnet_name": "Guizotia abyssinica (L.f.) Cass.",
+   "curated": "Guizotia abyssinica"
+  },
+  "1392689": {
+   "plantnet_name": "Hebe andersonii (Lindl. & Paxton) Cockayne",
+   "curated": "Hebe andersonii"
+  },
+  "1392690": {
+   "plantnet_name": "Hebe brachysiphon Summerh.",
+   "curated": "Hebe brachysiphon"
+  },
+  "1392695": {
+   "plantnet_name": "Hebe salicifolia (G.Forst.) Pennell",
+   "curated": "Hebe salicifolia"
+  },
+  "1392777": {
+   "plantnet_name": "Hippophae rhamnoides L.",
+   "curated": "Hippophae rhamnoides"
+  },
+  "1393241": {
+   "plantnet_name": "Hypericum calycinum L.",
+   "curated": "Hypericum calycinum"
+  },
+  "1393245": {
+   "plantnet_name": "Hypericum elodes L.",
+   "curated": "Hypericum elodes"
+  },
+  "1393250": {
+   "plantnet_name": "Hypericum maculatum Crantz",
+   "curated": "Hypericum maculatum"
+  },
+  "1393253": {
+   "plantnet_name": "Hypericum nummularium L.",
+   "curated": "Hypericum nummularium"
+  },
+  "1393254": {
+   "plantnet_name": "Hypericum pulchrum L.",
+   "curated": "Hypericum pulchrum"
+  },
+  "1393257": {
+   "plantnet_name": "Hypericum richeri Vill.",
+   "curated": "Hypericum richeri"
+  },
+  "1393294": {
+   "plantnet_name": "Dierama pulcherrimum (Hook.f.) Baker",
+   "curated": "Dierama pulcherrimum"
+  },
+  "1393393": {
+   "plantnet_name": "Kniphofia uvaria (L.) Hook.",
+   "curated": "Kniphofia uvaria"
+  },
+  "1393414": {
+   "plantnet_name": "Lactuca alpina (L.) Benth. & Hook.f.",
+   "curated": "Lactuca alpina"
+  },
+  "1393418": {
+   "plantnet_name": "Lactuca viminea (L.) J.Presl & C.Presl",
+   "curated": "Lactuca viminea"
+  },
+  "1393423": {
+   "plantnet_name": "Lamium album L.",
+   "curated": "Lamium album"
+  },
+  "1393425": {
+   "plantnet_name": "Lamium maculatum (L.) L.",
+   "curated": "Lamium maculatum"
+  },
+  "1393449": {
+   "plantnet_name": "Lathraea clandestina L.",
+   "curated": "Lathraea clandestina"
+  },
+  "1393450": {
+   "plantnet_name": "Lathraea squamaria L.",
+   "curated": "Lathraea squamaria"
+  },
+  "1393466": {
+   "plantnet_name": "Lavandula latifolia Medik.",
+   "curated": "Lavandula latifolia"
+  },
+  "1393537": {
+   "plantnet_name": "Limnanthes douglasii R.Br.",
+   "curated": "Limnanthes douglasii"
+  },
+  "1393614": {
+   "plantnet_name": "Liriodendron tulipifera L.",
+   "curated": "Liriodendron tulipifera"
+  },
+  "1393654": {
+   "plantnet_name": "Lupinus arboreus Sims",
+   "curated": "Lupinus arboreus"
+  },
+  "1393656": {
+   "plantnet_name": "Lupinus x regalis Bergmans",
+   "curated": "Lupinus x regalis"
+  },
+  "1393725": {
+   "plantnet_name": "Maianthemum bifolium (L.) F.W.Schmidt",
+   "curated": "Maianthemum bifolium"
+  },
+  "1393789": {
+   "plantnet_name": "Melilotus altissimus Thuill.",
+   "curated": "Melilotus altissimus"
+  },
+  "1393792": {
+   "plantnet_name": "Melilotus officinalis (L.) Lam.",
+   "curated": "Melilotus officinalis"
+  },
+  "1393823": {
+   "plantnet_name": "Mercurialis tomentosa L.",
+   "curated": "Mercurialis tomentosa"
+  },
+  "1393846": {
+   "plantnet_name": "Moehringia ciliata (Scop.) Dalla Torre",
+   "curated": "Moehringia ciliata"
+  },
+  "1393850": {
+   "plantnet_name": "Moehringia muscosa L.",
+   "curated": "Moehringia muscosa"
+  },
+  "1393933": {
+   "plantnet_name": "Narthecium ossifragum (L.) Huds.",
+   "curated": "Narthecium ossifragum"
+  },
+  "1393945": {
+   "plantnet_name": "Neotinea lactea (Poir.) R.M.Bateman, Pridgeon & M.W.Chase",
+   "curated": "Neotinea lactea"
+  },
+  "1393946": {
+   "plantnet_name": "Neotinea ustulata (L.) R.M.Bateman, Pridgeon & M.W.Chase",
+   "curated": "Neotinea ustulata"
+  },
+  "1393965": {
+   "plantnet_name": "Noccaea caerulescens (J.Presl & C.Presl) F.K.Mey.",
+   "curated": "Noccaea caerulescens"
+  },
+  "1393968": {
+   "plantnet_name": "Noccaea rotundifolia (L.) Moench",
+   "curated": "Noccaea rotundifolia"
+  },
+  "1393980": {
+   "plantnet_name": "Nymphaea candida C.Presl",
+   "curated": "Nymphaea candida"
+  },
+  "1393981": {
+   "plantnet_name": "Nymphoides peltata (S.G.Gmel.) Kuntze",
+   "curated": "Nymphoides peltata"
+  },
+  "1394072": {
+   "plantnet_name": "Ophrys arachnitiformis Gren. & M.Philippe",
+   "curated": "Ophrys sphegodes"
+  },
+  "1394073": {
+   "plantnet_name": "Ophrys aranifera Huds.",
+   "curated": "Ophrys sphegodes"
+  },
+  "1394082": {
+   "plantnet_name": "Ophrys bertolonii Moretti",
+   "curated": "Ophrys bertolonii"
+  },
+  "1394120": {
+   "plantnet_name": "Ophrys fuciflora (F.W.Schmidt) Moench",
+   "curated": "Ophrys fuciflora"
+  },
+  "1394128": {
+   "plantnet_name": "Ophrys incubacea Bianca",
+   "curated": "Ophrys sphegodes"
+  },
+  "1394143": {
+   "plantnet_name": "Ophrys lupercalis Devillers & Devillers-Tersch.",
+   "curated": "Ophrys sphegodes"
+  },
+  "1394164": {
+   "plantnet_name": "Ophrys passionis Sennen",
+   "curated": "Ophrys sphegodes"
+  },
+  "1394313": {
+   "plantnet_name": "Oreopteris limbosperma (Bellardi ex All.) Holub",
+   "curated": "Oreopteris limbosperma"
+  },
+  "1394378": {
+   "plantnet_name": "Anemone x hybrida Paxton",
+   "curated": "Anemone x hybrida"
+  },
+  "1394382": {
+   "plantnet_name": "Anemone alpina L.",
+   "curated": "Anemone alpina"
+  },
+  "1394383": {
+   "plantnet_name": "Pancratium illyricum L.",
+   "curated": "Pancratium illyricum"
+  },
+  "1394394": {
+   "plantnet_name": "Anemone apennina L.",
+   "curated": "Anemone apennina"
+  },
+  "1394396": {
+   "plantnet_name": "Anemone baldensis L.",
+   "curated": "Anemone baldensis"
+  },
+  "1394399": {
+   "plantnet_name": "Papaver alpinum L.",
+   "curated": "Papaver alpinum"
+  },
+  "1394401": {
+   "plantnet_name": "Papaver croceum Ledeb.",
+   "curated": "Papaver croceum"
+  },
+  "1394404": {
+   "plantnet_name": "Papaver orientale L.",
+   "curated": "Papaver orientale"
+  },
+  "1394405": {
+   "plantnet_name": "Papaver pseudoorientale (Fedde) Medw.",
+   "curated": "Papaver pseudoorientale"
+  },
+  "1394420": {
+   "plantnet_name": "Anemone hepatica L.",
+   "curated": "Anemone hepatica"
+  },
+  "1394453": {
+   "plantnet_name": "Pelargonium x hybridum (L.) Aiton",
+   "curated": "Pelargonium x hybridum"
+  },
+  "1394454": {
+   "plantnet_name": "Pelargonium inquinans (L.) Aiton",
+   "curated": "Pelargonium inquinans"
+  },
+  "1394455": {
+   "plantnet_name": "Pelargonium peltatum (L.) Aiton",
+   "curated": "Pelargonium peltatum"
+  },
+  "1394460": {
+   "plantnet_name": "Anemone nemorosa L.",
+   "curated": "Anemone nemorosa"
+  },
+  "1394489": {
+   "plantnet_name": "Anemone pulsatilla L.",
+   "curated": "Anemone pulsatilla"
+  },
+  "1394498": {
+   "plantnet_name": "Anemone rubra Lam.",
+   "curated": "Anemone rubra"
+  },
+  "1394504": {
+   "plantnet_name": "Anemone sylvestris L.",
+   "curated": "Anemone sylvestris"
+  },
+  "1394508": {
+   "plantnet_name": "Anemone trifolia L.",
+   "curated": "Anemone trifolia"
+  },
+  "1394513": {
+   "plantnet_name": "Anemone vernalis L.",
+   "curated": "Anemone vernalis"
+  },
+  "1394591": {
+   "plantnet_name": "Angelica sylvestris L.",
+   "curated": "Angelica sylvestris"
+  },
+  "1394759": {
+   "plantnet_name": "Anthericum ramosum L.",
+   "curated": "Anthericum ramosum"
+  },
+  "1394994": {
+   "plantnet_name": "Pyracantha coccinea M.Roem.",
+   "curated": "Pyracantha coccinea"
+  },
+  "1395391": {
+   "plantnet_name": "Holodiscus discolor (Pursh) Maxim.",
+   "curated": "Holodiscus discolor"
+  },
+  "1395721": {
+   "plantnet_name": "Sagittaria latifolia Willd.",
+   "curated": "Sagittaria latifolia"
+  },
+  "1395722": {
+   "plantnet_name": "Sagittaria sagittifolia L.",
+   "curated": "Sagittaria sagittifolia"
+  },
+  "1396133": {
+   "plantnet_name": "Diascia rigescens E.Mey. ex Benth.",
+   "curated": "Diascia rigescens"
+  },
+  "1396143": {
+   "plantnet_name": "Sedum sarmentosum Bunge",
+   "curated": "Sedum sarmentosum"
+  },
+  "1396144": {
+   "plantnet_name": "Sedum alpestre Vill.",
+   "curated": "Sedum alpestre"
+  },
+  "1396156": {
+   "plantnet_name": "Sedum kamtschaticum Fisch. & C.A.Mey.",
+   "curated": "Sedum kamtschaticum"
+  },
+  "1396159": {
+   "plantnet_name": "Sedum mexicanum Britton",
+   "curated": "Sedum mexicanum"
+  },
+  "1396161": {
+   "plantnet_name": "Sedum ochroleucum Chaix",
+   "curated": "Sedum ochroleucum"
+  },
+  "1396165": {
+   "plantnet_name": "Sedum sexangulare L.",
+   "curated": "Sedum sexangulare"
+  },
+  "1396708": {
+   "plantnet_name": "Metasequoia glyptostroboides Hu & W.C.Cheng",
+   "curated": "Metasequoia glyptostroboides"
+  },
+  "1396713": {
+   "plantnet_name": "Telekia speciosa (Schreb.) Baumg.",
+   "curated": "Telekia speciosa"
+  },
+  "1396823": {
+   "plantnet_name": "Tradescantia x andersoniana F.Ludw. & Rohweder",
+   "curated": "Tradescantia x andersoniana"
+  },
+  "1396824": {
+   "plantnet_name": "Tradescantia virginiana L.",
+   "curated": "Tradescantia virginiana"
+  },
+  "1396842": {
+   "plantnet_name": "Trifolium alpestre L.",
+   "curated": "Trifolium alpestre"
+  },
+  "1396843": {
+   "plantnet_name": "Trifolium alpinum L.",
+   "curated": "Trifolium alpinum"
+  },
+  "1397209": {
+   "plantnet_name": "Viscaria vulgaris Bernh.",
+   "curated": "Viscaria vulgaris"
+  },
+  "1397268": {
+   "plantnet_name": "Anemone hupehensis (Lemoine) Lemoine",
+   "curated": "Anemone hupehensis"
+  },
+  "1397303": {
+   "plantnet_name": "Adenostyles alpina (L.) Bluff & Fingerh.",
+   "curated": "Adenostyles alpina"
+  },
+  "1397305": {
+   "plantnet_name": "Alcea biennis Winterl",
+   "curated": "Alcea biennis"
+  },
+  "1397311": {
+   "plantnet_name": "Anemone narcissiflora L.",
+   "curated": "Anemone narcissiflora"
+  },
+  "1397312": {
+   "plantnet_name": "Anemone ranunculoides L.",
+   "curated": "Anemone ranunculoides"
+  },
+  "1397313": {
+   "plantnet_name": "Angelica archangelica L.",
+   "curated": "Angelica archangelica"
+  },
+  "1397349": {
+   "plantnet_name": "Chaerophyllum bulbosum L.",
+   "curated": "Chaerophyllum bulbosum"
+  },
+  "1397351": {
+   "plantnet_name": "Cirsium acaulon (L.) Scop.",
+   "curated": "Cirsium acaulon"
+  },
+  "1397352": {
+   "plantnet_name": "Cirsium spinosissimum (L.) Scop.",
+   "curated": "Cirsium spinosissimum"
+  },
+  "1397364": {
+   "plantnet_name": "Cymbalaria muralis P.Gaertn., B.Mey. & Scherb.",
+   "curated": "Cymbalaria muralis"
+  },
+  "1397379": {
+   "plantnet_name": "Eritrichium nanum (L.) Schrad. ex Gaudin",
+   "curated": "Eritrichium nanum"
+  },
+  "1397387": {
+   "plantnet_name": "Fragaria viridis Weston",
+   "curated": "Fragaria viridis"
+  },
+  "1397403": {
+   "plantnet_name": "Honckenya peploides (L.) Ehrh.",
+   "curated": "Honckenya peploides"
+  },
+  "1397420": {
+   "plantnet_name": "Lactuca perennis L.",
+   "curated": "Lactuca perennis"
+  },
+  "1397491": {
+   "plantnet_name": "Sedum atratum L.",
+   "curated": "Sedum atratum"
+  },
+  "1397514": {
+   "plantnet_name": "Trifolium medium L.",
+   "curated": "Trifolium medium"
+  },
+  "1397515": {
+   "plantnet_name": "Trinia glauca (L.) Dumort.",
+   "curated": "Trinia glauca"
+  },
+  "1397551": {
+   "plantnet_name": "Trifolium badium Schreb.",
+   "curated": "Trifolium badium"
+  },
+  "1397556": {
+   "plantnet_name": "Freesia refracta (Jacq.) Eckl. ex Klatt",
+   "curated": "Freesia refracta"
+  },
+  "1397585": {
+   "plantnet_name": "Freesia alba (G.L.Mey.) Grumbleton",
+   "curated": "Freesia alba"
+  },
+  "1397598": {
+   "plantnet_name": "Cobaea scandens Cav.",
+   "curated": "Cobaea scandens"
+  },
+  "1397841": {
+   "plantnet_name": "Anemone pratensis L.",
+   "curated": "Anemone pratensis"
+  },
+  "1398041": {
+   "plantnet_name": "Neotinea tridentata (Scop.) R.M.Bateman, Pridgeon & M.W.Chase",
+   "curated": "Neotinea tridentata"
+  },
+  "1398111": {
+   "plantnet_name": "Adenostyles alliariae (Gouan) A.Kern.",
+   "curated": "Adenostyles alliariae"
+  },
+  "1398128": {
+   "plantnet_name": "Sedum palmeri S.Watson",
+   "curated": "Sedum palmeri"
+  },
+  "1398130": {
+   "plantnet_name": "Hypericum olympicum L.",
+   "curated": "Hypericum olympicum"
+  },
+  "1398178": {
+   "plantnet_name": "Tradescantia zebrina Bosse",
+   "curated": "Tradescantia zebrina"
+  },
+  "1398274": {
+   "plantnet_name": "Adenostyles leucophylla (Willd.) Rchb.",
+   "curated": "Adenostyles leucophylla"
+  },
+  "1398326": {
+   "plantnet_name": "Calycanthus floridus L.",
+   "curated": "Calycanthus floridus"
+  },
+  "1398333": {
+   "plantnet_name": "Phyllanthus niruri L.",
+   "curated": "Phyllanthus niruri"
+  },
+  "1398355": {
+   "plantnet_name": "Ophrys araneola sensu auct.plur.",
+   "curated": "Ophrys araneola"
+  },
+  "1398444": {
+   "plantnet_name": "Anemone blanda Schott & Kotschy",
+   "curated": "Anemone blanda"
+  },
+  "1398447": {
+   "plantnet_name": "Aralia elata (Miq.) Seem.",
+   "curated": "Aralia elata"
+  },
+  "1398469": {
+   "plantnet_name": "Ophrys virescens Philippe",
+   "curated": "Ophrys sphegodes"
+  },
+  "1398480": {
+   "plantnet_name": "Clethra alnifolia L.",
+   "curated": "Clethra alnifolia"
+  },
+  "1398513": {
+   "plantnet_name": "Hypericum patulum Thunb.",
+   "curated": "Hypericum patulum"
+  },
+  "1398515": {
+   "plantnet_name": "Hypericum x hidcoteense Hilling ex Geerinck",
+   "curated": "Hypericum x hidcoteense"
+  },
+  "1398567": {
+   "plantnet_name": "Smilax rotundifolia L.",
+   "curated": "Smilax rotundifolia"
+  },
+  "1398592": {
+   "plantnet_name": "Perovskia atriplicifolia Benth.",
+   "curated": "Perovskia atriplicifolia"
+  },
+  "1398608": {
+   "plantnet_name": "Nothofagus antarctica (G.Forst.) Oerst.",
+   "curated": "Nothofagus antarctica"
+  },
+  "1398830": {
+   "plantnet_name": "Tetraclinis articulata (Vahl) Mast.",
+   "curated": "Tetraclinis articulata"
+  },
+  "1399145": {
+   "plantnet_name": "Cucurbita moschata Duchesne",
+   "curated": "Cucurbita moschata"
+  },
+  "1399231": {
+   "plantnet_name": "Lamium orvala L.",
+   "curated": "Lamium orvala"
+  },
+  "1399384": {
+   "plantnet_name": "Rhodothamnus chamaecistus (L.) Rchb.",
+   "curated": "Rhodothamnus chamaecistus"
+  },
+  "1399783": {
+   "plantnet_name": "Schefflera actinophylla Harms",
+   "curated": "Schefflera actinophylla"
+  },
+  "1399920": {
+   "plantnet_name": "Angelica atropurpurea L.",
+   "curated": "Angelica atropurpurea"
+  },
+  "1400081": {
+   "plantnet_name": "Adonis vernalis L.",
+   "curated": "Adonis vernalis"
+  },
+  "1400100": {
+   "plantnet_name": "Barbarea vulgaris R.Br.",
+   "curated": "Barbarea vulgaris"
+  },
+  "1400104": {
+   "plantnet_name": "Acacia baileyana F.Muell.",
+   "curated": "Acacia baileyana"
+  },
+  "1400478": {
+   "plantnet_name": "Nephrolepis biserrata (Sw.) Schott",
+   "curated": "Nephrolepis biserrata"
+  },
+  "1401735": {
+   "plantnet_name": "Phyllanthus urinaria L.",
+   "curated": "Phyllanthus urinaria"
+  },
+  "1402423": {
+   "plantnet_name": "Anthurium hookeri Kunth",
+   "curated": "Anthurium hookeri"
+  },
+  "1402811": {
+   "plantnet_name": "Crotalaria retusa L.",
+   "curated": "Crotalaria retusa"
+  },
+  "1402920": {
+   "plantnet_name": "Peperomia magnoliifolia (Jacq.) A.Dietr.",
+   "curated": "Peperomia magnoliifolia"
+  },
+  "1402921": {
+   "plantnet_name": "Peperomia obtusifolia (L.) A.Dietr.",
+   "curated": "Peperomia obtusifolia"
+  },
+  "1402924": {
+   "plantnet_name": "Peperomia quadrangularis (J.V.Thomps.) A.Dietr.",
+   "curated": "Peperomia quadrangularis"
+  },
+  "1402925": {
+   "plantnet_name": "Peperomia rotundifolia (L.) Kunth",
+   "curated": "Peperomia rotundifolia"
+  },
+  "1402926": {
+   "plantnet_name": "Peperomia serpens (Sw.) Loudon",
+   "curated": "Peperomia serpens"
+  },
+  "1403826": {
+   "plantnet_name": "Pereskia bleo (Kunth) DC.",
+   "curated": "Pereskia bleo"
+  },
+  "1403967": {
+   "plantnet_name": "Cereus hexagonus (L.) Mill.",
+   "curated": "Cereus hexagonus"
+  },
+  "1405061": {
+   "plantnet_name": "Cryptostegia madagascariensis Bojer ex Decne.",
+   "curated": "Cryptostegia madagascariensis"
+  },
+  "1405641": {
+   "plantnet_name": "Asystasia gangetica (L.) T.Anderson",
+   "curated": "Asystasia gangetica"
+  },
+  "1405685": {
+   "plantnet_name": "Acalypha wilkesiana Müll.Arg.",
+   "curated": "Acalypha wilkesiana"
+  },
+  "1405686": {
+   "plantnet_name": "Breynia disticha J.R.Forst. & G.Forst.",
+   "curated": "Breynia disticha"
+  },
+  "1406426": {
+   "plantnet_name": "Crotalaria pallida Aiton",
+   "curated": "Crotalaria pallida"
+  },
+  "1406486": {
+   "plantnet_name": "Kigelia africana (Lam.) Benth.",
+   "curated": "Kigelia africana"
+  },
+  "1406863": {
+   "plantnet_name": "Acalypha indica L.",
+   "curated": "Acalypha indica"
+  },
+  "1408037": {
+   "plantnet_name": "Alocasia cucullata (Lour.) G.Don",
+   "curated": "Alocasia cucullata"
+  },
+  "1408041": {
+   "plantnet_name": "Alocasia longiloba Miq.",
+   "curated": "Alocasia longiloba"
+  },
+  "1408045": {
+   "plantnet_name": "Alocasia macrorrhizos (L.) G.Don",
+   "curated": "Alocasia macrorrhizos"
+  },
+  "1408214": {
+   "plantnet_name": "Hypericum lanceolatum Lam.",
+   "curated": "Hypericum lanceolatum"
+  },
+  "1408401": {
+   "plantnet_name": "Nephrolepis abrupta (Bory) Mett.",
+   "curated": "Nephrolepis abrupta"
+  },
+  "1408421": {
+   "plantnet_name": "Acacia heterophylla (Lam.) Willd.",
+   "curated": "Acacia heterophylla"
+  },
+  "1408468": {
+   "plantnet_name": "Pelargonium x asperum Ehrh. ex Willd.",
+   "curated": "Pelargonium x asperum"
+  },
+  "1408490": {
+   "plantnet_name": "Pereskia grandifolia Haw.",
+   "curated": "Pereskia grandifolia"
+  },
+  "1408557": {
+   "plantnet_name": "Pongamia pinnata (L.) Pierre",
+   "curated": "Pongamia pinnata"
+  },
+  "1408688": {
+   "plantnet_name": "Acalypha hispida Burm.f.",
+   "curated": "Acalypha hispida"
+  },
+  "1408738": {
+   "plantnet_name": "Strongylodon macrobotrys A.Gray",
+   "curated": "Strongylodon macrobotrys"
+  },
+  "1408774": {
+   "plantnet_name": "Tradescantia pallida (Rose) D.R.Hunt",
+   "curated": "Tradescantia pallida"
+  },
+  "1408788": {
+   "plantnet_name": "Trimezia martinicensis (Jacq.) Herb.",
+   "curated": "Trimezia martinicensis"
+  },
+  "1408869": {
+   "plantnet_name": "Cereus repandus (L.) Mill.",
+   "curated": "Cereus repandus"
+  },
+  "1408874": {
+   "plantnet_name": "Bismarckia nobilis Hildebr. & H.Wendl.",
+   "curated": "Bismarckia nobilis"
+  },
+  "1408961": {
+   "plantnet_name": "Schefflera arboricola (Hayata) Merr.",
+   "curated": "Schefflera arboricola"
+  },
+  "1408979": {
+   "plantnet_name": "Fragaria chiloensis (L.) Mill.",
+   "curated": "Fragaria chiloensis"
+  },
+  "1409185": {
+   "plantnet_name": "Aphelandra squarrosa Nees",
+   "curated": "Aphelandra squarrosa"
+  },
+  "1409191": {
+   "plantnet_name": "Gynura aurantiaca (Blume) Sch.Bip. ex DC.",
+   "curated": "Gynura aurantiaca"
+  },
+  "1409195": {
+   "plantnet_name": "Pereskia aculeata Mill.",
+   "curated": "Pereskia aculeata"
+  },
+  "1409214": {
+   "plantnet_name": "Peperomia argyreia (Miq.) E.Morren",
+   "curated": "Peperomia argyreia"
+  },
+  "1409215": {
+   "plantnet_name": "Peperomia caperata Yunck.",
+   "curated": "Peperomia caperata"
+  },
+  "1409216": {
+   "plantnet_name": "Peperomia obtusifolia (L.) A. Dietr.",
+   "curated": "Peperomia obtusifolia"
+  },
+  "1409238": {
+   "plantnet_name": "Anthurium andraeanum Linden ex André",
+   "curated": "Anthurium andraeanum"
+  },
+  "1409239": {
+   "plantnet_name": "Anthurium scherzerianum Schott",
+   "curated": "Anthurium scherzerianum"
+  },
+  "1409292": {
+   "plantnet_name": "Dendrobium nobile Lindl.",
+   "curated": "Dendrobium nobile"
+  },
+  "1409295": {
+   "plantnet_name": "Nandina domestica Thunb.",
+   "curated": "Nandina domestica"
+  },
+  "1409296": {
+   "plantnet_name": "Nymphaea nouchali Burm.f.",
+   "curated": "Nymphaea nouchali"
+  },
+  "1409642": {
+   "plantnet_name": "Fittonia albivenis (Lindl. ex Veitch) R.K. Brummitt",
+   "curated": "Fittonia albivenis"
+  },
+  "1409746": {
+   "plantnet_name": "Lactuca floridana (L.) Gaertn.",
+   "curated": "Lactuca floridana"
+  },
+  "1411520": {
+   "plantnet_name": "Comptonia peregrina (L.) J.M. Coult.",
+   "curated": "Comptonia peregrina"
+  },
+  "1411524": {
+   "plantnet_name": "Conoclinium coelestinum (L.) DC.",
+   "curated": "Conoclinium coelestinum"
+  },
+  "1411687": {
+   "plantnet_name": "Dalea purpurea Vent.",
+   "curated": "Dalea purpurea"
+  },
+  "1411760": {
+   "plantnet_name": "Diervilla lonicera Mill.",
+   "curated": "Diervilla lonicera"
+  },
+  "1411832": {
+   "plantnet_name": "Dryopteris intermedia (Muhl. ex Willd.) A. Gray",
+   "curated": "Dryopteris intermedia"
+  },
+  "1411833": {
+   "plantnet_name": "Dryopteris marginalis (L.) A. Gray",
+   "curated": "Dryopteris marginalis"
+  },
+  "1411834": {
+   "plantnet_name": "Duchesnea indica (Andrews) Teschem.",
+   "curated": "Duchesnea indica"
+  },
+  "1412337": {
+   "plantnet_name": "Anemone canadensis L.",
+   "curated": "Anemone canadensis"
+  },
+  "1412410": {
+   "plantnet_name": "Anemone virginiana L.",
+   "curated": "Anemone virginiana"
+  },
+  "1412413": {
+   "plantnet_name": "Lactuca canadensis L.",
+   "curated": "Lactuca canadensis"
+  },
+  "1412418": {
+   "plantnet_name": "Lamium maculatum L.",
+   "curated": "Lamium maculatum"
+  },
+  "1412659": {
+   "plantnet_name": "Maianthemum canadense Desf.",
+   "curated": "Maianthemum canadense"
+  },
+  "1412661": {
+   "plantnet_name": "Maianthemum racemosum (L.) Link",
+   "curated": "Maianthemum racemosum"
+  },
+  "1412662": {
+   "plantnet_name": "Maianthemum stellatum (L.) Link",
+   "curated": "Maianthemum stellatum"
+  },
+  "1412697": {
+   "plantnet_name": "Mertensia maritima (L.) Gray",
+   "curated": "Mertensia maritima"
+  },
+  "1412699": {
+   "plantnet_name": "Mertensia virginica (L.) Pers. ex Link",
+   "curated": "Mertensia virginica"
+  },
+  "1412833": {
+   "plantnet_name": "Nymphaea odorata Aiton",
+   "curated": "Nymphaea odorata"
+  },
+  "1412889": {
+   "plantnet_name": "Osmunda claytoniana L.",
+   "curated": "Osmunda claytoniana"
+  },
+  "1412946": {
+   "plantnet_name": "Papaver nudicaule L.",
+   "curated": "Papaver nudicaule"
+  },
+  "1413002": {
+   "plantnet_name": "Aralia nudicaulis L.",
+   "curated": "Aralia nudicaulis"
+  },
+  "1413391": {
+   "plantnet_name": "Pyracantha coccinea M. Roem.",
+   "curated": "Pyracantha coccinea"
+  },
+  "1413755": {
+   "plantnet_name": "Sedum spathulifolium Hook.",
+   "curated": "Sedum spathulifolium"
+  },
+  "1413757": {
+   "plantnet_name": "Sedum ternatum Michx.",
+   "curated": "Sedum ternatum"
+  },
+  "1414058": {
+   "plantnet_name": "Tradescantia ohiensis Raf.",
+   "curated": "Tradescantia ohiensis"
+  },
+  "1414272": {
+   "plantnet_name": "Balsamorhiza sagittata (Pursh) Nutt.",
+   "curated": "Balsamorhiza sagittata"
+  },
+  "1414275": {
+   "plantnet_name": "Barbarea orthoceras Ledeb.",
+   "curated": "Barbarea orthoceras"
+  },
+  "1416509": {
+   "plantnet_name": "Nepenthes vieillardii Hook. f.",
+   "curated": "Nepenthes vieillardii"
+  },
+  "1418140": {
+   "plantnet_name": "Lithops pseudotruncatella N.E.Br.",
+   "curated": "Lithops pseudotruncatella"
+  },
+  "1418146": {
+   "plantnet_name": "Fittonia albivenis (Lindl. ex Veitch) Brummitt",
+   "curated": "Fittonia albivenis"
+  },
+  "1418546": {
+   "plantnet_name": "Sedum lineare Thunb.",
+   "curated": "Sedum lineare"
+  },
+  "1418547": {
+   "plantnet_name": "Sedum morganianum E.Walther",
+   "curated": "Sedum morganianum"
+  },
+  "1418655": {
+   "plantnet_name": "Dryopteris erythrosora (D.C. Eaton) Kuntze",
+   "curated": "Dryopteris erythrosora"
+  },
+  "1418665": {
+   "plantnet_name": "Rumohra adiantiformis (G. Forst.) Ching",
+   "curated": "Rumohra adiantiformis"
+  },
+  "1418984": {
+   "plantnet_name": "Lupinus albifrons Benth.",
+   "curated": "Lupinus albifrons"
+  },
+  "1419077": {
+   "plantnet_name": "Lycoris radiata (L'Hér.) Herb.",
+   "curated": "Lycoris radiata"
+  },
+  "1419086": {
+   "plantnet_name": "Garrya elliptica Douglas ex Lindl.",
+   "curated": "Garrya elliptica"
+  },
+  "1419091": {
+   "plantnet_name": "Lycoris squamigera Maxim.",
+   "curated": "Lycoris squamigera"
+  },
+  "1419115": {
+   "plantnet_name": "Pelargonium x hortorum L.H. Bailey",
+   "curated": "Pelargonium x hortorum"
+  },
+  "1419173": {
+   "plantnet_name": "Loropetalum chinense (R. Br.) Oliv.",
+   "curated": "Loropetalum chinense"
+  },
+  "1419334": {
+   "plantnet_name": "Liriope muscari (Decne.) L.H.Bailey",
+   "curated": "Liriope muscari"
+  },
+  "1419352": {
+   "plantnet_name": "Limnanthes douglasii R. Br.",
+   "curated": "Limnanthes douglasii"
+  },
+  "1419807": {
+   "plantnet_name": "Vanilla planifolia Jacks. ex Andrews",
+   "curated": "Vanilla planifolia"
+  },
+  "1419923": {
+   "plantnet_name": "Peperomia argyreia (Hook.f.) E.Morren",
+   "curated": "Peperomia argyreia"
+  },
+  "1420496": {
+   "plantnet_name": "Mussaenda philippica A.Rich.",
+   "curated": "Mussaenda philippica"
+  },
+  "1420781": {
+   "plantnet_name": "Alocasia micholitziana Sander",
+   "curated": "Alocasia micholitziana"
+  },
+  "1420787": {
+   "plantnet_name": "Alocasia odora (Lindl.) K.Koch",
+   "curated": "Alocasia odora"
+  },
+  "1420792": {
+   "plantnet_name": "Daphne odora Thunb.",
+   "curated": "Daphne odora"
+  },
+  "1420795": {
+   "plantnet_name": "Alocasia sanderiana W.Bull",
+   "curated": "Alocasia sanderiana"
+  },
+  "1420863": {
+   "plantnet_name": "Kniphofia uvaria (L.) Oken",
+   "curated": "Kniphofia uvaria"
+  },
+  "1420896": {
+   "plantnet_name": "Zamia furfuracea L.f. ex Aiton",
+   "curated": "Zamia furfuracea"
+  },
+  "1421001": {
+   "plantnet_name": "Pelargonium spp.",
+   "curated": NaN
+  },
+  "1421021": {
+   "plantnet_name": "Sedum palmeri S. Watson",
+   "curated": "Sedum palmeri"
+  },
+  "1421107": {
+   "plantnet_name": "Alocasia macrorrhizos (L.) G. Don",
+   "curated": "Alocasia macrorrhizos"
+  },
+  "1421628": {
+   "plantnet_name": "Nephrolepis falcata (Cav.) C. Chr.",
+   "curated": "Nephrolepis falcata"
+  },
+  "1422105": {
+   "plantnet_name": "Tradescantia zebrina hort. ex Bosse",
+   "curated": "Tradescantia zebrina"
+  },
+  "1422712": {
+   "plantnet_name": "Pelargonium grandiflorum Willd.",
+   "curated": "Pelargonium grandiflorum"
+  },
+  "1432783": {
+   "plantnet_name": "Lactuca virosa Habl.",
+   "curated": "Lactuca virosa"
+  },
+  "1432786": {
+   "plantnet_name": "Calendula arvensis M.Bieb.",
+   "curated": "Calendula arvensis"
+  },
+  "1432824": {
+   "plantnet_name": "Herbertia lahue (Molina) Goldblatt",
+   "curated": "Herbertia lahue"
+  },
+  "1434011": {
+   "plantnet_name": "Liriope muscari (Decne.) L.H. Bailey",
+   "curated": "Liriope muscari"
+  },
+  "1434712": {
+   "plantnet_name": "Metasequoia glyptostroboides Hu & W.C. Cheng",
+   "curated": "Metasequoia glyptostroboides"
+  },
+  "1435260": {
+   "plantnet_name": "Aralia spinosa L.",
+   "curated": "Aralia spinosa"
+  },
+  "1435714": {
+   "plantnet_name": "Pelargonium zonale (L.) L'Hér. ex Aiton",
+   "curated": "Pelargonium zonale"
+  },
+  "1436922": {
+   "plantnet_name": "Prosopis glandulosa Torr.",
+   "curated": "Prosopis glandulosa"
+  },
+  "1438352": {
+   "plantnet_name": "Smilax bona-nox L.",
+   "curated": "Smilax bona-nox"
+  },
+  "1441410": {
+   "plantnet_name": "Cirsium texanum Buckley",
+   "curated": "Cirsium texanum"
+  },
+  "1442865": {
+   "plantnet_name": "Elephantopus elatus Bertol.",
+   "curated": "Elephantopus elatus"
+  },
+  "1464075": {
+   "plantnet_name": "Alocasia reginula A.Hay",
+   "curated": "Alocasia reginula"
+  },
+  "1464088": {
+   "plantnet_name": "Alocasia zebrina Schott ex Van Houtte",
+   "curated": "Alocasia zebrina"
+  },
+  "1464459": {
+   "plantnet_name": "Anthurium clarinervium Matuda",
+   "curated": "Anthurium clarinervium"
+  },
+  "1486475": {
+   "plantnet_name": "Cereus forbesii C.F.Först.",
+   "curated": "Cereus forbesii"
+  },
+  "1486501": {
+   "plantnet_name": "Cereus uruguayanus R. Kiesling",
+   "curated": "Cereus uruguayanus"
+  },
+  "1488026": {
+   "plantnet_name": "Pilosocereus pachycladus F. Ritter",
+   "curated": "Pilosocereus pachycladus"
+  },
+  "1488171": {
+   "plantnet_name": "Selenicereus anthonyanus (Alexander) D.R. Hunt",
+   "curated": "Selenicereus anthonyanus"
+  },
+  "1488206": {
+   "plantnet_name": "Stenocactus multicostatus (Hildm.) A. Berger ex A.W. Hill",
+   "curated": "Stenocactus multicostatus"
+  },
+  "1497434": {
+   "plantnet_name": "Cyanotis somaliensis C.B.Clarke",
+   "curated": "Cyanotis somaliensis"
+  },
+  "1497667": {
+   "plantnet_name": "Tradescantia sillamontana Matuda",
+   "curated": "Tradescantia sillamontana"
+  },
+  "1503981": {
+   "plantnet_name": "Cirsium palustre (L.) Coss. ex Scop.",
+   "curated": "Cirsium palustre"
+  },
+  "1513142": {
+   "plantnet_name": "Lactuca alpina (L.) A.Gray",
+   "curated": "Lactuca alpina"
+  },
+  "1514035": {
+   "plantnet_name": "Leucophyta brownii Cass.",
+   "curated": "Leucophyta brownii"
+  },
+  "1514627": {
+   "plantnet_name": "Melampodium divaricatum (Rich. ex Rich.) DC.",
+   "curated": "Melampodium divaricatum"
+  },
+  "1516297": {
+   "plantnet_name": "Othonna capensis L.H.Bailey",
+   "curated": "Othonna capensis"
+  },
+  "1529081": {
+   "plantnet_name": "Sedum adolphii Raym.-Hamet",
+   "curated": "Sedum adolphii"
+  },
+  "1529107": {
+   "plantnet_name": "Sedum burrito Moran",
+   "curated": "Sedum burrito"
+  },
+  "1529124": {
+   "plantnet_name": "Sedum clavatum R.T. Clausen",
+   "curated": "Sedum clavatum"
+  },
+  "1529205": {
+   "plantnet_name": "Sedum hernandezii J. Meyrán",
+   "curated": "Sedum hernandezii"
+  },
+  "1529212": {
+   "plantnet_name": "Sedum japonicum Siebold ex Miq.",
+   "curated": "Sedum japonicum"
+  },
+  "1529242": {
+   "plantnet_name": "Sedum makinoi Maxim.",
+   "curated": "Sedum makinoi"
+  },
+  "1529265": {
+   "plantnet_name": "Sedum nussbaumerianum Bitter",
+   "curated": "Sedum adolphii"
+  },
+  "1529305": {
+   "plantnet_name": "Sedum praealtum A.DC.",
+   "curated": "Sedum praealtum"
+  },
+  "1529328": {
+   "plantnet_name": "Sedum rubrotinctum R.T. Clausen",
+   "curated": "Sedum rubrotinctum"
+  },
+  "1550692": {
+   "plantnet_name": "Pelargonium × hortorum L.H. Bailey",
+   "curated": "Pelargonium x hortorum"
+  },
+  "1568914": {
+   "plantnet_name": "Acacia saligna (Labill.) Wendl.",
+   "curated": "Acacia saligna"
+  },
+  "1618661": {
+   "plantnet_name": "Dendrobium victoriae-reginae Loher",
+   "curated": "Dendrobium victoriae-reginae"
+  },
+  "1643184": {
+   "plantnet_name": "Peperomia albovittata C. DC.",
+   "curated": "Peperomia albovittata"
+  },
+  "1643341": {
+   "plantnet_name": "Peperomia clusiifolia (Jacq.) Hook.",
+   "curated": "Peperomia clusiifolia"
+  },
+  "1643491": {
+   "plantnet_name": "Peperomia ferreyrae Yunck.",
+   "curated": "Peperomia ferreyrae"
+  },
+  "1643553": {
+   "plantnet_name": "Peperomia graveolens Rauh & Barthlott",
+   "curated": "Peperomia graveolens"
+  },
+  "1643819": {
+   "plantnet_name": "Peperomia pecuniifolia Trel. & Standl.",
+   "curated": "Peperomia pecuniifolia"
+  },
+  "1643866": {
+   "plantnet_name": "Peperomia polybotrya Kunth",
+   "curated": "Peperomia polybotrya"
+  },
+  "1643887": {
+   "plantnet_name": "Peperomia prostrata B.S. Williams",
+   "curated": "Peperomia prostrata"
+  },
+  "1644223": {
+   "plantnet_name": "Peperomia verticillata (L.) A.Dietr.",
+   "curated": "Peperomia verticillata"
+  },
+  "1646149": {
+   "plantnet_name": "Hebe andersonii (Lindl. & J. Paxton) Cockayne",
+   "curated": "Hebe andersonii"
+  },
+  "1663381": {
+   "plantnet_name": "Anemone tomentosa (Maxim.) C.Pei",
+   "curated": "Anemone tomentosa"
+  },
+  "1664348": {
+   "plantnet_name": "Hepatica nobilis Mill.",
+   "curated": "Hepatica nobilis"
+  },
+  "1667445": {
+   "plantnet_name": "Fragaria × ananassa (Duchesne ex Weston) Duchesne ex Rozier",
+   "curated": "Fragaria x ananassa"
+  }
+ }
+}
