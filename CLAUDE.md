@@ -114,6 +114,18 @@ These exist because things failed without them. Follow them.
   shift (−0.160) below. It is the best encoder measured on
   Pl@ntNet (0.7757, ahead of BioCLIP-2's 0.7633) and 8.5pp behind BioCLIP-2 on
   iNaturalist. Its whole deficit is a cross-source deficit.
+- **~7pp of species accuracy is unclaimed, and the price is the clean
+  evaluation** (`SOURCE_MIX_FINDINGS.md`). Adding iNaturalist rows to the shipped
+  Pl@ntNet head moves iNat species top-1 **0.7999 → 0.8718**
+  `[+0.055, +0.089]`, genus +0.021, and costs *nothing* on Pl@ntNet. It is the
+  source and not the volume: at **equal row count**, swapping half for in-source
+  data is worth `+0.079 [+0.058, +0.102]`, and 6,980 mixed rows beat 22,772
+  single-source ones. Replicates on `bioclip2_cml4`. **Not adopted** — iNaturalist
+  is currently a *pure held-out source*, which is what makes every headline here
+  an out-of-source measurement, and spending it would require re-qualifying
+  `DOMAIN_SHIFT`, `CONTAMINATION` and `COMPETITIVE`. No contradiction with the
+  source-shift null: the Pl@ntNet head is not *losing* to the source change, it
+  is failing to exploit the easier corpus.
 - **Cosine does not predict accuracy.** Checked three times: it under-predicted
   the cost of int4 (0.932 → −1.3pp), wildly over-predicted distillation (0.956 →
   nothing), and was right once (0.982 → −0.1pp). It bounds how much *could* have
@@ -279,6 +291,11 @@ report drops the label-level share.
 
 ## Open
 
+- **Whether to spend the clean evaluation for ~7pp.** `SOURCE_MIX_FINDINGS.md`
+  prices it; the decision is a product judgement and is not made. A middle path
+  is untested and measurable: hold out a fixed slice of iNaturalist observations
+  permanently, mix the rest into training, and check whether the smaller held-out
+  set keeps the intervals useful.
 - **The size decision** above, now three-way: 17.9 MB (unsafe, and fragile to
   any distribution change), 43 MB (`plantclef24`, slower), 152 MB (fastest).
   Source shift is now a column in it and does not follow byte order the way
