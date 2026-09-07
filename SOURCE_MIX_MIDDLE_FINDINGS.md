@@ -160,17 +160,99 @@ Ten in-source photographs per species collects 86% of the available gain while
 cutting the damage by a third — consistent with `SOURCE_MIX_FINDINGS.md`'s
 finding that the gain saturates fast. If the mix is ever adopted, cap it.
 
+## T1 — two heads fix it, and the prediction that said they wouldn't was wrong
+
+Pre-registered in addendum 3, which declared: *"this will not fix it either …
+any combination rule that improves mixed classes without improving reserved ones
+reproduces it at reduced size."* **That was wrong.**
+
+Two heads, both spanning the full label space — head P on every Pl@ntNet row,
+head i on iNaturalist rows for the mixed species and Pl@ntNet rows for the
+reserved ones — with the posteriors averaged. Against the Pl@ntNet-only head:
+
+| arm | reserved | mixed |
+|---|---|---|
+| single mixed head (M2) | −0.0278 [−0.0423, −0.0154] | +0.0770 [+0.0577, +0.0977] |
+| cap at 10 (M3, best so far) | −0.0186 [−0.0287, −0.0095] | +0.0663 [+0.0489, +0.0852] |
+| **T1, two heads averaged** | **+0.0347 [+0.0140, +0.0572]** | **+0.0442 [+0.0273, +0.0622]** |
+| T2, centring | −0.0207 [−0.0380, −0.0031] | +0.0751 [+0.0549, +0.0974] |
+| T2, cap + centring | −0.0108 [−0.0277, +0.0065] | +0.0708 [+0.0511, +0.0920] |
+
+**Under T1 no group is worse than the head that ships.** That is the property M2
+said was missing and M3 could not recover.
+
+### But most of T1's reserved gain is ensembling, not source handling
+
+Averaging two heads is an ensemble, and ensembles improve things for reasons
+having nothing to do with source. The control has head i's structure exactly —
+same class composition, same row count for the mixed classes — but draws those
+rows from **Pl@ntNet instead of iNaturalist**:
+
+| arm | reserved | mixed |
+|---|---|---|
+| T1 | +0.0347 | +0.0442 |
+| **T1-control, no iNaturalist anywhere** | **+0.0349** | −0.0222 |
+
+`+0.0347` against `+0.0349`. **The entire reserved-species gain is the
+architecture.** Reporting T1 as "+3.5pp for the species with no in-source data"
+would have been wrong, and only the control shows it.
+
+So the contrast that isolates what the *data* did:
+
+| **T1 − T1-control** | `bioclip2` | `bioclip2_cml4` |
+|---|---|---|
+| reserved | **−0.0001 [−0.0134, +0.0126]** | −0.0022 [−0.0181, +0.0132] |
+| mixed | +0.0664 [+0.0476, +0.0861] | +0.0615 [+0.0447, +0.0788] |
+
+**Adding iNaturalist data under a two-head architecture contributes nothing to
+the reserved species and +6.6pp to the mixed ones.** Not −2.8pp. The damage is
+gone, on both encoders, and what is left is the gain with no one paying for it.
+
+The control also explains itself: it *helps* reserved species and *hurts* mixed
+ones, because weakening the mixed classes hands their competitors the argmax.
+Everything in this document is the same competition effect seen from different
+sides.
+
+### T2 is out
+
+Per-class logit centring on an out-of-catalogue iNaturalist reference pool
+reduces the damage on fp32 and **fails on int4** — `−0.0337 [−0.0541, −0.0158]`
+for the mixed head, still excluding zero. It is a mitigation that does not
+survive the encoder that would ship.
+
+## What T1 costs
+
+It is not free, and the cost is not compute. Two heads are ~40 KB each against a
+152 MB encoder, and the second forward pass is a matrix multiply, so deployment
+cost is negligible. The cost is **accuracy on the species that do have in-source
+data**:
+
+| | reserved | mixed |
+|---|---|---|
+| single mixed head | 0.7755 | **0.8712** |
+| T1 | **0.8381** | 0.8384 |
+
+T1 gives up **3.3pp on the mixed species** to recover **6.3pp on the reserved**
+ones. At the 80/20 split measured here that is a net loss in unweighted mean
+accuracy — the single mixed head is better *on average* — and T1 is nonetheless
+the right default, because it is the only configuration where **no species is
+worse off than under the head that ships today**.
+
+Which one wins on average depends entirely on the reserved fraction, and the
+reserved fraction only grows: 32 catalogue species are "casual"-grade already,
+and a user-chosen catalogue adds species that may have no in-source data at all.
+**T1 is the choice that does not degrade as the product moves in the direction it
+is going.**
+
 ## What is still untested
 
-1. **Sweep the reserved fraction.** 20% was declared, not derived. Whether the
-   damage scales with how *few* species are reserved is unmeasured, and a
-   catalogue where 95% have in-source data may behave differently from one where
-   80% do.
-2. **Two heads rather than one.** The mechanism is competition in a single
-   argmax, so a per-source head with a routed or averaged posterior is the
-   principled fix rather than a mitigation. Considerably more machinery, and now
-   the obvious next thing to try — the cheap levers have been tried and they
-   cap out at a third of the damage.
+1. **Sweep the reserved fraction.** 20% was declared, not derived. It sets where
+   the T1-versus-single-head crossover falls, and that crossover is now the
+   decision variable rather than the damage itself.
+2. **A weighted or routed combination** instead of a flat average. T1 uses 0.5/0.5
+   with nothing tuned. A weight fitted on the calibration split might recover part
+   of the 3.3pp it gives up on the mixed species, and by this project's
+   conventions the weight has to be declared before it is fitted.
 
 ## Reproduce
 
