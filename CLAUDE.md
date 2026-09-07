@@ -138,8 +138,17 @@ These exist because things failed without them. Follow them.
   to −0.021 and capping in-source rows at 10/species to −0.019, both still
   excluding zero. Not a row-count artifact: mixed classes have rows from the
   *test* distribution and reserved ones do not, and equal weighting does not
-  address that. Capping is the best trade (86% of the gain, a third less damage)
-  and the principled fix is two heads rather than one argmax. Separately, the evidential worry was
+  address that. ~~Capping is the best trade and the principled fix is two heads
+  rather than one argmax.~~ **Two heads fix it, and the prereg's prediction that
+  they wouldn't was wrong.** Head P on Pl@ntNet + head i on in-source-where-
+  available, posteriors averaged: **no group is worse than the shipped head.**
+  Quote it with the control — averaging two heads gives reserved species +0.035
+  *with no iNaturalist data anywhere*, so the naive reading is ensembling.
+  Architecture-matched, the data contributes **−0.000 [−0.013, +0.013]** to
+  reserved and **+0.066** to mixed, on both encoders. Cost is 3.3pp on the mixed
+  species: T1 loses to the single mixed head on today's 80/20 average and wins as
+  the reserved fraction grows, which is where a user-chosen catalogue goes.
+  Separately, the evidential worry was
   the wrong one — holding out 40% instead of 100% *narrows* the interval
   (0.0375 vs 0.0540), because the bootstrap resamples species, the species count
   is fixed, and a better head has less between-species variance.
