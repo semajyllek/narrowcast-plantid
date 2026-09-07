@@ -315,9 +315,16 @@ report drops the label-level share.
   **101 of the 172 genera hold exactly one species**, where the ratio is 1 by
   construction, and near-OOD lands on a singleton genus more often than
   in-catalogue does (38.7% vs 21.2%). Every posterior-derived score is
-  closed-set and cannot express "none of these". The replacement under test is a
-  **geometric** novelty score — cosine to the nearest catalogue centroid, AUROC
-  0.848 — with the caveat that it correlates +0.72 with `genus_conf`.
+  closed-set and cannot express "none of these". **A novelty gate fixes the
+  bucket and does not pay for itself** (`NEAR_OOD_FINDINGS.md`): retreating to
+  genus when novelty is low takes near-OOD wrong from 0.224 to **0.124**, CI
+  [−0.151, −0.054], with coverage *unchanged* and precision up — but at
+  `p_ood = 0.20` near-OOD is 6.4% of traffic, so utility moves +0.017
+  [−0.004, +0.040], a null. Not shipped. The control is the durable part:
+  gating on `genus_conf` instead is **negative**, so a closed-set score cannot
+  do this job however well it correlates (+0.72) with one that can — and
+  `one_minus_other`, computed on every observation since the beginning and never
+  thresholded, does nearly as well as the geometry for free.
 - **32 catalogue species still unevaluated**, mostly cultivated-only plants
   iNaturalist grades "casual".
 - **The catalogue was selected by image availability**, not by any product
