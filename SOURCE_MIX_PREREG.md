@@ -92,3 +92,62 @@ So a positive result here is **not** an instruction to adopt it. It is a price
 tag: *this much accuracy is available, and this is what it costs in evidential
 standing.* Which side of that trade is right is a product judgement and belongs
 to the repo's owner, not to this experiment.
+
+---
+
+# Addendum — pre-registering the middle path
+
+Written before any middle-path head was fitted. `SOURCE_MIX_FINDINGS.md` closed
+by proposing one and describing it as keeping "a clean claim on a smaller set."
+**That description was wrong, and the error is worth stating before it is
+measured.**
+
+Holding out *observations* preserves nothing about source. A held-out
+iNaturalist observation is still drawn from a corpus the head trained on, so the
+claim "the head has never seen an iNaturalist photograph" dies for the whole
+model however the observations are split. What survives is an ordinary
+in-source, out-of-observation evaluation — useful, and not the thing that was
+being protected.
+
+Only holding out **species** preserves an out-of-source measurement, and only for
+those species: if no iNaturalist row of species *X* ever enters training, then
+iNaturalist photographs of *X* measure genuine cross-source transfer.
+
+So two arms, and they answer different questions.
+
+## M1 — observation holdout, swept
+
+Per species, hold out a fraction `h` of observations; train on `P-full` plus the
+iNaturalist rows of the rest; score the held-out ones. `h = 1.0` is the status
+quo. Nested: the held-out set at `h = 0.8` contains the one at `h = 0.6`, so the
+sweep is comparable across `h` and the species set is identical throughout.
+
+**Endpoint:** species top-1 on held-out iNaturalist photographs, and the **width
+of the 95% interval**, which is what decides whether a smaller evaluation set is
+still worth having.
+
+**Declared expectation, so it is not claimed as a discovery afterwards:** the
+interval may barely widen. It is a *species-clustered* bootstrap and the number
+of species is constant across the sweep; only photographs per species shrink. If
+between-species variance dominates, shrinking the set costs little precision —
+which would make M1's trade-off far better than the framing in
+`SOURCE_MIX_FINDINGS.md` assumed.
+
+## M2 — species holdout
+
+Reserve a random 20% of species at a fixed seed. **No iNaturalist row of a
+reserved species ever enters training.** Train on `P-full` plus the iNaturalist
+rows of the other 80%. Then score, against the `P-full` baseline on identical
+rows:
+
+- **primary:** reserved species, on their iNaturalist test observations — genuine
+  out-of-source, and the operational question for a catalogue that grows;
+- secondary: mixed species, in-source, as the upper reference.
+
+**The primary can come out negative and that is the point.** Mixing in-source
+data for 80% of species moves the head's decision boundaries toward iNaturalist
+statistics. Species with no in-source data do not share those statistics and
+could be *damaged* by the mix. Nobody has checked, and a catalogue that grows by
+adding species will always have some in that position. A negative result here
+would be a reason not to adopt the mix that has nothing to do with evidential
+standing.
