@@ -316,6 +316,57 @@ knowable before shipping, so a third option exists: **ship the single mixed head
 and report per-species which ones sit in the reserved position** — which is what
 this project's own card discipline would demand of anyone else.
 
+## The K sweep — the whole trade-off is a large-catalogue phenomenon
+
+Everything above is measured at **K = 345 species**. The product runs at
+K = 10–50: a user picks their own list and `build` fits a head on it. The damage
+mechanism is competition in one argmax, so the number of competitors is the thing
+most likely to change the answer, and it does.
+
+`r = 0.10` throughout — one species in ten with no in-source data — 15 random
+species subsets per K.
+
+| K | **single head: Δ reserved** | sd over draws | Δ mixed | T1 data effect on reserved |
+|---|---|---|---|---|
+| 10 | **0.0000** | 0.0000 | +0.0083 | −0.0067 |
+| 20 | −0.0093 | **0.0238** | +0.0138 | 0.0000 |
+| 50 | −0.0149 | 0.0175 | +0.0242 | +0.0070 |
+| 100 | −0.0275 | 0.0221 | +0.0450 | −0.0100 |
+| 345 | −0.0310 | — | +0.0749 | −0.0054 |
+
+**The damage is monotone in K and gone by K = 20.** At K = 10 it is exactly zero;
+at K = 20 it is −0.9pp against a spread of 2.4pp across draws, so it is not
+distinguishable from noise. Replicated on `bioclip2_cml4`: −0.0155 (sd 0.0331),
+−0.0073 (sd 0.0168), −0.0091, −0.0265, −0.0251.
+
+**And so is the gain.** The mix buys +0.8pp at K = 10 and +1.4pp at K = 20,
+against +7.5pp at K = 345.
+
+The mechanism is the one this project already documented from the other side: as
+K falls, top-1 rises steeply toward ceiling (`EMBEDDED_FINDINGS.md`: 0.939 at
+K = 50 to 0.989 at K = 10), which leaves less room for in-source data to help
+*or* to hurt. Both effects are headroom, and narrowing spends it.
+
+### What that means for each product
+
+- **The 490-species app.** K = 345 is the right regime, the +7pp is real, and
+  the whole reserved-species analysis above applies. Nothing here retracts it.
+- **The tool, where a user picks 10–50 species.** The trade-off does not exist at
+  that scale. The mix buys 1–2pp and costs about 1pp on species without in-source
+  data, both inside draw-to-draw spread. **T1 is not worth building for this
+  case** — at K = 20 it buys +0.0123 against the single head's +0.0138.
+
+So for the tool the answer is the simple one: **mix if it is convenient, and tell
+the user which of their species had no in-source data** — the same thing `plan`
+already does for crowded genera, and for the same reason. Do not build the
+two-head architecture to solve a problem that K = 20 dissolves.
+
+> **This is the measurement that should have come first**, and the
+> pre-registration says so. Four rounds of analysis were spent characterising a
+> trade-off at a catalogue size the tool does not use. The finding survived every
+> control that was run at K = 345, and the one thing that dissolved it was asking
+> whether the label set was the one being shipped.
+
 ## What is still untested
 
 **A weighted or routed combination** instead of a flat average. T1 uses 0.5/0.5

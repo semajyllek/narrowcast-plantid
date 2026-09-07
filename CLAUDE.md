@@ -157,7 +157,14 @@ These exist because things failed without them. Follow them.
   catalogue is the maximally damaged case.** T1's protection holds at every `r`
   on both encoders. So: mean accuracy picks the single head, "no species worse
   off than today" picks T1 at 0.5–1.6pp, and the harmed set is knowable before
-  shipping — which makes reporting it a third option.
+  shipping — which makes reporting it a third option. **And the whole trade-off
+  is a large-catalogue phenomenon.** At `r = 0.10`, damage by label-set size:
+  **0.000** at K=10, −0.009 (sd 0.024) at K=20, −0.015 at K=50, −0.031 at K=345,
+  and the *gain* shrinks with it — +0.008 at K=10 against +0.075 at K=345. Both
+  effects are headroom and narrowing already spends it. So the +7pp is a **K=345
+  number for the 490-species app**; for the tool at K=10–50 the mix buys 1–2pp,
+  costs about 1pp inside draw spread, and **T1 is not worth building**. Mix if
+  convenient and tell the user which of their species had no in-source data.
   Separately, the evidential worry was
   the wrong one — holding out 40% instead of 100% *narrows* the interval
   (0.0375 vs 0.0540), because the bootstrap resamples species, the species count

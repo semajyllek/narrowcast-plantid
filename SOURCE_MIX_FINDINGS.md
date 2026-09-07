@@ -10,6 +10,12 @@ the shipped Pl@ntNet head takes species accuracy on iNaturalist photographs from
 **0.7999 to 0.8718**, `+0.0718 [+0.0551, +0.0894]`, and costs nothing on
 Pl@ntNet.
 
+> **Qualify this by label-set size.** It is a **K = 345** number and applies to
+> the 490-species app. At the K = 10–50 a user-chosen list uses, the same mix
+> buys **+0.8pp to +2.4pp** (`SOURCE_MIX_MIDDLE_FINDINGS.md`, K sweep), because
+> narrowing already spends the headroom the mix would otherwise collect. Do not
+> quote 7pp for the tool.
+
 ## Results, `bioclip2`
 
 | arm | fitted on | iNat species | iNat genus | Pl@ntNet species |
