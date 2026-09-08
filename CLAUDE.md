@@ -41,6 +41,8 @@ observations:
 | `bioclip1` | ViT-B fp32 | 0.9310 | 0.7604 | 0.531 |
 | `bioclip1_cml4` | Core ML int4, 46 MB | 0.9179 | 0.7517 | 0.499 |
 | `plantclef24` | ViT-B/14 @518, 43 MB — **the middle ground** | see below | see below | — |
+| **`mobileclip2_s2_ft`** | **S2 fine-tuned on Pl@ntNet-300K, 17.9 MB** | **0.8934** | **0.7258** | **0.510** |
+| `mobileclip2_s2` | stock, 17.9 MB | 0.8122 | 0.6236 | 0.426 |
 | `bioclip1_distil` | distilled from BioCLIP-2 — **failed** | 0.9243 | 0.7706 | 0.550 |
 | `bioclip_inat` | iNat-only ViT-B — **eliminated** | 0.9115 | 0.7438 | 0.515 |
 
@@ -281,6 +283,17 @@ source-shift result; update those, not the three dated snapshots below them.
   0.9621. Every pruned point is dominated. 99% of ViT-L is its 24 blocks, so
   reaching 17.9 MB needs ~3 of them. **Selection beats compression** — spend a
   GPU on evaluating breadth, not on compressing.
+- **Domain-adapting the small encoder works, and it is the only thing that has**
+  (`ADAPT_FINDINGS.md`). MobileCLIP2-S2 fine-tuned on Pl@ntNet-300K and refrozen:
+  species **0.6236 → 0.7258**, paired `+0.1022 [+0.0830, +0.1214]`, genus +0.0812
+  — **71% of the gap to `plantclef24` closed at no cost in bytes or latency**
+  (5.2 ms/img against 38.6). Predicted 0.65–0.72 and it landed at 0.7258;
+  predicted genus would move more than species and it was the reverse. **It is
+  task-adapted, not just domain-adapted** — the 1,081 training species include all
+  530 catalogue species — so it is a result for the app and **not** evidence of a
+  general small plant encoder. The notebook's `+0.1735` held-out-species probe is
+  **invalid**: those species were in the fine-tune. The corrected notebook
+  withholds them; that run has not happened.
 - **Inference-side levers at a small byte budget** (`SMALL_FRONTIER_FINDINGS.md`).
   All three are null at K=490 against `mobileclip2_s2`'s 0.6236 species: the `C`
   sweep **+0.0006** (the default of 10, never examined before, was fine), an
