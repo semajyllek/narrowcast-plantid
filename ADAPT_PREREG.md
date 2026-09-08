@@ -73,3 +73,50 @@ measure in-training-distribution performance and pass by construction.
 - **Small encoders lose most to a change of source** (`DOMAIN_SHIFT_FINDINGS.md`:
   −0.179 for S2 against −0.001 for ViT-L). Any gain here is measured on
   iNaturalist and should be re-checked cross-source before it is believed.
+
+---
+
+# Addendum — testing generalisation without a retrain
+
+Written before the probe set was fetched.
+
+The run that produced `ADAPT_FINDINGS.md` trained on all 1,081 Pl@ntNet species,
+so the notebook's "held-out species" probe was invalid: those species were in the
+fine-tune. The question it was meant to answer is still open — **is this a
+general small plant encoder, or one specialised to Pl@ntNet's label set?**
+
+Retraining on 530 species would fix the notebook's probe, but the probe it fixes
+is still **same-source**: Pl@ntNet photographs, which the tower was adapted on.
+A stronger test is available locally and needs no GPU.
+
+## Design
+
+**The tower has never seen anything outside Pl@ntNet's 1,081 species.** So any
+plant species outside that list is a valid probe, and iNaturalist supplies both
+unseen species *and* an unseen source.
+
+90 species drawn at random from the 1,494 that appear in this project's
+out-of-catalogue buckets and are absent from both Pl@ntNet-300K and the
+catalogue. Research-grade iNaturalist observations, fetched fresh, split by
+observation. A linear probe is fitted on the frozen embeddings of each tower —
+**stock S2 and adapted S2, identical images, identical split**.
+
+**Primary endpoint:** probe accuracy, adapted minus stock, on species neither
+tower was trained on, from a source the adaptation never saw.
+
+## Predictions
+
+1. **Adapted beats stock.** Plant-shaped features should transfer to plants the
+   encoder has not seen; if fine-tuning only memorised 1,081 decision boundaries
+   it would not.
+2. **The margin is smaller than the +0.1735 the invalid probe reported**, because
+   that number was measured on species the tower trained on and on images it had
+   seen. Anything approaching +0.17 here would be suspicious.
+3. **Smaller than the +0.1022 seen on the catalogue**, since the catalogue species
+   were explicitly in the training objective and these are not.
+
+## What would refute the general-encoder reading
+
+Adapted at or below stock. That would mean the gain in `ADAPT_FINDINGS.md` is
+specialisation to Pl@ntNet's label set, the result belongs to the 490-class app
+alone, and narrowcast should not ship this tower as a shared encoder.
