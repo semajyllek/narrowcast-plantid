@@ -90,17 +90,63 @@ buys 0.726 species where it bought 0.624, and the 43 MB option's advantage is
 4.1pp rather than 14.4pp — at 7× the latency and 2.4× the bytes. `plantclef24`
 was the middle ground; adapted S2 undercuts it on every axis except accuracy.
 
-**For the tool, do not ship it.** narrowcast's premise is one shared frozen
-encoder plus a ~40 KB per-user head, and a shared encoder has to serve label sets
-nobody has seen yet. This one makes those *worse* — a user whose species fall
-outside Pl@ntNet-300K would be handed a model 3.5pp below what stock MobileCLIP2
-gives them, with nothing in the card to reveal it.
+### ~~For the tool, do not ship it.~~ Retracted — measured at the wrong K, and half the job was never tested
 
-The general lesson is the one worth keeping: **adapting an encoder to a corpus
-buys accuracy inside that corpus's label set and spends it outside.** If
-narrowcast ever offers domain-adapted encoders, each needs a published
-outside-the-set probe next to it, because the inside-the-set number is
-systematically misleading about the thing a general tool is for.
+The paragraph that stood here said a user with species outside Pl@ntNet-300K
+"would be handed a model 3.5pp below stock". **Both halves of that were wrong.**
+
+**Wrong scale.** The −0.035 is a K=90 number. narrowcast builds lists of 5–50.
+Swept, 12 random draws per point:
+
+| K | stock | adapted | delta | sd across draws |
+|---|---|---|---|---|
+| 5 | 0.9518 | 0.9508 | **−0.0010** | 0.0257 |
+| 10 | 0.9391 | 0.9216 | −0.0175 | 0.0183 |
+| 20 | 0.9068 | 0.8911 | −0.0157 | 0.0229 |
+| 50 | 0.8516 | 0.8239 | −0.0277 | 0.0173 |
+| 90 | 0.7994 | 0.7698 | −0.0296 | — |
+
+At the sizes the tool actually builds, the penalty is 0–1.8pp and sits inside
+draw-to-draw spread. It only reaches 3pp at label-set sizes nobody picks.
+
+**And discrimination is only half of what narrowcast asks an encoder for.** The
+other half is rejection — saying *not on my list* — and it was never measured.
+AUROC of the max posterior separating held-out in-list observations from 7,606
+out-of-list photographs:
+
+| K | stock | adapted | delta |
+|---|---|---|---|
+| 5 | 0.8990 | 0.9119 | **+0.0129** |
+| 10 | 0.8784 | 0.8937 | **+0.0153** |
+| 20 | 0.8643 | 0.8736 | +0.0092 |
+| 50 | 0.8239 | 0.8273 | +0.0034 |
+
+**Adaptation makes rejection better**, by about as much as it makes
+discrimination worse. At K=10 that is −0.018 on telling your species apart and
++0.015 on knowing when it is none of them.
+
+**Corrected verdict: at product scale the adapted tower is roughly neutral for
+the tool** — it trades a little discrimination for a little rejection — rather
+than the clear negative recorded here an hour earlier. It is not a reason to ship
+it either; a wash is a wash, and the +0.1022 that justifies it exists only inside
+the training label set.
+
+*(The rejection figure uses max posterior over the chosen K, without the
+`__OTHER__` class narrowcast fits on background negatives. It is a proxy for the
+cascade's decline decision, not the decision itself.)*
+
+The lesson that survives intact: **adapting an encoder to a corpus buys accuracy
+inside that corpus's label set and spends it outside.** +0.1022 in, −0.001 to
+−0.030 out depending on how many labels you ask about. If narrowcast ever offers
+domain-adapted encoders, each needs a published outside-the-set probe beside it —
+**and that probe has to be swept over K**, because a single large-K number points
+the wrong way.
+
+> **Third time today.** A result measured at large K failed to survive to product
+> scale — after `SOURCE_MIX_MIDDLE_FINDINGS.md` recorded exactly that lesson and
+> called it "the measurement that should have come first". Sweeping K is not an
+> optional robustness check in this project; it is the first thing to do, and I
+> did not do it here until it was challenged.
 
 ## Reproduce
 

@@ -74,6 +74,11 @@ exhaustive.
 
 These exist because things failed without them. Follow them.
 
+- **Sweep K before concluding anything.** Three times in one session a result
+  measured at large K reversed or vanished at the 5–50 the tool actually builds:
+  the source-mix damage, the encoder-adaptation penalty, and the between-domain
+  residual. Large-K numbers are not conservative estimates of small-K ones — they
+  can point the *opposite* way. Sweep first, conclude second.
 - **Cluster bootstrap, never row-level.** Resample *species* (or *genera* for the
   near-OOD bucket), because ~6 observations share a species. Row-level intervals
   have twice produced effects here that failed to replicate.
@@ -291,13 +296,16 @@ source-shift result; update those, not the three dated snapshots below them.
   predicted genus would move more than species and it was the reverse. **It is
   task-adapted, not just domain-adapted** — the 1,081 training species include all
   530 catalogue species — so it is a result for the app and **not** evidence of a
-  general small plant encoder. **And it does not generalise — measured, not assumed.**
-  On 90 species outside Pl@ntNet-300K entirely, fetched from iNaturalist, the
-  adapted tower is **−0.0353 [−0.0601, −0.0125]** *below stock* (41/90 species
-  worse). So adaptation buys +0.10 inside the training label set and spends
-  −0.035 outside it. The notebook's `+0.1735` probe was not just invalid but
-  **inverted** — those species were in the fine-tune. **Ship it for the app; do
-  not ship it as a shared encoder in narrowcast.**
+  general small plant encoder. **Outside the training label set it costs a little, and the
+  size of that depends on K.** On species outside Pl@ntNet-300K entirely, the
+  adapted tower is −0.0296 below stock at K=90 but only **−0.0010 at K=5 and
+  −0.0175 at K=10**, inside draw spread. And **rejection improves**: AUROC for
+  "not on my list" is **+0.0153 at K=10**. So at the sizes narrowcast builds it is
+  roughly a wash — a little discrimination traded for a little rejection.
+  **Ship it for the app** (+0.1022, fixed label set); for the tool it is neither
+  a win nor the disaster first recorded here. The notebook's `+0.1735` probe was
+  **inverted** — those species were in the fine-tune. ~~Do not ship it as a shared
+  encoder.~~ Retracted: that was a K=90 number and ignored rejection entirely.
 - **Inference-side levers at a small byte budget** (`SMALL_FRONTIER_FINDINGS.md`).
   All three are null at K=490 against `mobileclip2_s2`'s 0.6236 species: the `C`
   sweep **+0.0006** (the default of 10, never examined before, was fine), an
