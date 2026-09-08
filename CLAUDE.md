@@ -291,9 +291,13 @@ source-shift result; update those, not the three dated snapshots below them.
   predicted genus would move more than species and it was the reverse. **It is
   task-adapted, not just domain-adapted** — the 1,081 training species include all
   530 catalogue species — so it is a result for the app and **not** evidence of a
-  general small plant encoder. The notebook's `+0.1735` held-out-species probe is
-  **invalid**: those species were in the fine-tune. The corrected notebook
-  withholds them; that run has not happened.
+  general small plant encoder. **And it does not generalise — measured, not assumed.**
+  On 90 species outside Pl@ntNet-300K entirely, fetched from iNaturalist, the
+  adapted tower is **−0.0353 [−0.0601, −0.0125]** *below stock* (41/90 species
+  worse). So adaptation buys +0.10 inside the training label set and spends
+  −0.035 outside it. The notebook's `+0.1735` probe was not just invalid but
+  **inverted** — those species were in the fine-tune. **Ship it for the app; do
+  not ship it as a shared encoder in narrowcast.**
 - **Inference-side levers at a small byte budget** (`SMALL_FRONTIER_FINDINGS.md`).
   All three are null at K=490 against `mobileclip2_s2`'s 0.6236 species: the `C`
   sweep **+0.0006** (the default of 10, never examined before, was fine), an

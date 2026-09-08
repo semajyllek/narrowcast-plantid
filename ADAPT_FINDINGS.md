@@ -50,13 +50,38 @@ all 530 catalogue species, so the encoder was explicitly trained to separate the
 label set it is then scored on. That is legitimate for the 490-class app and it
 is **not** evidence of a general small plant encoder.
 
-> **The generalisation claim is unsupported by this run.** The notebook's
-> held-out-species probe reported stock 0.5278 → adapted 0.7013, +0.1735 — but
-> those 551 species were *in* the fine-tune, and the probe set included images the
-> tower trained on. It passes by construction and means nothing. The corrected
-> notebook withholds those species from training entirely so the probe becomes a
-> test; that run has not happened, and until it does the claim here is limited to
-> this catalogue.
+### The generalisation claim is not merely unsupported. It is refuted.
+
+The notebook's held-out-species probe reported **stock 0.5278 → adapted 0.7013,
++0.1735**. That number is worthless: those 551 species were *in* the fine-tune and
+the probe set included images the tower trained on, so it passes by construction.
+
+A valid probe was run instead, and needed no retrain — **the tower has never seen
+a species outside Pl@ntNet's 1,081**, so anything outside that list is unseen.
+90 such species, fetched fresh from iNaturalist (a source the adaptation never
+touched), 2,233 observations, 3,397 photographs, split by observation so no plant
+straddles train and test. Identical images and identical split for both towers;
+only the encoder varies.
+
+| tower | 90-way probe accuracy |
+|---|---|
+| `mobileclip2_s2` stock | **0.8258** |
+| `mobileclip2_s2_ft` adapted | **0.7905** |
+| **paired difference** | **−0.0353 [−0.0601, −0.0125]** |
+
+**The adapted tower is worse on plants it has not seen, and the interval excludes
+zero.** It is broad rather than a few outliers: 41 of 90 species get worse, 22
+better, 27 unchanged; macro over species −0.0368. Losses reach −0.36 on *Allium
+ursinum* and *Nothofagus cunninghamii*.
+
+So the invalid probe was not just uninformative — **it was inverted**. It reported
++0.17 where the truth is −0.04. Had the design not been questioned, this would
+have shipped as a general small plant encoder.
+
+**What the adaptation actually did** is specialise to Pl@ntNet's 1,081-species
+label set: +0.1022 inside it, −0.0353 outside it. That is textbook feature
+specialisation, and it is invisible to every metric this project reports except
+the one built to catch it.
 
 ## What it changes
 
@@ -65,10 +90,17 @@ buys 0.726 species where it bought 0.624, and the 43 MB option's advantage is
 4.1pp rather than 14.4pp — at 7× the latency and 2.4× the bytes. `plantclef24`
 was the middle ground; adapted S2 undercuts it on every axis except accuracy.
 
-**For the tool**, nothing yet, and possibly nothing ever. narrowcast's premise is
-one shared frozen encoder plus a ~40 KB per-user head. A *shared* plant-adapted
-encoder fits that premise; a per-user fine-tune destroys it. Whether this tower
-is shared-usable depends entirely on the transfer probe that has not validly run.
+**For the tool, do not ship it.** narrowcast's premise is one shared frozen
+encoder plus a ~40 KB per-user head, and a shared encoder has to serve label sets
+nobody has seen yet. This one makes those *worse* — a user whose species fall
+outside Pl@ntNet-300K would be handed a model 3.5pp below what stock MobileCLIP2
+gives them, with nothing in the card to reveal it.
+
+The general lesson is the one worth keeping: **adapting an encoder to a corpus
+buys accuracy inside that corpus's label set and spends it outside.** If
+narrowcast ever offers domain-adapted encoders, each needs a published
+outside-the-set probe next to it, because the inside-the-set number is
+systematically misleading about the thing a general tool is for.
 
 ## Reproduce
 
