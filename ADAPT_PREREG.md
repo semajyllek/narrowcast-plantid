@@ -32,17 +32,19 @@ adapted encoder is frozen throughout evaluation.
 **Comparisons**: stock `mobileclip2_s2` (0.6236 / 0.8122), `plantclef24` at
 43.3 MB (0.7671 / 0.9258), `bioclip2_cml4` at 160 MB (0.8370 / 0.9735).
 
-### Why the whole corpus, and why that is not leakage
+### What is trained on, and what is deliberately withheld
 
-The obvious cleaner design — adapt on Pl@ntNet species *disjoint* from the
-catalogue — is not available. **The catalogue was selected by image availability
-and has already absorbed 299,832 of the 306,146 images**; the 551 species it left
-behind hold about nine images each. Measured before writing this.
+Adaptation uses the **530 catalogue species only** — 299,832 of Pl@ntNet-300K's
+306,146 images. That adds no leakage relative to the current setup: the
+production head *already* trains on those exact photographs, and the evaluation
+is iNaturalist — different photographs, different source.
 
-So adaptation uses the full corpus, catalogue species included. That adds no
-leakage relative to the current setup: the production head *already* trains on
-those exact Pl@ntNet photographs, and the evaluation is iNaturalist — different
-photographs, different source. What it does mean is stated plainly below.
+**The other 551 species are withheld from training entirely**, and that choice is
+load-bearing rather than incidental. It costs almost nothing — the catalogue was
+selected by image availability, so those species carry about nine images each —
+and it is the only thing that makes the transfer probe below a test rather than a
+formality. Fine-tuning on all 1,081 species and then probing 551 of them would
+measure in-training-distribution performance and pass by construction.
 
 ## Predictions
 
@@ -56,12 +58,13 @@ photographs, different source. What it does mean is stated plainly below.
 
 ## What this cannot establish, declared in advance
 
-- **It is a catalogue-flavoured encoder, not a general plant encoder.** 530 of
-  the 1,081 training species *are* the catalogue. An adapted encoder that scores
-  well may have learned this label set rather than plants, and the standard
-  evaluation cannot tell those apart. **The transfer test that could** — a linear
-  probe on the 551 held-out species — is available and cheap, and should be run
-  before any claim that this is a general-purpose small plant encoder.
+- **Whether this is a general plant encoder or a catalogue-specific one.** It is
+  trained on the catalogue's own species, so a good catalogue score cannot
+  separate *learned plants* from *learned this label set*. **The linear probe on
+  the 551 withheld species is what separates them**, it runs every epoch beside
+  the loss, and it is compared against the stock tower's score on the identical
+  set. A species gain with transfer at or below stock is a catalogue-specific
+  encoder, and must be reported as such rather than as a small plant encoder.
 - **It breaks the tool's economics if used per-user.** narrowcast's premise is one
   shared frozen encoder plus a ~40 KB per-user head. A per-user fine-tune ships a
   per-user encoder and that premise is gone. This is only viable as a **shared**
