@@ -1,0 +1,31 @@
+
+arm crowded: 14 labels — Sedum acre, Sedum album, Sedum dasyphyllum, Sedum hispanicum, ...
+  teacher                  label_share 0.5537  coverage 0.7100  precision 0.9545  top1 0.8967  headroom 0.1189
+
+  wrote analysis/distil_probe.json
+  transfer set 29499 images, teacher posteriors precomputed (15 classes)
+  student 138,351 params — 0.55 MB fp32, 0.14 MB int8
+  epoch 1/20  kl 2.0484  20s
+  epoch 2/20  kl 1.1250  15s
+  epoch 3/20  kl 1.0865  15s
+  epoch 4/20  kl 1.0695  15s
+  epoch 5/20  kl 1.0518  15s
+  epoch 6/20  kl 1.0334  15s
+  epoch 7/20  kl 1.0131  15s
+  epoch 8/20  kl 0.9902  15s
+  epoch 9/20  kl 0.9740  14s
+  epoch 10/20  kl 0.9577  14s
+  epoch 11/20  kl 0.9407  14s
+  epoch 12/20  kl 0.9192  14s
+  epoch 13/20  kl 0.9059  14s
+  epoch 14/20  kl 0.8831  14s
+  epoch 15/20  kl 0.8667  14s
+  epoch 16/20  kl 0.8458  14s
+  epoch 17/20  kl 0.8291  14s
+  epoch 18/20  kl 0.8200  14s
+  epoch 19/20  kl 0.8129  14s
+  epoch 20/20  kl 0.8118  15s
+  student                  label_share 0.0000  coverage 0.0851  precision 0.8939  top1 0.2149  headroom 0.4918
+
+  label_share  teacher 0.5537 -> student 0.0000  (-0.5537)
+  wrote analysis/distil_probe.json

@@ -1,0 +1,46 @@
+{
+  "arm": "separated",
+  "variant": "plantclef24",
+  "labels": [
+    "Althaea officinalis",
+    "Anthurium andraeanum",
+    "Chaerophyllum hirsutum",
+    "Dendrobium nobile",
+    "Fragaria vesca",
+    "Helminthotheca echioides",
+    "Hyoscyamus albus",
+    "Liriodendron tulipifera",
+    "Lupinus angustifolius",
+    "Phalaris arundinacea",
+    "Phedimus spurius",
+    "Tagetes patula",
+    "Thapsia villosa",
+    "Trifolium repens"
+  ],
+  "teacher": {
+    "label_share": 0.8982456140350877,
+    "coverage": 0.7332903533739299,
+    "precision": 0.9799617408326022,
+    "closed_set_top1": 0.9508771929824561,
+    "headroom": 0.0,
+    "group_share": 0.0,
+    "decline_share": 0.10175438596491228
+  },
+  "student": {
+    "label_share": 0.15789473684210525,
+    "coverage": 0.12910569245085163,
+    "precision": 0.9349065257669724,
+    "closed_set_top1": 0.5052631578947369,
+    "headroom": 0.0,
+    "group_share": 0.0,
+    "decline_share": 0.8421052631578947,
+    "params": 138351,
+    "mb_fp32": 0.553,
+    "mb_int8": 0.138,
+    "epochs": 60,
+    "width": 1.0,
+    "img": 224,
+    "init": "scratch",
+    "transfer_images": 29499
+  }
+}

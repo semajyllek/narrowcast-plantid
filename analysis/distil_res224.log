@@ -1,0 +1,82 @@
+
+arm separated: 14 labels — Althaea officinalis, Anthurium andraeanum, Chaerophyllum hirsutum, Dendrobium nobile, ...
+  teacher                  label_share 0.8982  coverage 0.7333  precision 0.9800  top1 0.9509  headroom 0.0000
+
+  wrote analysis/distil_sep_in224.json
+  transfer set 29499 images, teacher posteriors precomputed (15 classes)
+  student [imagenet] 1,533,231 params — 6.13 MB fp32, 1.53 MB int8  [OVER 1 MB BUDGET]
+  epoch 1/30  kl 1.2047  37s
+  epoch 2/30  kl 0.8152  31s
+  epoch 3/30  kl 0.6474  32s
+  epoch 4/30  kl 0.5527  32s
+  epoch 5/30  kl 0.5060  50s
+  epoch 6/30  kl 0.4756  93s
+  epoch 7/30  kl 0.4699  70s
+  epoch 8/30  kl 0.4499  58s
+  epoch 9/30  kl 0.4329  57s
+  epoch 10/30  kl 0.4060  56s
+  epoch 11/30  kl 0.3836  66s
+  epoch 12/30  kl 0.3614  66s
+  epoch 13/30  kl 0.3372  62s
+  epoch 14/30  kl 0.3219  59s
+  epoch 15/30  kl 0.2967  57s
+  epoch 16/30  kl 0.2806  62s
+  epoch 17/30  kl 0.2592  56s
+  epoch 18/30  kl 0.2408  58s
+  epoch 19/30  kl 0.2285  61s
+  epoch 20/30  kl 0.2121  62s
+  epoch 21/30  kl 0.1972  62s
+  epoch 22/30  kl 0.1862  65s
+  epoch 23/30  kl 0.1744  59s
+  epoch 24/30  kl 0.1652  60s
+  epoch 25/30  kl 0.1567  60s
+  epoch 26/30  kl 0.1519  60s
+  epoch 27/30  kl 0.1477  58s
+  epoch 28/30  kl 0.1455  56s
+  epoch 29/30  kl 0.1417  56s
+  epoch 30/30  kl 0.1422  56s
+  student                  label_share 0.2842  coverage 0.2322  precision 0.9549  top1 0.7404  headroom 0.0000
+
+  label_share  teacher 0.8982 -> student 0.2842  (-0.6140)
+  wrote analysis/distil_sep_in224.json
+
+arm crowded: 14 labels — Sedum acre, Sedum album, Sedum dasyphyllum, Sedum hispanicum, ...
+  teacher                  label_share 0.5537  coverage 0.7100  precision 0.9545  top1 0.8967  headroom 0.1189
+
+  wrote analysis/distil_crowd_in224.json
+  transfer set 29499 images, teacher posteriors precomputed (15 classes)
+  student [imagenet] 1,533,231 params — 6.13 MB fp32, 1.53 MB int8  [OVER 1 MB BUDGET]
+  epoch 1/30  kl 1.3431  36s
+  epoch 2/30  kl 0.8369  32s
+  epoch 3/30  kl 0.6709  34s
+  epoch 4/30  kl 0.5895  47s
+  epoch 5/30  kl 0.5419  79s
+  epoch 6/30  kl 0.5247  68s
+  epoch 7/30  kl 0.5041  64s
+  epoch 8/30  kl 0.4969  61s
+  epoch 9/30  kl 0.4710  60s
+  epoch 10/30  kl 0.4470  60s
+  epoch 11/30  kl 0.4242  60s
+  epoch 12/30  kl 0.3920  51s
+  epoch 13/30  kl 0.3757  55s
+  epoch 14/30  kl 0.3584  60s
+  epoch 15/30  kl 0.3340  57s
+  epoch 16/30  kl 0.3102  57s
+  epoch 17/30  kl 0.2922  57s
+  epoch 18/30  kl 0.2745  59s
+  epoch 19/30  kl 0.2610  60s
+  epoch 20/30  kl 0.2434  63s
+  epoch 21/30  kl 0.2261  64s
+  epoch 22/30  kl 0.2155  61s
+  epoch 23/30  kl 0.2039  56s
+  epoch 24/30  kl 0.1957  54s
+  epoch 25/30  kl 0.1870  51s
+  epoch 26/30  kl 0.1812  51s
+  epoch 27/30  kl 0.1767  53s
+  epoch 28/30  kl 0.1736  54s
+  epoch 29/30  kl 0.1717  53s
+  epoch 30/30  kl 0.1700  53s
+  student                  label_share 0.1736  coverage 0.1823  precision 0.8521  top1 0.4917  headroom 0.2910
+
+  label_share  teacher 0.5537 -> student 0.1736  (-0.3802)
+  wrote analysis/distil_crowd_in224.json

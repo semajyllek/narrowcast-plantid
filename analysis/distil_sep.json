@@ -1,0 +1,29 @@
+{
+  "arm": "separated",
+  "variant": "plantclef24",
+  "labels": [
+    "Alliaria petiolata",
+    "Calendula arvensis",
+    "Cirsium palustre",
+    "Duchesnea indica",
+    "Hebe andersonii",
+    "Kniphofia uvaria",
+    "Lamium maculatum",
+    "Liriope muscari",
+    "Melilotus officinalis",
+    "Pelargonium zonale",
+    "Pyracantha coccinea",
+    "Schefflera actinophylla",
+    "Sedum palmeri",
+    "Tradescantia zebrina"
+  ],
+  "teacher": {
+    "label_share": 0.9403669724770642,
+    "coverage": 0.7608957285192857,
+    "precision": 0.9886947051807293,
+    "closed_set_top1": 1.0,
+    "headroom": 0.0,
+    "group_share": 0.0,
+    "decline_share": 0.05963302752293578
+  }
+}

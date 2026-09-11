@@ -1,0 +1,142 @@
+
+arm crowded: 14 labels — Sedum acre, Sedum album, Sedum dasyphyllum, Sedum hispanicum, ...
+  teacher                  label_share 0.5537  coverage 0.7100  precision 0.9545  top1 0.8967  headroom 0.1189
+
+  wrote analysis/distil_crowded_scratch224.json
+  transfer set 29499 images, teacher posteriors precomputed (15 classes)
+  student [scratch] 138,351 params — 0.55 MB fp32, 0.14 MB int8
+  epoch 1/60  kl 1.9386  26s
+  epoch 2/60  kl 1.1168  20s
+  epoch 3/60  kl 1.0937  20s
+  epoch 4/60  kl 1.0727  21s
+  epoch 5/60  kl 1.0549  21s
+  epoch 6/60  kl 1.0362  21s
+  epoch 7/60  kl 1.0226  20s
+  epoch 8/60  kl 1.0090  20s
+  epoch 9/60  kl 0.9953  20s
+  epoch 10/60  kl 0.9787  22s
+  epoch 11/60  kl 0.9608  23s
+  epoch 12/60  kl 0.9455  24s
+  epoch 13/60  kl 0.9251  25s
+  epoch 14/60  kl 0.9104  25s
+  epoch 15/60  kl 0.8979  24s
+  epoch 16/60  kl 0.8794  24s
+  epoch 17/60  kl 0.8634  24s
+  epoch 18/60  kl 0.8472  24s
+  epoch 19/60  kl 0.8315  24s
+  epoch 20/60  kl 0.8134  23s
+  epoch 21/60  kl 0.8038  22s
+  epoch 22/60  kl 0.7910  22s
+  epoch 23/60  kl 0.7724  21s
+  epoch 24/60  kl 0.7674  21s
+  epoch 25/60  kl 0.7475  21s
+  epoch 26/60  kl 0.7424  23s
+  epoch 27/60  kl 0.7261  22s
+  epoch 28/60  kl 0.7162  22s
+  epoch 29/60  kl 0.7025  23s
+  epoch 30/60  kl 0.6943  23s
+  epoch 31/60  kl 0.6806  23s
+  epoch 32/60  kl 0.6716  22s
+  epoch 33/60  kl 0.6690  24s
+  epoch 34/60  kl 0.6530  25s
+  epoch 35/60  kl 0.6462  24s
+  epoch 36/60  kl 0.6348  24s
+  epoch 37/60  kl 0.6344  25s
+  epoch 38/60  kl 0.6196  26s
+  epoch 39/60  kl 0.6095  26s
+  epoch 40/60  kl 0.5974  26s
+  epoch 41/60  kl 0.5909  28s
+  epoch 42/60  kl 0.5871  28s
+  epoch 43/60  kl 0.5747  27s
+  epoch 44/60  kl 0.5744  27s
+  epoch 45/60  kl 0.5673  27s
+  epoch 46/60  kl 0.5598  26s
+  epoch 47/60  kl 0.5489  26s
+  epoch 48/60  kl 0.5471  26s
+  epoch 49/60  kl 0.5384  26s
+  epoch 50/60  kl 0.5353  26s
+  epoch 51/60  kl 0.5314  26s
+  epoch 52/60  kl 0.5281  25s
+  epoch 53/60  kl 0.5252  25s
+  epoch 54/60  kl 0.5193  26s
+  epoch 55/60  kl 0.5186  26s
+  epoch 56/60  kl 0.5170  26s
+  epoch 57/60  kl 0.5167  26s
+  epoch 58/60  kl 0.5153  26s
+  epoch 59/60  kl 0.5136  26s
+  epoch 60/60  kl 0.5139  26s
+  student                  label_share 0.0000  coverage 0.1454  precision 0.9547  top1 0.3554  headroom 0.4959
+
+  label_share  teacher 0.5537 -> student 0.0000  (-0.5537)
+  wrote analysis/distil_crowded_scratch224.json
+
+arm separated: 14 labels — Althaea officinalis, Anthurium andraeanum, Chaerophyllum hirsutum, Dendrobium nobile, ...
+  teacher                  label_share 0.8982  coverage 0.7333  precision 0.9800  top1 0.9509  headroom 0.0000
+
+  wrote analysis/distil_separated_scratch224.json
+  transfer set 29499 images, teacher posteriors precomputed (15 classes)
+  student [scratch] 138,351 params — 0.55 MB fp32, 0.14 MB int8
+  epoch 1/60  kl 1.5376  25s
+  epoch 2/60  kl 1.0267  20s
+  epoch 3/60  kl 1.0114  20s
+  epoch 4/60  kl 1.0012  21s
+  epoch 5/60  kl 0.9934  20s
+  epoch 6/60  kl 0.9792  20s
+  epoch 7/60  kl 0.9672  22s
+  epoch 8/60  kl 0.9547  21s
+  epoch 9/60  kl 0.9397  20s
+  epoch 10/60  kl 0.9243  31s
+  epoch 11/60  kl 0.9168  31s
+  epoch 12/60  kl 0.9013  30s
+  epoch 13/60  kl 0.8888  29s
+  epoch 14/60  kl 0.8767  28s
+  epoch 15/60  kl 0.8619  28s
+  epoch 16/60  kl 0.8487  26s
+  epoch 17/60  kl 0.8318  26s
+  epoch 18/60  kl 0.8192  25s
+  epoch 19/60  kl 0.8043  25s
+  epoch 20/60  kl 0.7940  25s
+  epoch 21/60  kl 0.7784  25s
+  epoch 22/60  kl 0.7623  25s
+  epoch 23/60  kl 0.7499  24s
+  epoch 24/60  kl 0.7389  26s
+  epoch 25/60  kl 0.7229  25s
+  epoch 26/60  kl 0.7135  25s
+  epoch 27/60  kl 0.6996  24s
+  epoch 28/60  kl 0.6932  26s
+  epoch 29/60  kl 0.6784  25s
+  epoch 30/60  kl 0.6702  26s
+  epoch 31/60  kl 0.6586  28s
+  epoch 32/60  kl 0.6471  27s
+  epoch 33/60  kl 0.6380  27s
+  epoch 34/60  kl 0.6250  25s
+  epoch 35/60  kl 0.6186  24s
+  epoch 36/60  kl 0.6063  23s
+  epoch 37/60  kl 0.5997  23s
+  epoch 38/60  kl 0.5873  23s
+  epoch 39/60  kl 0.5831  22s
+  epoch 40/60  kl 0.5746  22s
+  epoch 41/60  kl 0.5654  22s
+  epoch 42/60  kl 0.5579  22s
+  epoch 43/60  kl 0.5488  22s
+  epoch 44/60  kl 0.5405  22s
+  epoch 45/60  kl 0.5336  21s
+  epoch 46/60  kl 0.5265  22s
+  epoch 47/60  kl 0.5203  22s
+  epoch 48/60  kl 0.5130  22s
+  epoch 49/60  kl 0.5128  22s
+  epoch 50/60  kl 0.5039  23s
+  epoch 51/60  kl 0.5021  22s
+  epoch 52/60  kl 0.4946  22s
+  epoch 53/60  kl 0.4950  22s
+  epoch 54/60  kl 0.4891  22s
+  epoch 55/60  kl 0.4859  22s
+  epoch 56/60  kl 0.4850  22s
+  epoch 57/60  kl 0.4863  22s
+  epoch 58/60  kl 0.4823  22s
+  epoch 59/60  kl 0.4844  22s
+  epoch 60/60  kl 0.4820  22s
+  student                  label_share 0.1579  coverage 0.1291  precision 0.9349  top1 0.5053  headroom 0.0000
+
+  label_share  teacher 0.8982 -> student 0.1579  (-0.7404)
+  wrote analysis/distil_separated_scratch224.json

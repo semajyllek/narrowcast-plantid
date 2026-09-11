@@ -1,0 +1,46 @@
+{
+  "arm": "crowded",
+  "variant": "plantclef24",
+  "labels": [
+    "Sedum acre",
+    "Sedum album",
+    "Sedum dasyphyllum",
+    "Sedum hispanicum",
+    "Sedum rupestre",
+    "Sedum sediforme",
+    "Sedum sexangulare",
+    "Sedum spathulifolium",
+    "Trifolium arvense",
+    "Trifolium campestre",
+    "Trifolium dubium",
+    "Trifolium incarnatum",
+    "Trifolium pratense",
+    "Trifolium repens"
+  ],
+  "teacher": {
+    "label_share": 0.5537190082644629,
+    "coverage": 0.709997872585644,
+    "precision": 0.954490114097457,
+    "closed_set_top1": 0.8966942148760331,
+    "headroom": 0.11885245901639341,
+    "group_share": 0.3140495867768595,
+    "decline_share": 0.1322314049586777
+  },
+  "student": {
+    "label_share": 0.17355371900826447,
+    "coverage": 0.18234291426827157,
+    "precision": 0.8520863091935437,
+    "closed_set_top1": 0.49173553719008267,
+    "headroom": 0.290983606557377,
+    "group_share": 0.049586776859504134,
+    "decline_share": 0.7768595041322314,
+    "params": 1533231,
+    "mb_fp32": 6.133,
+    "mb_int8": 1.533,
+    "epochs": 30,
+    "width": 1.0,
+    "img": 224,
+    "init": "imagenet",
+    "transfer_images": 29499
+  }
+}

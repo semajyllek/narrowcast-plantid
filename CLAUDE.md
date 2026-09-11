@@ -249,9 +249,12 @@ docs.
 source-shift result; update those, not the three dated snapshots below them.
 
 - [technical deep dive](https://claude.ai/code/artifact/57e63fd1-a30f-4da3-8965-cc1b8738459c)
-  — the reference document, 16 sections. §15 is the source-shift 2×2.
+  — the reference document, **18 sections**. §15 is the source-shift 2×2; **§17 is the
+  three-levers result** (data / parameters / pixels each open headroom), and §13 now carries
+  the capacity floor and the reopened distillation status.
 - [status, September 2026](https://claude.ai/code/artifact/5c4c24d8-30d4-46f8-b58a-577017038c5e)
-  — the tool direction, with the caveat now on the small-encoder frontier.
+  — the tool direction, rewritten around the few-shot collapse and the end-to-end `fit`
+  demonstration (5.7 MB on a separated list, a refusal on a crowded one).
 - Superseded snapshots:
   [experimental record](https://claude.ai/code/artifact/e1115322-7231-4726-956e-1ef9391cb0f0) ·
   [project status](https://claude.ai/code/artifact/28638d03-1b2f-4956-be5e-7675a57d37e0) ·
