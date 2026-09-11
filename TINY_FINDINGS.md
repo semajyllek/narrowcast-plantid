@@ -318,13 +318,61 @@ anywhere**, so the whole pilot is 10–45 minutes on MPS.
 | separated | scratch | 0.14 MB | 224 | 0.898 | **0.158** | −0.740 | 0.505 |
 | separated | imagenet | 1.53 MB | 128 | 0.898 | **0.228** | −0.670 | 0.667 |
 | separated | imagenet | 1.53 MB | 224 | 0.898 | **0.284** | −0.614 | 0.740 |
+| **crowded** | **scratch** | **0.14 MB** | **518** | 0.554 | **0.000** | **−0.554** | **0.471** |
+| **separated** | **scratch** | **0.14 MB** | **518** | 0.898 | **0.190** | **−0.709** | **0.628** |
 
 **Prediction 1 was wrong.** It said the separated arm would survive within 5pp
 and the crowded arm fail by more than 15pp. Both fail, and *separated fails
 harder in absolute terms*. Prediction 2 — sub-1 MB lands more than 10pp below
 teacher on both arms — is confirmed at every point tried.
 
-### The re-close condition is met on the letter, and should not be applied
+### Settled at the teacher's own resolution: distillation closes
+
+**A sub-1 MB student trained at 518 px — the teacher's own input — fails both
+arms.** Separated reaches `label_share` 0.190 against a pass bar of 0.849;
+crowded reaches 0.000 against a fail bar of 0.404. Re-close condition (a) of
+`TINY_PREREG.md` is satisfied: the resolution handicap is gone and the result did
+not move. **Task-conditional distillation is closed**, and unlike the two previous
+closures there is no outstanding objection to it.
+
+The resolution lever was genuinely near its ceiling. Extrapolating the 128 → 224
+step at ~8pp of top-1 per doubling predicted 0.45 crowded and 0.59 separated
+before the run; measured, **0.4711 and 0.6281**. Two further doublings of pixels
+bought what one did, and neither came close to the teacher's 0.897 / 0.951.
+
+### The cliff is not a function of top-1 alone — capacity costs sharpness
+
+The most useful thing in the final run is an anomaly. The crowded student reached
+top-1 **0.4711**, *above* the 0.492 at which the 1.53 MB student scored
+`label_share` 0.174 — and it named **zero** labels.
+
+| student | top-1 | `label_share` |
+|---|---|---|
+| 1.53 MB @ 224 px | 0.492 | 0.174 |
+| **0.14 MB @ 518 px** | **0.471** | **0.000** |
+
+So the `p > 0.800` gate is not reducible to argmax accuracy. The smaller model's
+posteriors are **flatter**: it is right about as often and confident far less
+often, so it almost never clears the bar even when its best guess is correct.
+Capacity buys sharpness as well as accuracy, and the cascade is gated on the
+first. "A smaller model" and "a more cautious model" are not separable here, which
+is why fine-rank accuracy and the label share have to be read together — neither
+predicts the other across a capacity change.
+
+### Latency: the storage-only worry did not materialise
+
+**1.36 ms/img crowded and 1.41 ms/img separated at 518 px, batch 1.** 138k
+parameters stay cheap even at the teacher's resolution, so the concern that a
+student needing 518 px would be a small *file* and an expensive *computation* is
+not borne out.
+
+**This is an A100 figure and is not comparable to `plantclef24`'s 38.6 ms, which
+is MPS.** Different hardware, different backend; it bounds nothing about an ANE or
+a microcontroller. What it does establish is that resolution alone does not make
+a 138k-parameter network expensive — the cost that makes `plantclef24` slow is its
+86.6M parameters *at* 518 px, not the pixels by themselves.
+
+### What the retired argument said
 
 `TINY_PREREG.md` says distillation closes for good if the student is more than
 15pp below teacher on **both** arms at every size tried. It is, six times. **I am
@@ -338,12 +386,13 @@ the crowded arm from **exactly 0.000 to 0.174** and top-1 from 0.388 to 0.492.
 That lever is real and it is nowhere near exhausted at 224 of the teacher's 518.
 The training budget is not exhausted either — 30–60 epochs with KL still falling.
 
-So the honest status is **not demonstrated**, with two known unexhausted levers,
-rather than refuted. Closing a question on a handicapped test is how a finding
-gets retracted later, and this project has enough of those. `TINY_PREREG.md`
-carries an amended condition that is checkable: re-close requires a student
-trained at the teacher's own resolution, or evidence that resolution is
-saturated.
+Before the 518 px run this section read **not demonstrated**, on the grounds that
+the pre-registered condition had been met six times at 128–224 px against a
+teacher at 518, and that one resolution step had taken the crowded arm from 0.000
+to 0.174. That caution was correct to hold and is now discharged rather than
+retracted: the amended condition named the run that would settle it, the run
+happened, and the answer did not change. Recording it because a condition that is
+only ever invoked to keep a question open is not a condition.
 
 ### Two corrections to the size claim
 

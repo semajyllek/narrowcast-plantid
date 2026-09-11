@@ -1,5 +1,21 @@
 # Pre-registration — reopening distillation, at the K the tool actually builds
 
+> ## Outcome: closed. Both predictions resolved, one of them wrong.
+>
+> A 0.14 MB student trained at the teacher's own **518 px** fails both arms —
+> separated `label_share` **0.190** against a 0.849 pass bar, crowded **0.000**
+> against a 0.404 fail bar. Re-close condition (a) is satisfied and **applied**:
+> the handicap that held this open is gone and the answer did not move.
+>
+> **Prediction 1 was wrong.** It said the separated arm would survive within 5pp
+> and only the crowded arm would fail. Both fail, and separated fails *hardest in
+> absolute terms* (−0.709 against −0.554). **Prediction 2 was right** at every
+> size and resolution tried. **Prediction 3 held**: nesting never broke, and the
+> cascade's thresholds absorbed the students' miscalibration without incident.
+>
+> Full numbers in `TINY_FINDINGS.md` §3; raw output in
+> `analysis/tiny_student_518.json`.
+
 Distillation appears twice on `CLAUDE.md`'s **"Closed — do not redo"** list, and
 pruning once. Reopening it needs a reason better than wanting a different answer,
 and this document exists to fix the decision rule **before** any of it is run.
@@ -169,10 +185,12 @@ posteriors on the 109k cached images, then INT8. Scored through
   > `label_share` the sub-1 MB crowded student looks saturated (0.000 → 0.000);
   > measured on top-1 it plainly is not (**0.277 → 0.355, +7.9pp per doubling**).
   >
-  > **So as of this pilot the condition is not met and resolution is still live.**
-  > Reaching the teacher's 518px is ~2 h/arm on MPS at the observed 26 s/epoch —
-  > that is what the borrowed A100 is for, and it is the one remaining question
-  > before this can be closed either way.
+  > ~~**So as of this pilot the condition is not met and resolution is still
+  > live.**~~ **Run, and the condition is now met.** `notebooks/tiny_student_colab.ipynb`
+  > trained at 518 px on an A100: crowded top-1 0.4711 / `label_share` 0.0000,
+  > separated top-1 0.6281 / `label_share` 0.1895. Extrapolating the 128 → 224 step
+  > predicted 0.45 and 0.59 before the run, so resolution really was near its
+  > ceiling. Condition (a) is satisfied and distillation closes.
 - ~~The student needs transfer data the tool cannot assume. narrowcast's users
   bring 30 images per label, not 109k. **A method that needs a corpus the tool
   forbids itself from fetching is a research result, not a feature**, and must be

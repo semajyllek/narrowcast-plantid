@@ -286,6 +286,21 @@ source-shift result; update those, not the three dated snapshots below them.
   higher than 1.5pp. It costs
   38.6 ms/image against BioCLIP-2's 20.4, because it runs at 518px. Byte order is
   not speed order.
+- **Task-conditional distillation** (`TINY_FINDINGS.md` §3, `TINY_PREREG.md`).
+  The third and last closure, and the only one with no outstanding objection. Both
+  prior attempts matched a *general embedding* at K=490, which `PRUNE_FINDINGS`
+  says is the wrong target; this one matched the **fitted task** — teacher = frozen
+  encoder + fitted head, target = K+1 posteriors over the user's own labels — at
+  K=14, on two label sets, scored cross-source through the unmodified path. A
+  0.14 MB student **trained at the teacher's own 518 px** reaches `label_share`
+  0.190 separated (pass bar 0.849) and **0.000** crowded (fail bar 0.404). The
+  resolution handicap that kept this open for one revision is gone and the answer
+  did not move. **Do not reopen without a new objective, not a new size.**
+  Two things worth keeping from it: the `p > 0.800` cliff means a crowded
+  `label_share` of exactly 0.000 is the declared utility working rather than a
+  broken run, and the gate is **not** reducible to top-1 — the 0.14 MB student at
+  top-1 0.471 named zero labels where a 1.53 MB student at 0.492 named 17.4%,
+  because capacity buys *sharpness* as well as accuracy.
 - **Pruning, to reach a small budget** (`PRUNE_FINDINGS.md`). Depth-pruned
   BioCLIP-2 at 127 MB scores 0.9323; off-the-shelf `plantclef24` at 43 MB scores
   0.9621. Every pruned point is dominated. 99% of ViT-L is its 24 blocks, so

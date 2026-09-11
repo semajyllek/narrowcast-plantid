@@ -1,0 +1,28 @@
+[
+  {
+    "arm": "crowded",
+    "px": 518,
+    "init": "scratch",
+    "mb_int8": 0.138,
+    "params": 138351,
+    "label_share": 0.0,
+    "closed_set_top1": 0.4711,
+    "headroom": 0.377,
+    "latency": {
+      "ms_per_img_bs1": 1.36
+    }
+  },
+  {
+    "arm": "separated",
+    "px": 518,
+    "init": "scratch",
+    "mb_int8": 0.138,
+    "params": 138351,
+    "label_share": 0.1895,
+    "closed_set_top1": 0.6281,
+    "headroom": 0.0,
+    "latency": {
+      "ms_per_img_bs1": 1.41
+    }
+  }
+]
