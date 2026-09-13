@@ -478,3 +478,15 @@ report drops the label-level share.
   criterion. If the product needs plants where being wrong is expensive
   (toxicity, foraging, invasives), the catalogue should be re-selected against
   that — different data, different project.
+
+- **A learned metric on frozen features, as a few-shot rescue**
+  (`METRIC_FINDINGS.md`, `METRIC_PREREG.md`). Shrinkage LDA on top of the frozen
+  embedding, the narrowcast-shaped version of what SetFit does to its body. It
+  **more than doubles the crowded label share at 32 rows/label** (0.0654 → 0.1392,
+  paired +0.0739 [+0.0269, +0.1203]) and PCA at matched width is null, so the gain
+  is supervision rather than compression. **But the declared bar was >5pp at ≤8
+  rows/label and the best there is +2.84pp**, so the tool is unchanged and this is
+  not a few-shot fix. The benefit lives in a *band* — too little data to estimate a
+  subspace at 1–4 rows (LDA cannot even be fitted at 1, needing more samples than
+  classes), and `raw` catches up by full data. Closed as a rescue; **open as a
+  band**, and reopening needs a prereg that can identify the band before building.
