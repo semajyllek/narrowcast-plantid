@@ -18,9 +18,21 @@ Predictors are measured on the calibration rows and outcomes on held-out test
 rows, so what comes out is an ex-ante rule: measure headroom on the data you fit
 thresholds with, before you know what the deployment will answer.
 
+`p_ood`, the assumed out-of-catalogue prevalence, was a module constant when the
+published 1,409 arms were scored. That is why the rule fitted to them carries no
+term for it, and why `1.8 x headroom` is quotable only with an operating point
+attached -- see HEADROOM_FINDINGS.md's third qualification. `--p-ood` makes it an
+axis. Scoring each arm at several operating points is nearly free, because
+`p_ood` enters only at `deployment_weights`: the embedding, the label set, the
+head and the grouping are all built once and re-scored.
+
 Usage:
     PYTHONPATH=. .venv/bin/python -m analysis.headroom_arms --out data/processed/headroom_arms.csv
     PYTHONPATH=. .venv/bin/python -m analysis.headroom_arms --analyse data/processed/headroom_arms.csv
+
+    # the operating-point sweep
+    PYTHONPATH=. .venv/bin/python -m analysis.headroom_arms \\
+        --p-ood 0.05 0.1 0.2 0.4 0.6 --out data/processed/headroom_ood.csv
 """
 
 import argparse
@@ -233,8 +245,16 @@ def frame(arm, gmap):
     })
 
 
-def measure(df, seed, ood_mix=None):
-    """Predictors on calib, outcomes on test. -> dict or None if a split is empty."""
+def measure(df, seed, ood_mix=None, p_ood=P_OOD):
+    """Predictors on calib, outcomes on test. -> dict or None if a split is empty.
+
+    `p_ood` is the assumed out-of-catalogue prevalence. It was a module constant
+    until the sweep below was added, which meant every published arm shared one
+    operating point and the rule fitted to them could not carry a term for it --
+    see HEADROOM_FINDINGS.md's third qualification, and narrowcast-derm's
+    `ood_sweep.py`, where holding headroom *exactly* fixed and moving only this
+    number changes realised retreat by 91x.
+    """
     ood_mix = ood_mix or OOD_MIX
     fold = make_splits(df, seed=seed)
     cal, te = df[fold == "calib"], df[fold == "test"]
@@ -254,7 +274,7 @@ def measure(df, seed, ood_mix=None):
         return m or ood_mix
 
     near_in_calib = bool((cal["bucket"] == "near_ood").any())
-    w_cal = deployment_weights(cal["bucket"].to_numpy(), p_ood=P_OOD, ood_mix=_mix(cal))
+    w_cal = deployment_weights(cal["bucket"].to_numpy(), p_ood=p_ood, ood_mix=_mix(cal))
     (tg, ts), _ = fit_thresholds(
         cal["species_conf"].to_numpy(), cal["genus_conf"].to_numpy(),
         cal["species_ok"].to_numpy(), cal["genus_ok"].to_numpy(),
@@ -265,7 +285,7 @@ def measure(df, seed, ood_mix=None):
     coarse = cal["genus_ok"].to_numpy()[ci].mean()
 
     lv = decide(te["species_conf"].to_numpy(), te["genus_conf"].to_numpy(), tg, ts)
-    w = deployment_weights(te["bucket"].to_numpy(), p_ood=P_OOD, ood_mix=_mix(te))
+    w = deployment_weights(te["bucket"].to_numpy(), p_ood=p_ood, ood_mix=_mix(te))
     answered = lv != DECLINE
     correct = ((lv == SPECIES) & te["species_ok"].to_numpy()) | \
               ((lv == GENUS) & te["genus_ok"].to_numpy())
@@ -295,16 +315,30 @@ def measure(df, seed, ood_mix=None):
     )
 
 
-def score(df, meta, ood_mix=None):
+def score(df, meta, ood_mix=None, p_ood=P_OOD):
     """Average an arm's measurements over N_SPLITS calib/test splits."""
-    ms = [m for m in (measure(df, s, ood_mix) for s in range(N_SPLITS)) if m is not None]
+    ms = [m for m in (measure(df, s, ood_mix, p_ood) for s in range(N_SPLITS))
+          if m is not None]
     if not ms:
         return None
     row = {k: float(np.mean([m[k] for m in ms])) for k in ms[0]}
-    return {**meta, **row, "n_splits": len(ms)}
+    return {**meta, **row, "p_ood": p_ood, "n_splits": len(ms)}
 
 
-def plant_arms(n_sets):
+def score_over(df, meta, p_oods, ood_mix=None):
+    """The same arm at each operating point.
+
+    The sweep is cheap on purpose. Embedding, drawing the label set, fitting the
+    head and building the grouping all happen once per arm; `p_ood` enters only
+    at `deployment_weights`, so N operating points cost N cheap re-scorings of a
+    frame that is already in memory rather than N builds. Everything upstream of
+    the thresholds is held *identical* across the row, which is what makes the
+    within-arm comparison clean -- the same property the grouping sweep relies on.
+    """
+    return [r for r in (score(df, meta, ood_mix, p) for p in p_oods) if r]
+
+
+def plant_arms(n_sets, p_oods=(P_OOD,)):
     ref, _ = load("bioclip2")
     all_species = np.array(sorted(set(ref["leaf"][1]) | set(ref["flower"][1])))
     rows = []
@@ -319,13 +353,13 @@ def plant_arms(n_sets):
                     arm = fit_arm(cat, bg, species, np.random.default_rng(si))
                     gs = groupings(arm, np.random.default_rng(si))
                     for gname, gmap in gs.items():
-                        r = score(frame(arm, gmap),
-                                  dict(domain="plants", encoder=variant, K=K,
-                                       crowded=crowded, label_set=f"{variant}|{setid}",
-                                       set_shape=setid, grouping=gname,
-                                       n_groups=len(set(gmap.values()))))
-                        if r:
-                            rows.append(r)
+                        rows += score_over(
+                            frame(arm, gmap),
+                            dict(domain="plants", encoder=variant, K=K,
+                                 crowded=crowded, label_set=f"{variant}|{setid}",
+                                 set_shape=setid, grouping=gname,
+                                 n_groups=len(set(gmap.values()))),
+                            p_oods)
                     print(f"  {variant:15s} {setid:16s} {len(gs)} groupings", flush=True)
     return rows
 
@@ -343,7 +377,7 @@ OOD_ARMS = [
 ]
 
 
-def ood_arms():
+def ood_arms(p_oods=(P_OOD,)):
     """The already-published text/audio/bird arms, re-scored through this code.
 
     They enter the table so the published points sit on the same axes; they are
@@ -383,12 +417,14 @@ def ood_arms():
         # scoring them at an effective p_ood of 0.145 rather than 0.20 -- a
         # different operating point from every plant arm in the same table.
         K = int(pd.Series(nd["truth"][nd["in_catalog"]]).nunique())
-        r = score(df, dict(domain=domain, encoder=name.split("-")[0], K=K,
-                           crowded="crowded" in name, label_set=name, set_shape=name,
-                           grouping="published", n_groups=n_groups),
-                  ood_mix={"distant_ood": 1.0})
-        if r:
-            rows.append(r)
+        rs = score_over(df, dict(domain=domain, encoder=name.split("-")[0], K=K,
+                                 crowded="crowded" in name, label_set=name,
+                                 set_shape=name, grouping="published",
+                                 n_groups=n_groups),
+                        p_oods, ood_mix={"distant_ood": 1.0})
+        rows += rs
+        if rs:
+            r = rs[0]
             print(f"  {name:18s} fine={r['fine']:.3f} coarse={r['coarse']:.3f} "
                   f"headroom={r['headroom']:+.3f}", flush=True)
     return rows
@@ -408,8 +444,154 @@ def _cv_r2(d, cols, folds):
     return 1 - ss / ((y - y.mean()) ** 2).sum()
 
 
+def _cv_r2_on(d, cols, folds, y_col="group_share"):
+    """Grouped CV R2 for an arbitrary outcome column."""
+    y = d[y_col].to_numpy()
+    pred = np.empty_like(y, dtype=float)
+    for f in sorted(set(folds)):
+        tr, te = folds != f, folds == f
+        m = LinearRegression().fit(d.loc[tr, cols], y[tr])
+        pred[te] = m.predict(d.loc[te, cols])
+    return 1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+
+
+def analyse_operating_point(full, ops):
+    """The retreat rule with an operating-point term.
+
+    `HEADROOM_FINDINGS.md` establishes that headroom governs retreat, and then
+    records that the `1.8 x headroom` rule of thumb omits `p_ood` and is therefore
+    unusable without one -- measured in narrowcast-derm at 91x movement in
+    realised retreat while the prediction sat still. That refutation stands. What
+    it lacked was a replacement, because every one of the 1,409 arms was fitted at
+    a single operating point and a term that never varies cannot be estimated.
+
+    This is that estimate. Headroom is a property of the *calibration* rows and
+    does not move with `p_ood` -- verified below rather than assumed, because if
+    it did move, the two predictors would be confounded and the whole design
+    would be pointless.
+    """
+    d = full.copy()
+    print("\n" + "=" * 72)
+    print("OPERATING POINT: the term the 1.8x rule omits")
+    print("=" * 72)
+
+    # Confounding check, first and declared. The design rests on headroom being
+    # fixed within an arm while p_ood moves. `measure` computes it from
+    # species_ok/genus_ok on the calibration half and no deployment weight enters
+    # it -- so the spread within an arm should be exactly 0.
+    #
+    # The arm is (label_set, grouping), NOT set_shape. `set_shape` is the species
+    # set alone: it is deliberately shared across all five encoders and every
+    # grouping of the same set, which is exactly why the CV folds and the
+    # bootstrap key on it. Grouping this check by it would compare different arms
+    # to each other and report a spread that is real variation between arms
+    # rather than contamination within one.
+    d["arm"] = d["label_set"].astype(str) + "|" + d["grouping"].astype(str)
+    spread = d.groupby("arm")["headroom"].agg(lambda x: x.max() - x.min())
+    worst = float(spread.max())
+    verdict = "OK" if worst < 1e-9 else "** CONFOUNDED **"
+    print(f"\nheadroom spread within an arm across operating points: "
+          f"max {worst:.2e}  {verdict}")
+    if worst >= 1e-9:
+        print("      headroom must not move with p_ood -- it is computed on the")
+        print("      calibration rows with no deployment weight. A non-zero spread")
+        print("      means the two predictors are entangled and the fit below is")
+        print("      not identified. Fix that before reading anything past here.")
+
+    print(f"\nrealised retreat by operating point "
+          f"({d['arm'].nunique()} arms, {d['set_shape'].nunique()} species sets)")
+    g = d.groupby("p_ood").agg(headroom=("headroom", "mean"),
+                               t_group=("t_group", "mean"),
+                               group=("group_share", "mean"),
+                               label=("label_share", "mean"),
+                               decline=("decline_share", "mean"))
+    g["1.8 x headroom"] = 1.8 * g["headroom"]
+    print(g.round(4).to_string())
+
+    lo, hi = g["group"].iloc[0], g["group"].iloc[-1]
+    print(f"\n      the prediction is pinned at {g['1.8 x headroom'].iloc[0]:.4f} throughout; "
+          f"what it predicts moves {lo:.4f} -> {hi:.4f}"
+          + (f" ({lo / hi:.0f}x)" if hi > 0 else ""))
+
+    # The two-variable rule. Folds key on the species-set identity, so an arm and
+    # all of its operating points stay on one side -- otherwise the model is
+    # scored on a p_ood of an arm it has already seen at another p_ood, which is
+    # interpolation dressed as prediction.
+    folds = pd.factorize(d["set_shape"])[0] % 5
+    d["head_x_ood"] = d["headroom"] * d["p_ood"]
+    models = {
+        "headroom alone (the published rule)": ["headroom"],
+        "p_ood alone":                         ["p_ood"],
+        "headroom + p_ood":                    ["headroom", "p_ood"],
+        "headroom + p_ood + interaction":      ["headroom", "p_ood", "head_x_ood"],
+        "headroom + t_group":                  ["headroom", "t_group"],
+    }
+    print("\ngrouped 5-fold CV R^2 on group-answer share, folds keyed on set_shape")
+    for name, cols in models.items():
+        print(f"      {name:36s} {_cv_r2_on(d, cols, folds):+.4f}")
+
+    m = LinearRegression().fit(d[["headroom", "p_ood"]], d["group_share"])
+    a_h, a_p = m.coef_
+    print(f"\n      group_share ~ {m.intercept_:+.4f} {a_h:+.4f} * headroom "
+          f"{a_p:+.4f} * p_ood")
+
+    # Cluster bootstrap on the species-set identity, as everywhere else here.
+    rng = np.random.default_rng(0)
+    sets = d["set_shape"].unique()
+    idx = {sh: np.flatnonzero(d["set_shape"].to_numpy() == sh) for sh in sets}
+    boots = []
+    for _ in range(2000):
+        pick = np.concatenate([idx[sh] for sh in rng.choice(sets, len(sets), replace=True)])
+        boots.append(LinearRegression().fit(
+            d.iloc[pick][["headroom", "p_ood"]], d.iloc[pick]["group_share"]).coef_)
+    boots = np.array(boots)
+    for nm, j in (("headroom", 0), ("p_ood", 1)):
+        blo, bhi = np.percentile(boots[:, j], [2.5, 97.5])
+        excl = "excludes 0" if blo * bhi > 0 else "INCLUDES 0"
+        print(f"      coef({nm:8s}) = {m.coef_[j]:+.4f}  CI [{blo:+.4f}, {bhi:+.4f}]  {excl}")
+
+    # The mechanism, stated as a number rather than asserted: t_group is fitted
+    # mostly as a rejection threshold, climbs with p_ood, and swallows the band
+    # between the two thresholds that retreat lives in.
+    print(f"\n      corr(p_ood, t_group) = {np.corrcoef(d['p_ood'], d['t_group'])[0,1]:+.3f}"
+          f"   corr(t_group, group_share) = "
+          f"{np.corrcoef(d['t_group'], d['group_share'])[0,1]:+.3f}")
+    print("      t_group is fitted mostly to reject out-of-list inputs, so it rises"
+          "\n      with p_ood and squeezes the band between the thresholds that a"
+          "\n      group answer has to land in. That is the whole mechanism.")
+
+    # Does the floor survive? The published rule is quoted as a floor, and the
+    # derm result put realised retreat *below* it at every operating point.
+    d["ratio"] = d["group_share"] / d["headroom"].where(d["headroom"] > 0.02)
+    r = d.dropna(subset=["ratio"]).groupby("p_ood")["ratio"].median()
+    print("\n      median group_share / headroom by operating point "
+          "(1.8 is the published floor)")
+    print("      " + r.round(3).to_string().replace("\n", "\n      "))
+    print("      A floor that holds only at the p_ood it was fitted at is not a floor.")
+
+
 def analyse(path):
-    d = pd.read_csv(path)
+    # NB: not `full` -- P2 below binds that name to its two-predictor regression.
+    arms_all = pd.read_csv(path)
+    if "p_ood" not in arms_all.columns:
+        arms_all["p_ood"] = P_OOD        # a CSV from before the sweep existed
+
+    # The pre-registered analysis runs on ONE operating point, always. Pooling an
+    # arm's five p_ood rows would quintuple n without adding an independent
+    # observation, inflate every interval's apparent precision, and put five
+    # copies of the same arm across the CV folds -- which is the exact mistake
+    # `set_shape` folding exists to prevent one level up. The sweep is a second
+    # question asked of the same arms, not more arms.
+    ops = sorted(arms_all["p_ood"].unique())
+    d = arms_all[arms_all["p_ood"] == P_OOD].copy()
+    if d.empty:
+        raise SystemExit(f"no arms at the pre-registered p_ood = {P_OOD}; "
+                         f"found {ops}. The declared analysis cannot be run.")
+    if len(ops) > 1:
+        print(f"{len(arms_all)} rows = {len(d)} arms x {len(ops)} operating points "
+              f"{ops}\nPre-registered analysis below uses p_ood = {P_OOD} only "
+              f"({len(d)} arms); the sweep follows it.\n")
+
     print(f"{len(d)} arms, {d['label_set'].nunique()} label sets, "
           f"{d['domain'].nunique()} domains\n")
 
@@ -505,6 +687,9 @@ def analyse(path):
             rd = np.corrcoef(sub["group_share"], sub["decline_share"])[0, 1]
             print(f"      {name:9s} n={len(sub):4d}  corr(group,label)={r:+.3f}  "
                   f"corr(group,decline)={rd:+.3f}")
+
+    if len(ops) > 1:
+        analyse_operating_point(arms_all, ops)
     return d
 
 
@@ -513,19 +698,39 @@ def main():
     ap.add_argument("--out", default=f"{DP}/headroom_arms.csv")
     ap.add_argument("--sets-per-cell", type=int, default=3)
     ap.add_argument("--analyse", metavar="CSV")
+    ap.add_argument("--p-ood", type=float, nargs="+", default=[P_OOD], metavar="P",
+                    help="assumed out-of-catalogue prevalence, repeatable. "
+                         f"Default {P_OOD}, which reproduces the published arms "
+                         "exactly. Give several (e.g. --p-ood 0.05 0.1 0.2 0.4 0.6) "
+                         "to score every arm at each, which is what the retreat "
+                         "rule needs to carry an operating-point term.")
     a = ap.parse_args()
 
     if a.analyse:
         analyse(a.analyse)
         return
 
-    print(f"break-even for a group answer under UTILITY: {BREAKEVEN:.4f}\n")
+    p_oods = sorted(set(a.p_ood))
+    for p in p_oods:
+        if not 0.0 <= p < 1.0:
+            raise SystemExit(f"--p-ood {p} is not a prevalence in [0, 1)")
+    if P_OOD not in p_oods:
+        # The pre-registered analysis is defined at this operating point. A sweep
+        # that skips it produces a CSV the declared tests cannot be run on, which
+        # is a worse outcome than one extra cheap re-scoring per arm.
+        print(f"note: adding the pre-registered p_ood = {P_OOD} to the sweep; "
+              "the declared analysis is defined there.")
+        p_oods = sorted(set(p_oods) | {P_OOD})
+
+    print(f"break-even for a group answer under UTILITY: {BREAKEVEN:.4f}")
+    print(f"operating points: {p_oods}\n")
     print("plant arms:", flush=True)
-    rows = plant_arms(a.sets_per_cell)
+    rows = plant_arms(a.sets_per_cell, p_oods)
     print("\nout-of-domain arms (published, re-scored):", flush=True)
-    rows += ood_arms()
+    rows += ood_arms(p_oods)
     pd.DataFrame(rows).to_csv(a.out, index=False)
-    print(f"\nwrote {a.out}: {len(rows)} arms")
+    print(f"\nwrote {a.out}: {len(rows)} rows "
+          f"= {len(rows) // max(len(p_oods), 1)} arms x {len(p_oods)} operating points")
     analyse(a.out)
 
 
