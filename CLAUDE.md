@@ -398,6 +398,18 @@ whether a data intervention will help or hurt keys on **measured top-1** — nev
 on K, which is only a proxy for it, and a reliable one only where the encoder is
 strong for the domain.
 
+**The operating-point term is now estimated** (`OPERATING_POINT_FINDINGS.md`).
+`p_ood` was a module constant in `analysis/headroom_arms.py`, which is why the
+published rule carries no term for it; it is an axis now. Over 1,052 arms at five
+operating points, with headroom held at *exactly* zero within-arm spread:
+realised retreat moves **2×** (0.252 → 0.157), not derm's 91×, and adding `p_ood`
+buys +0.024 of CV R² (+0.063 with an interaction). `1.8×` is recoverable at
+`p_ood = 0.20` and nowhere else, so it is an operating-point-specific value
+rather than a floor. **But the sweep is plants + text only** — the audio and bird
+arms were addressed under `/tmp` and are gone — so the weak-encoder regime where
+derm found 91× is unrepresented. Quote 2× as a plant number and 91× as a
+weak-encoder one.
+
 ## The finding the tool is built on
 
 A label set crowded with siblings of one group buys **coverage** with coarse

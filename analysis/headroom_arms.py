@@ -37,6 +37,7 @@ Usage:
 
 import argparse
 from collections import Counter, defaultdict
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -364,6 +365,20 @@ def plant_arms(n_sets, p_oods=(P_OOD,)):
     return rows
 
 
+# The out-of-domain arms are what make this a cross-domain result rather than a
+# plant one, and they were addressed only under /tmp -- which macOS clears. A
+# re-run months later silently skipped audio and birds and produced a
+# plants-plus-text table that still described itself as the same experiment.
+# Resolved against a persistent directory first, /tmp second.
+ARM_INPUTS = Path(f"{DP}/arm_inputs")
+
+
+def _arm_input(path):
+    """Prefer a persistent copy of an arm input over the /tmp original."""
+    keep = ARM_INPUTS / Path(path).name
+    return str(keep) if keep.exists() else path
+
+
 OOD_ARMS = [
     ("text", "text-varied", "/tmp/news_varied.npz", "/tmp/news_bg.npz"),
     ("text", "text-crowded", "/tmp/news_crowded.npz", "/tmp/news_bg.npz"),
@@ -399,8 +414,11 @@ def ood_arms(p_oods=(P_OOD,)):
 
     rows = []
     for domain, name, emb, bg in OOD_ARMS:
+        emb, bg = _arm_input(emb), _arm_input(bg)
         if not (Path(emb).exists() and Path(bg).exists()):
-            print(f"  skip {name}: {emb} missing", flush=True)
+            missing = [p for p in (emb, bg) if not Path(p).exists()]
+            print(f"  SKIP {name}: {', '.join(missing)} missing -- this arm is "
+                  f"absent from the output, and its domain may be too", flush=True)
             continue
         ds = nbuild.load_rows(nsources.load(embeddings=emb), "precomputed",
                               background=nsources.load(embeddings=bg), seed=0)
@@ -696,7 +714,13 @@ def analyse(path):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", default=f"{DP}/headroom_arms.csv")
-    ap.add_argument("--sets-per-cell", type=int, default=3)
+    # 4, not 3. The published 1,409 arms were produced with 4 sets per cell --
+    # 5 encoders x 4 K x 2 crowded x 4 sets = 160 label-set builds, which is where
+    # the 160-per-grouping counts in headroom_arms.csv come from. The default said
+    # 3, so re-running this script as documented reproduced exactly 75% of the
+    # published arms in every cell, which looks like silent data loss and is
+    # really just a flag nobody passed.
+    ap.add_argument("--sets-per-cell", type=int, default=4)
     ap.add_argument("--analyse", metavar="CSV")
     ap.add_argument("--p-ood", type=float, nargs="+", default=[P_OOD], metavar="P",
                     help="assumed out-of-catalogue prevalence, repeatable. "

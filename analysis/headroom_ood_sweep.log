@@ -1,0 +1,225 @@
+break-even for a group answer under UTILITY: 0.8889
+operating points: [0.05, 0.1, 0.2, 0.4, 0.6]
+
+plant arms:
+  bioclip2        varied-K14-0     6 groupings
+  bioclip2        varied-K14-1     6 groupings
+  bioclip2        varied-K14-2     6 groupings
+  bioclip2        crowded-K14-0    6 groupings
+  bioclip2        crowded-K14-1    6 groupings
+  bioclip2        crowded-K14-2    6 groupings
+  bioclip2        varied-K30-0     7 groupings
+  bioclip2        varied-K30-1     7 groupings
+  bioclip2        varied-K30-2     7 groupings
+  bioclip2        crowded-K30-0    7 groupings
+  bioclip2        crowded-K30-1    7 groupings
+  bioclip2        crowded-K30-2    7 groupings
+  bioclip2        varied-K60-0     10 groupings
+  bioclip2        varied-K60-1     10 groupings
+  bioclip2        varied-K60-2     10 groupings
+  bioclip2        crowded-K60-0    10 groupings
+  bioclip2        crowded-K60-1    10 groupings
+  bioclip2        crowded-K60-2    10 groupings
+  bioclip2        varied-K100-0    12 groupings
+  bioclip2        varied-K100-1    12 groupings
+  bioclip2        varied-K100-2    12 groupings
+  bioclip2        crowded-K100-0   12 groupings
+  bioclip2        crowded-K100-1   12 groupings
+  bioclip2        crowded-K100-2   12 groupings
+  bioclip1        varied-K14-0     6 groupings
+  bioclip1        varied-K14-1     6 groupings
+  bioclip1        varied-K14-2     6 groupings
+  bioclip1        crowded-K14-0    6 groupings
+  bioclip1        crowded-K14-1    6 groupings
+  bioclip1        crowded-K14-2    6 groupings
+  bioclip1        varied-K30-0     7 groupings
+  bioclip1        varied-K30-1     7 groupings
+  bioclip1        varied-K30-2     7 groupings
+  bioclip1        crowded-K30-0    7 groupings
+  bioclip1        crowded-K30-1    7 groupings
+  bioclip1        crowded-K30-2    7 groupings
+  bioclip1        varied-K60-0     10 groupings
+  bioclip1        varied-K60-1     10 groupings
+  bioclip1        varied-K60-2     10 groupings
+  bioclip1        crowded-K60-0    10 groupings
+  bioclip1        crowded-K60-1    10 groupings
+  bioclip1        crowded-K60-2    10 groupings
+  bioclip1        varied-K100-0    12 groupings
+  bioclip1        varied-K100-1    12 groupings
+  bioclip1        varied-K100-2    12 groupings
+  bioclip1        crowded-K100-0   12 groupings
+  bioclip1        crowded-K100-1   12 groupings
+  bioclip1        crowded-K100-2   12 groupings
+  bioclip1_cml4   varied-K14-0     6 groupings
+  bioclip1_cml4   varied-K14-1     6 groupings
+  bioclip1_cml4   varied-K14-2     6 groupings
+  bioclip1_cml4   crowded-K14-0    6 groupings
+  bioclip1_cml4   crowded-K14-1    6 groupings
+  bioclip1_cml4   crowded-K14-2    6 groupings
+  bioclip1_cml4   varied-K30-0     7 groupings
+  bioclip1_cml4   varied-K30-1     7 groupings
+  bioclip1_cml4   varied-K30-2     7 groupings
+  bioclip1_cml4   crowded-K30-0    7 groupings
+  bioclip1_cml4   crowded-K30-1    7 groupings
+  bioclip1_cml4   crowded-K30-2    7 groupings
+  bioclip1_cml4   varied-K60-0     10 groupings
+  bioclip1_cml4   varied-K60-1     10 groupings
+  bioclip1_cml4   varied-K60-2     10 groupings
+  bioclip1_cml4   crowded-K60-0    10 groupings
+  bioclip1_cml4   crowded-K60-1    10 groupings
+  bioclip1_cml4   crowded-K60-2    10 groupings
+  bioclip1_cml4   varied-K100-0    12 groupings
+  bioclip1_cml4   varied-K100-1    12 groupings
+  bioclip1_cml4   varied-K100-2    12 groupings
+  bioclip1_cml4   crowded-K100-0   12 groupings
+  bioclip1_cml4   crowded-K100-1   12 groupings
+  bioclip1_cml4   crowded-K100-2   12 groupings
+  mobileclip2_s0  varied-K14-0     6 groupings
+  mobileclip2_s0  varied-K14-1     6 groupings
+  mobileclip2_s0  varied-K14-2     6 groupings
+  mobileclip2_s0  crowded-K14-0    6 groupings
+  mobileclip2_s0  crowded-K14-1    6 groupings
+  mobileclip2_s0  crowded-K14-2    6 groupings
+  mobileclip2_s0  varied-K30-0     7 groupings
+  mobileclip2_s0  varied-K30-1     7 groupings
+  mobileclip2_s0  varied-K30-2     7 groupings
+  mobileclip2_s0  crowded-K30-0    7 groupings
+  mobileclip2_s0  crowded-K30-1    7 groupings
+  mobileclip2_s0  crowded-K30-2    7 groupings
+  mobileclip2_s0  varied-K60-0     10 groupings
+  mobileclip2_s0  varied-K60-1     10 groupings
+  mobileclip2_s0  varied-K60-2     10 groupings
+  mobileclip2_s0  crowded-K60-0    10 groupings
+  mobileclip2_s0  crowded-K60-1    10 groupings
+  mobileclip2_s0  crowded-K60-2    10 groupings
+  mobileclip2_s0  varied-K100-0    12 groupings
+  mobileclip2_s0  varied-K100-1    12 groupings
+  mobileclip2_s0  varied-K100-2    12 groupings
+  mobileclip2_s0  crowded-K100-0   12 groupings
+  mobileclip2_s0  crowded-K100-1   12 groupings
+  mobileclip2_s0  crowded-K100-2   12 groupings
+  bioclip_inat    varied-K14-0     6 groupings
+  bioclip_inat    varied-K14-1     6 groupings
+  bioclip_inat    varied-K14-2     6 groupings
+  bioclip_inat    crowded-K14-0    6 groupings
+  bioclip_inat    crowded-K14-1    6 groupings
+  bioclip_inat    crowded-K14-2    6 groupings
+  bioclip_inat    varied-K30-0     7 groupings
+  bioclip_inat    varied-K30-1     7 groupings
+  bioclip_inat    varied-K30-2     7 groupings
+  bioclip_inat    crowded-K30-0    7 groupings
+  bioclip_inat    crowded-K30-1    7 groupings
+  bioclip_inat    crowded-K30-2    7 groupings
+  bioclip_inat    varied-K60-0     10 groupings
+  bioclip_inat    varied-K60-1     10 groupings
+  bioclip_inat    varied-K60-2     10 groupings
+  bioclip_inat    crowded-K60-0    10 groupings
+  bioclip_inat    crowded-K60-1    10 groupings
+  bioclip_inat    crowded-K60-2    10 groupings
+  bioclip_inat    varied-K100-0    12 groupings
+  bioclip_inat    varied-K100-1    12 groupings
+  bioclip_inat    varied-K100-2    12 groupings
+  bioclip_inat    crowded-K100-0   12 groupings
+  bioclip_inat    crowded-K100-1   12 groupings
+  bioclip_inat    crowded-K100-2   12 groupings
+
+out-of-domain arms (published, re-scored):
+  text-varied        fine=0.839 coarse=0.839 headroom=+0.000
+  text-crowded       fine=0.798 coarse=0.979 headroom=+0.181
+  skip kws-sem-varied: /tmp/kws_varied.npz missing
+  skip kws-sem-crowded: /tmp/kws_crowded.npz missing
+  skip kws-ac-varied: /tmp/kwsA_varied.npz missing
+  skip kws-ac-crowded: /tmp/kwsA_crowded.npz missing
+  skip esc50-varied: /tmp/esc50_varied.npz missing
+  skip esc50-crowded: /tmp/esc50_crowded.npz missing
+  skip birds-crowded: /tmp/birds_crowded.npz missing
+
+wrote data/processed/headroom_ood.csv: 5260 rows = 1052 arms x 5 operating points
+5260 rows = 1052 arms x 5 operating points [np.float64(0.05), np.float64(0.1), np.float64(0.2), np.float64(0.4), np.float64(0.6)]
+Pre-registered analysis below uses p_ood = 0.2 only (1052 arms); the sweep follows it.
+
+1052 arms, 122 label sets, 2 domains
+
+admissibility: 21.3% of arms have coarse < 0.889 (need >= 20%) -> PASS
+coarse accuracy spans [0.540, 1.000], fine [0.521, 1.000]
+corr(fine, headroom) = -0.753   corr(coarse, headroom) = +0.208
+
+grouping x break-even (n arms):
+coarse     >= 0.889  < 0.889
+grouping                    
+genus           119        1
+kmeans          605       85
+published         1        1
+random          103      137
+
+corr(headroom_calib, headroom_test) = +0.979
+
+P1  arms with |headroom| < 0.01: n=123, mean group share 0.0159, max 0.1125
+
+P2  grouped 5-fold CV R^2 on group-answer share
+      M_fine    +0.3555
+      M_coarse  +0.1078
+      M_head    +0.8798
+      M_full    +0.9057
+      raw b(fine)=-1.7227  c(coarse)=+2.1499  b+c=+0.4272 CI [+0.3635, +0.5029]  (0 => headroom parameterisation exact)
+      sigma_fine=0.1295 sigma_coarse=0.0871
+
+P3  group-answer share either side of coarse = 0.889
+      coarse <  break-even: n= 224  mean group share 0.0870   | of those with headroom>0.15: n=  37, 0.2500
+      coarse >= break-even: n= 828  mean group share 0.2549   | of those with headroom>0.15: n= 324, 0.5139
+
+    median group-answer share, coarse x fine
+fine       <.60  .60-.75  .75-.90   >.90
+coarse                                  
+<.70      0.000    0.020      NaN    NaN
+.70-.80   0.071    0.034    0.002    NaN
+.80-.889  0.233    0.259    0.025    NaN
+.889-.95  0.410    0.400    0.119  0.022
+>.95      0.670    0.569    0.272  0.069
+
+P4  regressing in-catalogue label share on group share
+      all arms  n=1052  corr(group,label)=-0.659  corr(group,decline)=-0.379
+      crowded   n= 526  corr(group,label)=-0.364  corr(group,decline)=-0.890
+      varied    n= 526  corr(group,label)=-0.594  corr(group,decline)=+0.165
+
+========================================================================
+OPERATING POINT: the term the 1.8x rule omits
+========================================================================
+
+headroom spread within an arm across operating points: max 0.00e+00  OK
+
+realised retreat by operating point (1052 arms, 26 species sets)
+       headroom  t_group   group   label  decline  1.8 x headroom
+p_ood                                                            
+0.05     0.1217   0.7000  0.2524  0.5417   0.2059          0.2191
+0.10     0.1217   0.7624  0.2382  0.5243   0.2375          0.2191
+0.20     0.1217   0.8316  0.2192  0.4845   0.2963          0.2191
+0.40     0.1217   0.9044  0.1879  0.3880   0.4240          0.2191
+0.60     0.1217   0.9458  0.1574  0.2551   0.5875          0.2191
+
+      the prediction is pinned at 0.2191 throughout; what it predicts moves 0.2524 -> 0.1574 (2x)
+
+grouped 5-fold CV R^2 on group-answer share, folds keyed on set_shape
+      headroom alone (the published rule)  +0.7619
+      p_ood alone                          +0.0127
+      headroom + p_ood                     +0.7858
+      headroom + p_ood + interaction       +0.8244
+      headroom + t_group                   +0.7844
+
+      group_share ~ +0.0566 +1.6417 * headroom -0.1682 * p_ood
+      coef(headroom) = +1.6417  CI [+1.4992, +1.8080]  excludes 0
+      coef(p_ood   ) = -0.1682  CI [-0.2540, -0.0691]  excludes 0
+
+      corr(p_ood, t_group) = +0.783   corr(t_group, group_share) = -0.067
+      t_group is fitted mostly to reject out-of-list inputs, so it rises
+      with p_ood and squeezes the band between the thresholds that a
+      group answer has to land in. That is the whole mechanism.
+
+      median group_share / headroom by operating point (1.8 is the published floor)
+      p_ood
+      0.05    2.105
+      0.10    1.950
+      0.20    1.766
+      0.40    1.446
+      0.60    1.011
+      A floor that holds only at the p_ood it was fitted at is not a floor.
