@@ -11,8 +11,9 @@ into narrowcast's source format, so the workflow is:
     PYTHONPATH=. .venv/bin/python -m analysis.export_for_narrowcast \\
         --variant bioclip2 --species my.txt --out /tmp/cat.npz
 
-    narrowcast build --embeddings /tmp/cat.npz \\
-        --background-embeddings /tmp/bg.npz --out models/mine
+    narrowcast audit --embeddings /tmp/cat.npz \\
+        --background-embeddings /tmp/bg.npz \\
+        --encoder-name bioclip2 --out models/mine
 
 **No `cluster` column is written, and that is deliberate.** The catalogue does not
 group its images by individual plant, so there is no honest cluster to declare.

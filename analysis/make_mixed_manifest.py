@@ -1,5 +1,16 @@
 """Build a mixed Pl@ntNet + iNaturalist manifest that `narrowcast fit` can sweep.
 
+**Superseded as of narrowcast 0.2.0, and nothing downstream can consume its
+output any more.** `fit`, the encoder sweep and the `--manifest` loader are all
+gone: narrowcast takes vectors or posteriors and measures them, and does not
+open an image. The question below -- "given a metric and a target, does
+narrowcast hand back the smallest model that hits it?" -- is the question the
+tool stopped trying to answer, because the answer turned out to be
+data-dependent to the point of uselessness. See `DISPOSITION.md`.
+
+Kept because the mixing logic is the thing `SOURCE_MIX_FINDINGS.md` rests on and
+is worth reading. Do not expect the command in the docstring to run.
+
 This exists to answer one question end to end: **given a metric, a target, and a
 dataset, does narrowcast hand back the smallest model that hits the target?**
 `analysis/export_for_narrowcast.py` writes *embeddings*, which pins the encoder

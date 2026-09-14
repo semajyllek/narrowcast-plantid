@@ -135,6 +135,10 @@ worse, here is the predictor, here is when it fires" is directly actionable for
 them. Effort: weeks, not months, because the measurements exist.
 
 **B — Retarget narrowcast from builder to auditor. Recommended alongside A.**
+*(Executed 2026-09-13, narrowcast 0.2.0. 833 lines removed, package 2,900 →
+1,999, tests 65 → 77. The `--scores` path below was built; `audit` replaces
+`fit`/`build`/`plan`/`encoders`. The line estimate in this section was made
+before the cut and is checked against the result at the end of it.)*
 Not "build me a model" — *"here are my predictions, my labels, my group column
 and my assumed out-of-list rate; tell me what I actually have."* No encoders, no
 fitting, no sweep, no hub, no config space. The surviving surface:
@@ -154,6 +158,13 @@ the current 2,900**. What drops out entirely is `encode`, `hub`, `encoders`,
 `sweep`, `plan`, `projection` and `config`: **833 lines**, and every one of the
 failures in §2 lives in them. The near-infinite configuration space disappears
 because the caller has already made every configuration decision.
+
+> **What it actually came to.** The 833 was exact. The keep-set estimate was low:
+> the package landed at **1,999 lines**, not 1,000–1,200, because `--scores` is a
+> genuinely new input path rather than a subtraction, and because `labels.py` and
+> `predict.py` survive intact and were not in the estimate. The shape is right and
+> the number was optimistic — worth recording, since the same optimism is what
+> made the builder look tractable in the first place.
 
 **C — Archive as-is and maintain nothing.** Push a final commit to all four
 repos, add an `ARCHIVED` header pointing at the write-up, stop. Acceptable

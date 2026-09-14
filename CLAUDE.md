@@ -14,7 +14,7 @@ species, name the genus, or decline.
 | repo | is | note |
 |---|---|---|
 | **narrowcast-plantid** (here) | the research record, and where the tool came from | 28 findings/prereg docs, 129 tests. Evidence only. Consumes the installed package in `analysis/headroom_arms.py`. |
-| [**narrowcast**](https://github.com/semajyllek/narrowcast) | the tool, pip-installable | domain-general, 65 tests, CI. `fit / plan / build / card / encoders` |
+| [**narrowcast**](https://github.com/semajyllek/narrowcast) | the tool, pip-installable | domain-general, 77 tests, CI. `audit / card / predict` |
 | [**narrowcast-kws**](https://github.com/semajyllek/narrowcast-kws) | audio demo | consumes the *installed package*; ESC-50 + Speech Commands |
 | [**narrowcast-derm**](https://github.com/semajyllek/narrowcast-derm) | medical-image demo | Fitzpatrick17k + DINOv2. Preregistered; found that `1.8 ×` omits `p_ood` |
 
@@ -22,6 +22,13 @@ narrowcast deliberately cannot read this project's catalogue caches — choosing
 corpus and reconciling its taxonomy are domain decisions. The seam is
 `analysis/export_for_narrowcast.py`, which writes catalogue vectors in the
 `--embeddings` format.
+
+**narrowcast 0.2.0 is the auditor cut** — `DISPOSITION.md` option B, executed
+2026-09-13. `fit`, `plan`, `build`, `encoders`, the Hub search, the projection
+grid and the task config are gone (833 lines); `audit` takes vectors or
+posteriors and measures them. Two consequences here: `analysis/make_mixed_manifest.py`
+is superseded, since nothing consumes a `--manifest` of paths any more, and the
+`--embeddings` seam above is unchanged and still the supported route.
 
 Read this first, then **[`DISPOSITION.md`](DISPOSITION.md)** for where the whole
 body of work is going — it argues the tool was the wrong deliverable and the
