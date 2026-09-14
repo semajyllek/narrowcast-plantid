@@ -384,11 +384,33 @@ OOD_ARMS = [
     ("text", "text-crowded", "/tmp/news_crowded.npz", "/tmp/news_bg.npz"),
     ("audio", "kws-sem-varied", "/tmp/kws_varied.npz", "/tmp/kws_bg.npz"),
     ("audio", "kws-sem-crowded", "/tmp/kws_crowded.npz", "/tmp/kws_bg.npz"),
+    # kws-ac-* are the *acoustically* grouped Speech Commands arms, and they are
+    # NOT reproducible. No script in narrowcast-kws writes kwsA_*.npz; the logic
+    # lives in `fewshot_curve.py:acoustic_groups()`, k-means over per-word
+    # centroids with `n_groups` a free parameter that headroom moves with. Any
+    # value picked now produces arms that are not the published ones, and kws's
+    # own finding says to quote the shape of a k-means grouping and never its
+    # level. Left addressed at the vanished /tmp paths deliberately: they skip
+    # loudly, which is honest, where a reconstruction would look like the
+    # original and not be it.
     ("audio", "kws-ac-varied", "/tmp/kwsA_varied.npz", "/tmp/kwsA_bg.npz"),
     ("audio", "kws-ac-crowded", "/tmp/kwsA_crowded.npz", "/tmp/kwsA_bg.npz"),
+    # ESC-50 needs a ~600 MB corpus download this machine no longer has.
     ("audio", "esc50-varied", "/tmp/esc50_varied.npz", "/tmp/esc50_bg.npz"),
     ("audio", "esc50-crowded", "/tmp/esc50_crowded.npz", "/tmp/esc50_bg.npz"),
+    # Birds needs a fresh iNaturalist fetch (`analysis/bird_fetch.py`).
     ("birds", "birds-crowded", "/tmp/birds_crowded.npz", "/tmp/birds_bg.npz"),
+    # Dermatology, from narrowcast-derm: DINOv2 over 2,688 Fitzpatrick17k
+    # photographs. These matter out of proportion to their count -- two arms
+    # against 1,400 plant ones -- because they are the only *weak* arms here.
+    # top-1 ~0.75 against the plants' 0.84-0.97, and it is that regime, not the
+    # domain, where narrowcast-derm measured realised retreat moving 91x with
+    # p_ood. They are validation, never pooled into the fit; see
+    # `check_out_of_domain`.
+    ("derm", "derm-varied", f"{DP}/arm_inputs/derm_varied.npz",
+     f"{DP}/arm_inputs/derm_background.npz"),
+    ("derm", "derm-crowded", f"{DP}/arm_inputs/derm_crowded.npz",
+     f"{DP}/arm_inputs/derm_background.npz"),
 ]
 
 
@@ -471,6 +493,69 @@ def _cv_r2_on(d, cols, folds, y_col="group_share"):
         m = LinearRegression().fit(d.loc[tr, cols], y[tr])
         pred[te] = m.predict(d.loc[te, cols])
     return 1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+
+
+def check_out_of_domain(d, fit_domains=("plants",)):
+    """Hold out the weak domains and ask whether the fitted rule reaches them.
+
+    Two dermatology arms against 1,400 plant ones would be a rounding error in a
+    pooled regression: the fit would come back indistinguishable from plant-only
+    and could be misread as "the term generalises". So they are never pooled.
+    The rule is fitted on plants alone, then asked to predict arms from a domain
+    it has never seen, and the residual is the answer.
+
+    This is the question the sweep exists for. `narrowcast-derm` measured realised
+    retreat moving 91x with p_ood where plants move about 2x, and CLAUDE.md's
+    reading is that the difference is *encoder strength*, not dermatology -- a
+    boundary condition reachable in any domain whose model is weak enough. If
+    that is right, the plant-fitted rule should fail on derm in a specific way:
+    fine at low p_ood, worsening as p_ood rises, because the term that governs
+    the divergence is the one plants barely exercise.
+    """
+    tr = d[d["domain"].isin(fit_domains)]
+    te = d[~d["domain"].isin(fit_domains)]
+    if tr.empty or te.empty:
+        print(f"\n(no out-of-domain check: fit domains {sorted(set(tr['domain']))}, "
+              f"held out {sorted(set(te['domain']))})")
+        return
+
+    m = LinearRegression().fit(tr[["headroom", "p_ood"]], tr["group_share"])
+    print("\n" + "-" * 72)
+    print(f"OUT-OF-DOMAIN: rule fitted on {sorted(set(tr['domain']))} "
+          f"({len(tr)} rows), tested on {sorted(set(te['domain']))} ({len(te)} rows)")
+    print("-" * 72)
+    print(f"  rule: group_share ~ {m.intercept_:+.4f} {m.coef_[0]:+.4f} * headroom "
+          f"{m.coef_[1]:+.4f} * p_ood")
+
+    te = te.copy()
+    te["pred"] = m.predict(te[["headroom", "p_ood"]])
+    te["resid"] = te["group_share"] - te["pred"]
+
+    print(f"\n  {'arm':16s} {'p_ood':>6} {'headroom':>9} {'measured':>9} "
+          f"{'predicted':>10} {'residual':>9}")
+    for _, r in te.sort_values(["label_set", "p_ood"]).iterrows():
+        print(f"  {r['label_set']:16s} {r['p_ood']:>6.2f} {r['headroom']:>9.4f} "
+              f"{r['group_share']:>9.4f} {r['pred']:>10.4f} {r['resid']:>+9.4f}")
+
+    print(f"\n  MAE by operating point (does the rule degrade as p_ood rises?)")
+    by = te.groupby("p_ood")["resid"].agg(lambda x: x.abs().mean())
+    for p, v in by.items():
+        print(f"      p_ood {p:<5} MAE {v:.4f}")
+
+    # The comparison that answers "is 2x a plant number": how far does realised
+    # retreat move across the swept range, per domain, on arms that retreat at all?
+    print(f"\n  span of realised retreat across the p_ood range, per domain")
+    lo_p, hi_p = d["p_ood"].min(), d["p_ood"].max()
+    for dom, sub in d.groupby("domain"):
+        piv = sub[sub["headroom"] > 0.02].pivot_table(
+            index="label_set", columns="p_ood", values="group_share", aggfunc="mean")
+        if piv.empty or lo_p not in piv or hi_p not in piv:
+            continue
+        lo, hi = piv[lo_p].mean(), piv[hi_p].mean()
+        span = (lo / hi) if hi > 1e-9 else float("inf")
+        print(f"      {dom:8s} n={len(piv):4d}  {lo:.4f} -> {hi:.4f}   "
+              f"{'x'.join(['', f'{span:.1f}']).lstrip('x') if span != float('inf') else 'to zero'}")
+    print("\n      A rule fitted where retreat barely moves cannot be quoted where it does.")
 
 
 def analyse_operating_point(full, ops):
@@ -586,6 +671,8 @@ def analyse_operating_point(full, ops):
           "(1.8 is the published floor)")
     print("      " + r.round(3).to_string().replace("\n", "\n      "))
     print("      A floor that holds only at the p_ood it was fitted at is not a floor.")
+
+    check_out_of_domain(d)
 
 
 def analyse(path):
@@ -750,6 +837,13 @@ def main():
     print(f"operating points: {p_oods}\n")
     print("plant arms:", flush=True)
     rows = plant_arms(a.sets_per_cell, p_oods)
+    # Checkpoint before the cheap phase. plant_arms is hours; ood_arms is seconds
+    # and reaches for files that may not be there. Writing only at the end once
+    # meant an interruption anywhere discarded the expensive half, which nearly
+    # happened when the machine slept mid-run.
+    pd.DataFrame(rows).to_csv(a.out, index=False)
+    print(f"  checkpoint: {len(rows)} plant rows -> {a.out}", flush=True)
+
     print("\nout-of-domain arms (published, re-scored):", flush=True)
     rows += ood_arms(p_oods)
     pd.DataFrame(rows).to_csv(a.out, index=False)
