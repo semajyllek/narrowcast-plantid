@@ -191,7 +191,15 @@ Recommendation: **A + B.** plantid stays as the deployment story it always was.
 - **`data/processed/headtohead/` — 5.4 MB, 1,394 cached API responses.** The only
   asset here that costs external quota to rebuild. Re-scoring
   `COMPETITIVE_FINDINGS.md` is free while it exists and expensive or impossible
-  after. Back it up *off* the gitignored tree.
+  after. ~~Back it up *off* the gitignored tree.~~ **Backed up, then unpublished.**
+  A packed copy lives at `data/processed/competitor_cache/` (340 KB, verified to
+  restore all 1,394 files byte-identically), which solves the durability problem.
+  It was briefly committed and pushed to this public repo, and that was the wrong
+  call: they are a third party's model outputs and nobody has checked whether
+  Pl@ntNet's or iNaturalist's terms permit redistribution. Purged from branch
+  history; `analysis/cache/README.md` records what to do if the terms turn out to
+  allow it. Durability and publication are different problems and only the first
+  one was urgent.
 - **All 28 findings/prereg docs**, including the retracted claims. The
   retract-in-place convention is a large part of what makes the record
   trustworthy and it does not survive summarisation.
@@ -250,3 +258,27 @@ public corpus.
 5. plantid keeps its own story — 0.7720 against iNaturalist's server model's
    0.7871 on identical photographs, offline, in 160 MB — and it does not need
    the generalisation to be true.
+
+**Progress, 2026-09-14.** Steps 1, 3 and 4 are done; step 2 is partly done (§16
+carries the K scope condition and retracts its own guidance, §16/§17 separate
+`coarse − fine` from `1 − top-1`). One thing was added that this memo did not
+anticipate and that strengthens the case for A: the `1.8 ×` rule now has a
+**measured replacement** rather than only a refutation
+(`OPERATING_POINT_FINDINGS.md`). `p_ood` was a module constant in
+`analysis/headroom_arms.py`, which is exactly why the published rule carries no
+term for it; it is an axis now. Over 1,052 arms at five operating points, with
+within-arm headroom spread of exactly zero, realised retreat moves **2×** — not
+dermatology's 91× — and the operating-point term buys +0.024 of CV R² additive,
++0.063 with an interaction.
+
+That is a better paper than the one this memo described. "Here is the rule, here
+is why the one-variable form fails, here is the corrected form, and here is the
+regime where the correction is 40× larger" beats ending on an open question.
+
+**What A still needs before it is writable.** The sweep is plants + text only —
+the audio and bird arms were addressed under `/tmp` and are gone, so the
+weak-encoder regime where the term actually bites is unrepresented. Regenerating
+those vectors from `narrowcast-kws` and re-running at `--sets-per-cell 4` with
+derm arms included is what would make the two-variable rule general rather than
+plant-specific. That is the one measurement standing between here and a
+submittable draft.
