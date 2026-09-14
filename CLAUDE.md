@@ -236,9 +236,12 @@ These exist because things failed without them. Follow them.
 `.venv-mps` (py3.12) has torch, coremltools, open_clip — anything touching a
 model. Tests: `PYTHONPATH=. .venv/bin/python -m pytest -q` (129 pass, 2 skip).
 
-**`data/processed/` is gitignored and local-only** (~~12 GB~~ **17 GB** as of
+**`data/processed/` is gitignored and local-only** (~~12 GB~~ **13 GB** as of
 2026-09-13): `images/` 4.8G, `images_inat/` 3.5G, `images_background/` 1.3G,
-`bundles/` 4.0G, `*.npz` embedding caches 2.1G, `coreml/` 403M.
+`*.npz` embedding caches 2.1G, `coreml/` 403M. ~~`bundles/` 4.0G~~ — deleted;
+it held one `tiny_bundle.tar` of 50k transfer images staged for the tiny-student
+Colab, a closed line, read by no code here and rebuildable with
+`analysis/make_distil_bundle.py` from the images that remain.
 
 **The one irreplaceable piece is now tracked.** `headtohead/` — 1,394 cached API
 responses (465 Pl@ntNet, 465 iNaturalist, 464 iNaturalist+geo) — is archived at
