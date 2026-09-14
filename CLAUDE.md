@@ -23,8 +23,10 @@ corpus and reconciling its taxonomy are domain decisions. The seam is
 `analysis/export_for_narrowcast.py`, which writes catalogue vectors in the
 `--embeddings` format.
 
-Read this first, then `ROADMAP.md` for the plan and the `*_FINDINGS.md` docs for
-evidence. The newest four are `DOMAIN_SHIFT_FINDINGS`, `HEADROOM_FINDINGS`,
+Read this first, then **[`DISPOSITION.md`](DISPOSITION.md)** for where the whole
+body of work is going — it argues the tool was the wrong deliverable and the
+finding is the right one, and it lists what is safe to delete and what is not.
+Then `ROADMAP.md` for the plan and the `*_FINDINGS.md` docs for evidence. The newest four are `DOMAIN_SHIFT_FINDINGS`, `HEADROOM_FINDINGS`,
 `EMBEDDED_FINDINGS` and `CONTAMINATION_FINDINGS`. **Git history is the chronological record** — commit messages carry the
 reasoning, the numbers, and the retractions.
 
@@ -168,10 +170,14 @@ These exist because things failed without them. Follow them.
   is a large-catalogue phenomenon.** At `r = 0.10`, damage by label-set size:
   **0.000** at K=10, −0.009 (sd 0.024) at K=20, −0.015 at K=50, −0.031 at K=345,
   and the *gain* shrinks with it — +0.008 at K=10 against +0.075 at K=345. Both
-  effects are headroom and narrowing already spends it. So the +7pp is a **K=345
+  effects are ~~headroom~~ **remaining accuracy** (`1 − top-1`) and narrowing
+  already spends it — see "Two quantities, one word" below; this file used the
+  word *headroom* for two different numbers. So the +7pp is a **K=345
   number for the 490-species app**; for the tool at K=10–50 the mix buys 1–2pp,
   costs about 1pp inside draw spread, and **T1 is not worth building**. Mix if
   convenient and tell the user which of their species had no in-source data.
+  ~~Key this on K.~~ **Key it on the build's measured top-1**, for the reason in
+  the next sentence.
   **Carried to narrowcast-derm and it does not generalise** (`K_FINDINGS.md`
   there): the mechanism is the accuracy ceiling, not the label count, so at
   matched K a harder domain keeps the effects. At K=20 derm shows damage
@@ -230,10 +236,17 @@ These exist because things failed without them. Follow them.
 `.venv-mps` (py3.12) has torch, coremltools, open_clip — anything touching a
 model. Tests: `PYTHONPATH=. .venv/bin/python -m pytest -q` (129 pass, 2 skip).
 
-**`data/processed/` is gitignored and local-only** (12 GB): images, embedding
-caches per encoder, and `headtohead/` holding 1,394 cached API responses
-(465 Pl@ntNet, 465 iNaturalist, 464 iNaturalist+geo). Re-scoring
-the competitor comparison costs **no API quota** — the responses are on disk.
+**`data/processed/` is gitignored and local-only** (~~12 GB~~ **17 GB** as of
+2026-09-13): `images/` 4.8G, `images_inat/` 3.5G, `images_background/` 1.3G,
+`bundles/` 4.0G, `*.npz` embedding caches 2.1G, `coreml/` 403M.
+
+**The one irreplaceable piece is now tracked.** `headtohead/` — 1,394 cached API
+responses (465 Pl@ntNet, 465 iNaturalist, 464 iNaturalist+geo) — is archived at
+**`analysis/cache/headtohead_responses.tar.gz`** (248 KB packed) alongside the
+derived `headtohead.parquet`. See `analysis/cache/README.md` for the restore
+command. Re-scoring the competitor comparison costs **no API quota**, and now
+survives a clone. Everything else under `data/processed/` is regenerable;
+`headtohead/` was not, and it was the only thing there protected by nothing.
 
 **A real Core ML trap.** int4 per-grouped-channel is silently wrong on the Metal
 GPU backend — cosine 0.204 for v1, 0.628 for BioCLIP-2, correct on ANE and CPU,
@@ -252,6 +265,11 @@ source-shift result; update those, not the three dated snapshots below them.
   — the reference document, **18 sections**. §15 is the source-shift 2×2; **§17 is the
   three-levers result** (data / parameters / pixels each open headroom), and §13 now carries
   the capacity floor and the reopened distillation status.
+  **The source of truth is now `narrowcast/docs/deep_dive.html` in the public
+  repo**, which had drifted three sections behind this artifact and is as of
+  2026-09-13 ahead of it: §16 carries the derm K result and retracts its own
+  K-keyed guidance in place, and §16/§17 separate `coarse − fine` from
+  `1 − top-1`. **Republish the artifact from that file**, not the reverse.
 - [status, September 2026](https://claude.ai/code/artifact/5c4c24d8-30d4-46f8-b58a-577017038c5e)
   — the tool direction, rewritten around the few-shot collapse and the end-to-end `fit`
   demonstration (5.7 MB on a separated list, a refusal on a crowded one).
@@ -338,6 +356,38 @@ source-shift result; update those, not the three dated snapshots below them.
   intermediate layer is worse, monotonically, and concatenation adds +0.0000.
   BioCLIP-2's objective already matches the task.
 
+## Two quantities, one word
+
+This file used **headroom** for two different numbers, and so did the deep dive
+until 2026-09-13. They are not the same and they govern different things.
+
+| quantity | definition | governs | established in |
+|---|---|---|---|
+| **headroom** | coarse-rank − fine-rank accuracy | **retreat** to the group rank | `HEADROOM_FINDINGS.md` |
+| **remaining accuracy** | `1 − top-1` | **sensitivity** to a training-data intervention | `narrowcast-derm/K_FINDINGS.md` |
+
+They coincide when coarse-rank accuracy sits near 1 — the easy, small-K plant
+regime — and diverge everywhere else. That is not a quibble: the five kws arms
+that first proposed headroom were uninterpretable *because* coarse accuracy never
+left [0.93, 1.00], making headroom "nearly `1 − fine` rescaled", and breaking that
+collinearity by sweeping the grouping at pinned fine accuracy **is** the
+`HEADROOM_FINDINGS` result. The derm K sweep, at the other end, has **no
+coarse-rank column in its design at all** — its regressor is `top1_L`.
+
+The four levers, once they are kept apart:
+
+| lever | moves | consequence |
+|---|---|---|
+| **grouping** | headroom only — fine accuracy untouched | retreat |
+| **narrowing K** | fine accuracy up, hence both quantities down | less retreat *and* less intervention sensitivity |
+| **few shots** | fine accuracy down, hence both up | manufactures retreat; magnifies interventions |
+| **declared `p_ood`** | neither — it sets `t_group` | decides whether available retreat is *realised* |
+
+**Practical consequence.** Guidance about retreat keys on headroom. Guidance about
+whether a data intervention will help or hurt keys on **measured top-1** — never
+on K, which is only a proxy for it, and a reliable one only where the encoder is
+strong for the domain.
+
 ## The finding the tool is built on
 
 A label set crowded with siblings of one group buys **coverage** with coarse
@@ -387,10 +437,13 @@ it — and varying only `p_ood`:
 |---|---|---|---|
 | 0.05 | 0.535 | **0.138** | 0.267 |
 | 0.20 | 0.671 | **0.078** | 0.426 |
-| 0.60 | 0.835 | **0.002** | 0.753 |
+| 0.60 | 0.835 | **0.0015** | 0.753 |
 
 The prediction stays pinned at 0.223 while the thing it predicts moves by a
-factor of 70, and sits **below** the floor at every operating point. The
+factor of **91**, and sits **below** the floor at every operating point.
+~~a factor of 70~~ — that came from dividing the *rounded* 0.002 in the table
+above. Recomputed from `results/ood_sweep.csv`: 0.1383 / 0.001515 = **91.3**,
+which is the figure the deep dive already carried. Quote 91. The
 mechanism: `t_group` is fitted mostly as an out-of-catalogue *rejection*
 threshold and only incidentally gates retreat, so as `p_ood` rises it climbs and
 swallows the retreat band. Of in-catalogue rows failing the label threshold,
