@@ -317,13 +317,22 @@ def measure(df, seed, ood_mix=None, p_ood=P_OOD):
 
 
 def score(df, meta, ood_mix=None, p_ood=P_OOD):
-    """Average an arm's measurements over N_SPLITS calib/test splits."""
+    """Average an arm's measurements over N_SPLITS calib/test splits.
+
+    `arm_source` defaults to "published" and exists so that arms added later
+    cannot silently rewrite the pre-registered result. `analyse` selects on it:
+    admissibility, P1, P2 and P3 are the figures quoted in HEADROOM_FINDINGS.md
+    over 1,409 arms, and adding a few hundred swept derm arms to the same CSV
+    would move every one of them with nothing to warn you. Sweep arms set
+    `arm_source="sweep"` and are read by the operating-point sections only.
+    """
     ms = [m for m in (measure(df, s, ood_mix, p_ood) for s in range(N_SPLITS))
           if m is not None]
     if not ms:
         return None
     row = {k: float(np.mean([m[k] for m in ms])) for k in ms[0]}
-    return {**meta, **row, "p_ood": p_ood, "n_splits": len(ms)}
+    return {**meta, **row, "p_ood": p_ood, "n_splits": len(ms),
+            "arm_source": meta.get("arm_source", "published")}
 
 
 def score_over(df, meta, p_oods, ood_mix=None):
@@ -470,6 +479,296 @@ def ood_arms(p_oods=(P_OOD,)):
     return rows
 
 
+# ------------------------------------------------------- generic pool sweep ----
+#
+# `plant_arms` is genus-specific throughout -- `s.split()[0]` for the group, two
+# organs, congener bucketing. Dermatology and keyword spotting need the same
+# design over a flat pool, and the reason to want it is narrow: the published
+# sweep is 1,400 plant arms against *one* crowded arm per weak domain, so the
+# claim "the operating-point term is much larger where the model is weak" rests
+# on three observations. This produces hundreds.
+#
+# Deliberately NOT built on `frame()`: its out-of-set handling assigns congeners
+# the majority group of their in-set relatives, which is a Linnaean workaround for
+# not having a real group map. Dermatology has one over all 85 labels and keyword
+# spotting gets one from k-means, so out-of-set labels are bucketed the way
+# `narrowcast.build.load_scored` does it -- near_ood if the label's group appears
+# in-set, distant_ood otherwise.
+
+
+def pool_sets(labels, group_of, K, n_sets, rng, crowded, usable):
+    """Label sets over a flat pool. Crowded takes whole groups, varied spreads."""
+    by_group = defaultdict(list)
+    for l in labels:
+        if l in usable:
+            by_group[group_of[l]].append(l)
+    out = []
+    if crowded:
+        # Several *different* subsets per qualifying group, not one. Only one or
+        # two groups are ever large enough to fill a crowded set at the K this
+        # sweep needs, so one-set-per-group yields a single arm and no variation
+        # to fit anything on. Distinct random subsets of the same family are
+        # still legitimately crowded sets and differ in difficulty.
+        big = [g for g in rng.permutation(sorted(by_group)) if len(by_group[g]) >= K]
+        if not big:
+            return []
+        per = max(1, -(-n_sets // len(big)))
+        for g in big:
+            members = sorted(by_group[g])
+            for _ in range(per):
+                if len(out) >= n_sets:
+                    break
+                out.append(list(rng.permutation(members))[:K])
+    else:
+        # One label per group where possible, so a varied set is genuinely spread.
+        for _ in range(n_sets):
+            gs = list(rng.permutation(sorted(by_group)))
+            picked, used = [], set()
+            while len(picked) < K and gs:
+                for g in gs:
+                    avail = [l for l in by_group[g] if l not in used]
+                    if avail and len(picked) < K:
+                        c = avail[int(rng.integers(len(avail)))]
+                        picked.append(c); used.add(c)
+                if all(all(l in used for l in by_group[g]) for g in gs):
+                    break
+            if len(picked) == K:
+                out.append(picked)
+    return out
+
+
+def pool_arm(X, y, cluster, chosen, group_of, rng):
+    """One fitted head over a flat pool, plus everything the cascade needs.
+
+    Cluster-disjoint halves: the train side fits the head, the eval side is
+    scored. Out-of-set labels become OTHER and are bucketed by group. Their
+    *clustering* identity stays their real label -- collapsing them to OTHER
+    leaves `make_splits` one cluster for the whole bucket and fits thresholds on
+    a calibration set with no negatives in it.
+    """
+    chosen = list(chosen)
+    keep = set(chosen)
+    in_set = np.isin(y, chosen)
+    in_groups = {group_of[l] for l in chosen}
+
+    uniq = np.array(sorted(set(cluster)))
+    rng.shuffle(uniq)
+    tr_clusters = set(uniq[: len(uniq) // 2].tolist())
+    tr = np.array([c in tr_clusters for c in cluster]) & in_set
+
+    # Negatives: half the out-of-set rows train the reject class, half are scored.
+    out_rows = np.flatnonzero(~in_set)
+    rng.shuffle(out_rows)
+    n_neg_tr = int(BG_TRAIN_FRAC * len(out_rows))
+    neg_tr, neg_ev = out_rows[:n_neg_tr], out_rows[n_neg_tr:]
+
+    Xtr = np.vstack([X[tr], X[neg_tr]])
+    ytr = np.concatenate([y[tr], np.full(len(neg_tr), OTHER)])
+    if len(set(ytr)) < 3:
+        return None
+
+    ev = np.flatnonzero(in_set & ~tr)
+    if len(ev) < 10 or len(neg_ev) < 5:
+        return None
+
+    clf = LogisticRegression(max_iter=3000, C=10.0,
+                             class_weight="balanced").fit(Xtr, ytr)
+    classes = np.array(clf.classes_)
+    mask = classes != OTHER
+    idx = np.concatenate([ev, neg_ev])
+    cata = clf.predict_proba(X[idx])[:, mask]
+
+    truth = np.where(np.isin(y[idx], chosen), y[idx], OTHER)
+    bucket = np.array([
+        "in_catalog" if t != OTHER
+        else ("near_ood" if group_of.get(str(l), "?") in in_groups else "distant_ood")
+        for t, l in zip(truth, y[idx])])
+    return dict(labels=list(classes[mask]), cata=cata, truth=truth, bucket=bucket,
+                cluster=np.asarray(y[idx], dtype=str), chosen=chosen,
+                centroids={l: X[(y == l) & tr].mean(0)
+                           for l in chosen if ((y == l) & tr).any()})
+
+
+def pool_frame(arm, gmap, group_of):
+    """Cascade inputs for one grouping over a pool arm."""
+    labels, cata, truth = arm["labels"], arm["cata"], arm["truth"]
+    ug = sorted(set(gmap.values()))
+    gi = {g: i for i, g in enumerate(ug)}
+    G = np.zeros((len(ug), len(labels)))
+    for j, lab in enumerate(labels):
+        G[gi[gmap[lab]], j] = 1.0
+    gscore = cata @ G.T
+
+    sp_pred = np.array(labels)[cata.argmax(1)]
+    gp_pred = np.array(ug)[gscore.argmax(1)]
+    # Out-of-set rows are OTHER and can never be correct at either rank.
+    true_group = np.array([gmap[t] if t in gmap else OTHER for t in truth])
+    return pd.DataFrame({
+        "species_conf": cata.max(1), "genus_conf": gscore.max(1),
+        "species_ok": sp_pred == truth, "genus_ok": gp_pred == true_group,
+        "in_catalog": arm["bucket"] == "in_catalog", "bucket": arm["bucket"],
+        "species": arm["cluster"],
+        "genus": np.array([group_of.get(str(c), "?") for c in arm["cluster"]]),
+    })
+
+
+# The plant grids assume K up to 100; derm and kws run at K = 7-20, where
+# KMEANS_GRID contributes only k=2 and 5 and RANDOM_GRID only 5. That is two or
+# three groupings per fit, and the grouping sweep is precisely the lever that
+# moves coarse accuracy while fine accuracy stays pinned -- too few of them and
+# each fit contributes almost no headroom variation. Finer grids, and cheap:
+# a grouping costs one re-scoring, not a re-fit.
+SWEEP_KMEANS = [2, 3, 4, 5, 6, 8, 10, 14]
+SWEEP_RANDOM = [2, 3, 5]
+
+
+def pool_groupings(arm, group_of, rng):
+    """Natural group, k-means over centroids, and random. Same lever as plants."""
+    chosen = arm["chosen"]
+    out = {}
+    nat = {l: group_of[l] for l in chosen}
+    if len(set(nat.values())) > 1:
+        out["natural"] = nat
+    have = [l for l in chosen if l in arm["centroids"]]
+    C = np.array([arm["centroids"][l] for l in have])
+    for k in SWEEP_KMEANS:
+        if 1 < k < len(have):
+            lab = KMeans(k, n_init=10, random_state=0).fit_predict(C)
+            out[f"kmeans{k}"] = {l: f"k{v}" for l, v in zip(have, lab)}
+    for g in SWEEP_RANDOM:
+        if 1 < g < len(chosen):
+            lab = rng.integers(0, g, len(chosen))
+            out[f"random{g}"] = {l: f"r{v}" for l, v in zip(chosen, lab)}
+    # Every grouping must cover every chosen label or `pool_frame` KeyErrors.
+    return {n: m for n, m in out.items() if all(l in m for l in arm["labels"])}
+
+
+def sweep_pool(domain, encoder, X, y, cluster, group_of, K_grid, n_sets, p_oods,
+               min_rows=10):
+    """Many arms from one pool: label sets x groupings x operating points."""
+    X = X / np.clip(np.linalg.norm(X, axis=1, keepdims=True), 1e-12, None)
+    counts = Counter(y.tolist())
+    usable = {l for l, n in counts.items() if n >= min_rows}
+    labels = sorted(set(y.tolist()))
+    rows = []
+    for K in K_grid:
+        for crowded in (False, True):
+            rng = np.random.default_rng(K + 7 * crowded)
+            sets = pool_sets(labels, group_of, K, n_sets, rng, crowded, usable)
+            for si, chosen in enumerate(sets):
+                setid = f"{domain}-{'crowded' if crowded else 'varied'}-K{K}-{si}"
+                arm = pool_arm(X, y, cluster, chosen, group_of,
+                               np.random.default_rng(si))
+                if arm is None:
+                    print(f"  skip {setid}: too few rows after splitting", flush=True)
+                    continue
+                gs = pool_groupings(arm, group_of, np.random.default_rng(si))
+                for gname, gmap in gs.items():
+                    rows += score_over(
+                        pool_frame(arm, gmap, group_of),
+                        dict(domain=domain, encoder=encoder, K=K, crowded=crowded,
+                             label_set=f"{encoder}|{setid}", set_shape=setid,
+                             grouping=gname, n_groups=len(set(gmap.values())),
+                             arm_source="sweep"),
+                        p_oods)
+                print(f"  {encoder:22s} {setid:26s} {len(gs)} groupings", flush=True)
+    return rows
+
+
+DERM = "/Users/jameskelly/Documents/narrowcast-derm/data/embeddings"
+KWS_POOL = "/Users/jameskelly/Documents/narrowcast-kws/data/pool.npz"
+
+
+def derm_group_map():
+    """label -> condition family, over all 85 pool labels."""
+    g = {}
+    for f in ("background", "crowded", "varied"):
+        path = Path(DERM) / f"{f}.npz"
+        if not path.exists():
+            return {}
+        z = np.load(path, allow_pickle=True)
+        g.update(dict(zip(np.asarray(z["label"], dtype=str),
+                          np.asarray(z["group"], dtype=str))))
+    return g
+
+
+def derm_arms(p_oods, K_grid=(20, 30), n_sets=4):
+    """Sweep label sets within dermatology, at three encoders.
+
+    Three encoders is the point, not padding: it spreads baseline top-1 (K_FINDINGS
+    puts DINOv2 at 0.632, MobileCLIP2-S0 at 0.602 and BioCLIP-2 at 0.555 at K=20)
+    and encoder strength is the variable argued to interact with `p_ood`. With one
+    encoder the result is "derm differs from plants" and strength cannot be
+    separated from domain.
+
+    **Crowdedness here is confounded with one family.** Only `inflammatory` (22
+    usable labels) and `genodermatoses` (6) have enough members to fill a crowded
+    set, so nearly every crowded derm arm is "some inflammatory conditions". That
+    is fine for what is being measured -- headroom varies through the *grouping*
+    sweep within each fit, not through the label sets -- and it is NOT a
+    crowded-versus-varied claim about dermatology.
+    """
+    # K is deliberately HIGH. The first attempt swept K=5-10 and produced arms at
+    # fine 0.86-0.89 -- inside the plant range, so it did not reach the regime it
+    # was built for. Accuracy climbs as K falls (K_FINDINGS.md), so reaching the
+    # weak band means more labels, not fewer: K=20 gives fine 0.726 and K=30
+    # gives 0.691, against the ~0.75 at which narrowcast-derm measured 91x.
+    group_of = derm_group_map()
+    if not group_of:
+        print("  SKIP derm sweep: narrowcast-derm embeddings not found", flush=True)
+        return []
+    rows = []
+    for enc, fname in (("dinov2", "pool.npz"),
+                       ("bioclip2", "pool_bioclip2.npz"),
+                       ("mobileclip2_s0", "pool_mobileclip2_s0.npz")):
+        path = Path(DERM) / fname
+        if not path.exists():
+            print(f"  SKIP derm/{enc}: {path} missing", flush=True)
+            continue
+        z = np.load(path, allow_pickle=True)
+        rows += sweep_pool("derm", enc,
+                           np.asarray(z["descriptor"], float),
+                           np.asarray(z["label"], dtype=str),
+                           np.asarray(z["cluster"], dtype=str),
+                           group_of, K_grid, n_sets, p_oods)
+    return rows
+
+
+def kws_arms(p_oods, K_grid=(10, 14, 20), n_sets=3, n_acoustic=3):
+    """Sweep label sets within keyword spotting.
+
+    Speech Commands has no natural hierarchy, so the group map is k-means over
+    per-word centroids -- the acoustic grouping narrowcast-kws established as the
+    right one for audio, after a semantic grouping produced within-group cosine
+    indistinguishable from all-pairs and a group rank the cascade never used.
+
+    `n_acoustic` is declared, not fitted. These are NEW arms and are never the
+    published `kws-ac-*`, whose own `n_groups` is unrecoverable; `arm_source`
+    marks them as swept. Clusters are speakers, so splits are speaker-disjoint.
+    """
+    # kws stays strong even at K=20 (fine ~0.83) -- wav2vec2 is simply good at
+    # Speech Commands. It is kept for the accuracy *spread*, not to add weak arms:
+    # derm 0.69-0.77, kws 0.83-0.89, plants 0.84-0.97 is the range over which
+    # "the operating point costs more where the model is weak" can be tested at
+    # all. n_acoustic=3 rather than 5 so crowded sets can reach K=10-14.
+    if not Path(KWS_POOL).exists():
+        print(f"  SKIP kws sweep: {KWS_POOL} missing", flush=True)
+        return []
+    z = np.load(KWS_POOL, allow_pickle=True)
+    X = np.asarray(z["descriptor"], float)
+    y = np.asarray(z["label"], dtype=str)
+    spk = np.asarray(z["speaker"], dtype=str)
+    Xn = X / np.clip(np.linalg.norm(X, axis=1, keepdims=True), 1e-12, None)
+    words = sorted(set(y.tolist()))
+    cent = np.array([Xn[y == w].mean(0) for w in words])
+    lab = KMeans(n_acoustic, n_init=10, random_state=0).fit_predict(cent)
+    group_of = {w: f"ac{v}" for w, v in zip(words, lab)}
+    print(f"  kws acoustic groups (n={n_acoustic}, declared): "
+          f"{Counter(group_of.values()).most_common()}", flush=True)
+    return sweep_pool("kws", "wav2vec2-base", X, y, spk, group_of,
+                      K_grid, n_sets, p_oods)
+
+
 # ---------------------------------------------------------------- analysis ----
 
 def _cv_r2(d, cols, folds):
@@ -493,6 +792,48 @@ def _cv_r2_on(d, cols, folds, y_col="group_share"):
         m = LinearRegression().fit(d.loc[tr, cols], y[tr])
         pred[te] = m.predict(d.loc[te, cols])
     return 1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+
+
+def per_domain_coefficients(d, min_arms=40):
+    """Fit the rule separately per domain and compare the p_ood coefficients.
+
+    This is the legible form of the answer and the one a pooled fit hides:
+    "-0.176 on plants, -X on dermatology" says directly whether the operating
+    point costs more where the model is weak. It needs enough arms per domain to
+    be worth fitting, which is what the weak-domain sweeps are for -- with one
+    crowded arm per domain there is nothing to fit.
+    """
+    print("\n" + "-" * 72)
+    print("PER-DOMAIN: the operating-point coefficient, fitted separately")
+    print("-" * 72)
+    print(f"  {'domain':10s} {'arms':>6} {'sets':>5} {'fine':>7} {'headroom':>9} "
+          f"{'b(headroom)':>12} {'b(p_ood)':>10} {'CI(p_ood)':>22}")
+    rng = np.random.default_rng(0)
+    for dom, sub in d.groupby("domain"):
+        n_arms = sub["set_shape"].nunique() * sub["grouping"].nunique()
+        if len(sub) < min_arms or sub["set_shape"].nunique() < 2:
+            print(f"  {dom:10s} {len(sub):>6} {sub['set_shape'].nunique():>5}   "
+                  f"too few to fit")
+            continue
+        m = LinearRegression().fit(sub[["headroom", "p_ood"]], sub["group_share"])
+        sets = sub["set_shape"].unique()
+        idx = {sh: np.flatnonzero(sub["set_shape"].to_numpy() == sh) for sh in sets}
+        boots = []
+        for _ in range(1000):
+            pick = np.concatenate([idx[sh] for sh in rng.choice(sets, len(sets), replace=True)])
+            if len(set(sub.iloc[pick]["p_ood"])) < 2:
+                continue
+            boots.append(LinearRegression().fit(
+                sub.iloc[pick][["headroom", "p_ood"]],
+                sub.iloc[pick]["group_share"]).coef_[1])
+        lo, hi = (np.percentile(boots, [2.5, 97.5]) if boots else (np.nan, np.nan))
+        print(f"  {dom:10s} {len(sub):>6} {sub['set_shape'].nunique():>5} "
+              f"{sub['fine'].mean():>7.3f} {sub['headroom'].mean():>9.3f} "
+              f"{m.coef_[0]:>+12.4f} {m.coef_[1]:>+10.4f} "
+              f"  [{lo:+.4f}, {hi:+.4f}]")
+    print("\n      A more negative p_ood coefficient means the operating point costs")
+    print("      that domain more. Read it beside mean fine accuracy: the claim is")
+    print("      that the cost tracks model strength, not the domain's identity.")
 
 
 def check_out_of_domain(d, fit_domains=("plants",)):
@@ -672,6 +1013,7 @@ def analyse_operating_point(full, ops):
     print("      " + r.round(3).to_string().replace("\n", "\n      "))
     print("      A floor that holds only at the p_ood it was fitted at is not a floor.")
 
+    per_domain_coefficients(d)
     check_out_of_domain(d)
 
 
@@ -687,11 +1029,23 @@ def analyse(path):
     # copies of the same arm across the CV folds -- which is the exact mistake
     # `set_shape` folding exists to prevent one level up. The sweep is a second
     # question asked of the same arms, not more arms.
+    if "arm_source" not in arms_all.columns:
+        arms_all["arm_source"] = "published"
+
     ops = sorted(arms_all["p_ood"].unique())
-    d = arms_all[arms_all["p_ood"] == P_OOD].copy()
+    # Pre-registered analysis: published arms at the pre-registered operating
+    # point, and nothing else. Not merely `p_ood == P_OOD` -- swept arms live at
+    # that operating point too, and pooling them in would move admissibility, P1,
+    # P2 and P3 away from the figures HEADROOM_FINDINGS.md quotes.
+    d = arms_all[(arms_all["p_ood"] == P_OOD)
+                 & (arms_all["arm_source"] == "published")].copy()
     if d.empty:
-        raise SystemExit(f"no arms at the pre-registered p_ood = {P_OOD}; "
+        raise SystemExit(f"no published arms at the pre-registered p_ood = {P_OOD}; "
                          f"found {ops}. The declared analysis cannot be run.")
+    n_sweep = int((arms_all["arm_source"] == "sweep").sum())
+    if n_sweep:
+        print(f"{n_sweep} swept rows present and excluded from the pre-registered "
+              f"analysis below; they are used by the operating-point sections.\n")
     if len(ops) > 1:
         print(f"{len(arms_all)} rows = {len(d)} arms x {len(ops)} operating points "
               f"{ops}\nPre-registered analysis below uses p_ood = {P_OOD} only "
@@ -809,6 +1163,13 @@ def main():
     # really just a flag nobody passed.
     ap.add_argument("--sets-per-cell", type=int, default=4)
     ap.add_argument("--analyse", metavar="CSV")
+    ap.add_argument("--sweep-weak", action="store_true",
+                    help="also sweep label sets within dermatology and keyword "
+                         "spotting. The published sweep has 1,400 plant arms and "
+                         "one crowded arm per weak domain, so 'the term is larger "
+                         "where the model is weak' rests on three observations. "
+                         "These arms are marked arm_source=sweep and never enter "
+                         "the pre-registered analysis.")
     ap.add_argument("--p-ood", type=float, nargs="+", default=[P_OOD], metavar="P",
                     help="assumed out-of-catalogue prevalence, repeatable. "
                          f"Default {P_OOD}, which reproduces the published arms "
@@ -847,6 +1208,12 @@ def main():
     print("\nout-of-domain arms (published, re-scored):", flush=True)
     rows += ood_arms(p_oods)
     pd.DataFrame(rows).to_csv(a.out, index=False)
+
+    if a.sweep_weak:
+        print("\nweak-domain sweeps (new arms, arm_source=sweep):", flush=True)
+        rows += derm_arms(p_oods)
+        rows += kws_arms(p_oods)
+        pd.DataFrame(rows).to_csv(a.out, index=False)
     print(f"\nwrote {a.out}: {len(rows)} rows "
           f"= {len(rows) // max(len(p_oods), 1)} arms x {len(p_oods)} operating points")
     analyse(a.out)

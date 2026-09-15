@@ -1,128 +1,120 @@
-# The operating-point term is real, small, and does not transfer
+# Retreat is a *fraction of headroom*, and the operating point sets the fraction
 
-`HEADROOM_FINDINGS.md` established that headroom governs retreat (CV R² 0.883,
-1,409 arms) and then recorded that the `1.8 × headroom` rule omits the assumed
-out-of-catalogue rate — measured in `narrowcast-derm` at **91×** movement in
-realised retreat while the prediction sat still. That refutation had no
-replacement, because `P_OOD` was a module constant in `analysis/headroom_arms.py`
-and a term that never varies cannot be estimated.
+`HEADROOM_FINDINGS.md` established that headroom governs retreat and offered
+`group_share ≈ 1.8 × headroom` as a rule of thumb. `narrowcast-derm` then showed
+the rule omits the assumed out-of-catalogue rate: hold headroom fixed, sweep
+`p_ood`, and realised retreat moves by 91× while the prediction sits still. That
+refutation stood without a replacement, because `P_OOD` was a module constant in
+`analysis/headroom_arms.py` and a term that never varies cannot be estimated.
 
-It is an axis now: **1,406 arms × 5 operating points**, 7,030 rows.
+**10,570 rows: 1,406 published arms and 700 newly swept ones, each at five
+operating points.** The replacement is simpler than expected.
+
+```
+group_share  ≈  headroom × (2.03 − 1.86 × p_ood)
+```
+
+Grouped 5-fold CV R² over all domains, folds keyed on the species-set identity:
+
+| model | CV R² | params |
+|---|---|---|
+| `headroom` (the published rule) | +0.6472 | 1 |
+| `headroom + p_ood` | +0.6928 | 2 |
+| **`headroom × (a − b·p_ood)`** | **+0.7433** | **2** |
+| `headroom + p_ood + interaction` | +0.7442 | 3 |
+
+The two-term multiplicative form captures everything the free three-term model
+does, with one fewer parameter and an interpretation: **retreat is a fraction of
+the headroom available, and the operating point sets that fraction.**
+
+| `p_ood` | multiplier |
+|---|---|
+| 0.05 | 1.93 × headroom |
+| **0.20** | **1.65 × headroom** |
+| 0.60 | 0.91 × headroom |
+
+## This explains the 1.8× rule rather than discarding it
+
+`1.8 ×` is the multiplier at `p_ood ≈ 0.2`, and **every arm behind the published
+rule was fitted at exactly `p_ood = 0.2`.** The rule was never wrong; it was one
+slice through a function of an assumption nobody had varied. Quote the multiplier
+with its operating point and the original number falls out.
+
+It also fixes a structural defect. The additive form `a + b·headroom + c·p_ood`
+predicts **negative** retreat at zero headroom and high `p_ood` — 6 of 30
+out-of-domain predictions were negative in the previous run. Both terms here are
+proportional to headroom, so zero headroom gives zero retreat by construction,
+which is also what P1 measures.
+
+## The domain story dissolves into headroom
+
+Fitted separately, the same two-term form is close across domains that share no
+modality, encoder or task:
+
+| domain | arms | mean fine | realised / available |
+|---|---|---|---|
+| dermatology | 2,770 | 0.697 | `1.62 − 2.17 × p_ood` |
+| keyword spotting | 780 | 0.842 | `1.73 − 1.97 × p_ood` |
+| plants | 7,000 | 0.808 | `2.12 − 1.75 × p_ood` |
+
+The additive coefficient looked domain-dependent — `b(p_ood)` of −0.300 on
+dermatology against −0.177 on plants — and that appearance is a headroom effect.
+**Binned by fine accuracy, pooled across domains**, it is monotone:
+
+| fine accuracy | rows | domains in band | mean headroom | `b(p_ood)` |
+|---|---|---|---|---|
+| < 0.65 | 1,070 | derm + plants | 0.228 | −0.370 |
+| 0.65–0.75 | 4,355 | derm + plants | 0.171 | −0.327 |
+| 0.75–0.82 | 990 | derm + kws + plants | 0.123 | −0.230 |
+| 0.82–0.88 | 1,105 | derm + kws + plants | 0.064 | −0.165 |
+| > 0.88 | 3,030 | kws + plants | 0.033 | **+0.028** |
+
+Every band holds more than one domain, so this is not domain identity. But
+accuracy and headroom fall together down the table, and the control separates
+them: **restricted to headroom ∈ [0.08, 0.14]**, dermatology at fine 0.702 gives
+`b(p_ood) = −0.2068` and plants at fine 0.802 gives **−0.1996**. At matched
+headroom the two are indistinguishable.
+
+So the governing quantity is headroom, as `HEADROOM_FINDINGS` said. Weak models
+simply have more of it, which is why the operating point appears to cost them
+more — and why dermatology's 91× was never a fact about dermatology.
+
+## Spans, and why the coefficient is the better statistic
+
+| domain | crowded arms | retreat 0.05 → 0.60 | span |
+|---|---|---|---|
+| plants | 148 | 0.2840 → 0.1788 | 1.6× |
+| keyword spotting | 15 | 0.0876 → 0.0277 | 3.2× |
+| dermatology | 49 | 0.2048 → 0.0346 | **5.9×** |
+
+The span is a ratio and inflates wherever the denominator is small, which is why
+keyword spotting ranks second here on span and *last* on coefficient. Quote the
+multiplier, not the span. Dermatology's 91× was a ratio at an operating point
+where the denominator had nearly vanished.
+
+## What this is not
+
+- **Dermatology's crowded sets are one family.** Only `inflammatory` (37 usable
+  labels at a 10-row floor) can fill a crowded set at K = 20–30, so nearly every
+  crowded derm arm is "some inflammatory conditions". Fine for this measurement —
+  headroom varies through the grouping sweep within each fit, not through the
+  label sets — and **not** a crowded-versus-varied claim about dermatology.
+- **Dermatology's clusters average 1.18 rows.** `make_splits` and the bootstrap
+  are therefore effectively row-level there, so its intervals are narrower than
+  the plant ones for reasons that have nothing to do with better measurement.
+  Declared because "cluster, never row" is load-bearing everywhere else here.
+- **Keyword spotting never reached the weak band** — `wav2vec2-base` sits at fine
+  0.83 even at K = 20. It contributes the accuracy *spread*, not weak arms.
+- **18 derm sets and 15 kws sets.** Better than the one crowded arm per domain
+  this replaces, and not a large number of independent label sets.
+
+## Reproducing
 
 ```
 PYTHONPATH=. .venv/bin/python -m analysis.headroom_arms \
-    --p-ood 0.05 0.1 0.2 0.4 0.6 --out data/processed/headroom_ood.csv
+    --p-ood 0.05 0.1 0.2 0.4 0.6 --sweep-weak --out data/processed/headroom_full.csv
 ```
 
-## The design holds
-
-Headroom is computed on the calibration half and no deployment weight enters it,
-so it must not move with `p_ood`. Within-arm spread across all 1,406 arms is
-**exactly 0.00e+00**. The two predictors are identified.
-
-## On plants, the term is real and small
-
-| `p_ood` | `t_group` | group | label | decline | `1.8 × headroom` |
-|---|---|---|---|---|---|
-| 0.05 | 0.6985 | **0.2530** | 0.5431 | 0.2040 | 0.2162 |
-| 0.20 | 0.8303 | 0.2184 | 0.4880 | 0.2936 | 0.2162 |
-| 0.60 | 0.9454 | **0.1526** | 0.2611 | 0.5863 | 0.2162 |
-
-Headroom pinned at 0.1201, so the prediction is pinned at 0.2162. Realised
-retreat moves **1.7×**, against dermatology's reported 91×.
-
-| model | CV R² |
-|---|---|
-| headroom alone (the published rule) | +0.7583 |
-| `p_ood` alone | +0.0239 |
-| headroom + `p_ood` | +0.7856 |
-| **headroom + `p_ood` + interaction** | **+0.8335** |
-
-`group_share ≈ 0.0599 + 1.6448 × headroom − 0.1763 × p_ood`, both coefficients
-with cluster-bootstrap intervals excluding zero. **The term buys +0.027 of CV R²
-additive, +0.075 with an interaction.** `p_ood` alone explains almost nothing:
-the operating point modulates retreat, it does not drive it.
-
-The `1.8×` "floor" is recoverable at `p_ood = 0.20` (median ratio 1.789) and
-nowhere else — 2.141 at 0.05, 1.026 at 0.60. It is an operating-point-specific
-value, not a floor.
-
-## Out of domain, the rule fails — and not the way predicted
-
-Fitted on plants (7,000 rows), tested on held-out weak domains. Never pooled:
-three crowded out-of-domain arms against 1,400 plant ones would be a rounding
-error in a joint fit and would come back looking like confirmation.
-
-| arm | headroom | measured @ 0.05 → 0.60 | residual range |
-|---|---|---|---|
-| `derm-crowded` | 0.128 | 0.1171 → 0.0125 | **−0.144 to −0.195** |
-| `kws-sem-crowded` | 0.047 | 0.0674 → 0.0000 | −0.031 to −0.075 |
-| `text-crowded` | 0.181 | 0.3973 → 0.1731 | +0.049 to −0.079 |
-
-**The prediction I declared was wrong.** I expected the rule to hold at low
-`p_ood` and degrade as it rose, because that is where the omitted term bites.
-MAE by operating point is **flat**: 0.068, 0.071, 0.061, 0.052, 0.066. The rule
-is *uniformly* wrong on weak domains, not progressively wrong. Whatever it is
-missing is not something `p_ood` indexes.
-
-What it over-predicts is the **level** of retreat. On dermatology the plant rule
-says 0.16–0.26 and the truth is 0.01–0.12, at every operating point.
-
-### What is actually different is the span
-
-| domain | crowded arms | retreat at 0.05 → 0.60 | span |
-|---|---|---|---|
-| plants | 148 | 0.2840 → 0.1788 | **1.6×** |
-| text | 1 | 0.3973 → 0.1731 | 2.3× |
-| dermatology | 1 | 0.1171 → 0.0125 | **9.4×** |
-| audio (kws) | 1 | 0.0674 → 0.0000 | **to zero** |
-
-This is the finding. Sensitivity to the operating point is **far larger in weak
-domains** — the same result `narrowcast-derm` reported as 91×, reproduced here at
-9.4× on a differently-constructed arm — and an additive linear term cannot express
-it. Adding the interaction helps and does not rescue it: out-of-domain MAE on
-crowded arms goes 0.0923 → 0.0868.
-
-`CLAUDE.md`'s reading is supported: the divergence tracks **encoder strength**,
-not dermatology. The derm arm sits at fine 0.796 and kws at 0.895 against plants'
-0.84–0.97, and it is the weak arms whose retreat collapses.
-
-### The linear form is also structurally wrong
-
-At headroom 0 it predicts `+0.0514` retreat at `p_ood = 0.05` and **`−0.0457`** at
-0.60. Six of thirty out-of-domain predictions are negative. Group share is
-bounded below by zero and is exactly zero on 3.5% of plant arms; a linear model
-on a zero-inflated bounded outcome will do this. Any published two-variable rule
-needs a form that cannot predict negative retreat.
-
-## What this does and does not license
-
-**Does.** The operating-point term exists, its sign is negative, its size on
-plants is small, and `1.8 ×` is quotable only at `p_ood = 0.20`.
-
-**Does not.** A general two-variable rule. It rests on **three** crowded
-out-of-domain arms — one per domain — which is suggestive and nowhere near
-established. The plant-fitted rule demonstrably does not transfer, so the honest
-statement is *"here is the term on plants, and here is evidence it is much larger
-where the model is weak"*, not *"here is the corrected rule"*.
-
-**The missing measurement is now specific**: many weak arms, not one. Sweeping
-label sets within dermatology and keyword spotting the way `plant_arms` does
-would give the hundreds of low-accuracy arms needed to fit a rule that covers the
-range. That is a script, not a new corpus — `narrowcast-derm` has 2,688 images at
-three encoders on disk.
-
-## Traps fixed on the way
-
-- **`--sets-per-cell` defaulted to 3; the published run used 4.** Re-running as
-  documented reproduced exactly 75% of the published arms in every cell. Fixed,
-  and this run's 1,400 plant arms match the published count.
-- **The cross-domain inputs lived in `/tmp`.** They resolve against
-  `data/processed/arm_inputs/` first now. kws semantic vectors regenerated from
-  `data/speech_commands`; dermatology vectors were on disk in `narrowcast-derm`
-  all along.
-- **`kws-ac-*` are not reproducible and are not reconstructed.** No script writes
-  them; the logic is k-means over word centroids with `n_groups` free, and
-  headroom moves with that choice. They skip loudly instead.
-- **A CSV checkpoint now lands after the plant phase**, which is hours, before the
-  out-of-domain phase, which is seconds.
+Swept arms carry `arm_source="sweep"` and are excluded from the pre-registered
+analysis, which reads `arm_source == "published"` at `p_ood = 0.2` and reproduces
+`HEADROOM_FINDINGS.md` exactly — admissibility 20.7%, `M_head` +0.8829.
