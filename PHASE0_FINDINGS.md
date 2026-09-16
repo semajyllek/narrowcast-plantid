@@ -137,3 +137,50 @@ head, and that is measuring now.
 
 Two numbers the project has been quoting need correcting: the artifact is
 **21.7 MB, not 17.9**, and the 18.1 ms was MPS — the Core ML figure is **3.1 ms**.
+
+---
+
+## 0a, continued — what int4 costs the head
+
+`ONDEVICE_FINDINGS.md`'s precedent said a refitted head absorbs quantization
+damage almost entirely: 4-bit BioCLIP at cosine 0.898 destroyed 62% of
+nearest-neighbour relations and cost *barely a point*. That did **not** transfer.
+
+Measured on leaf only, K=20, identical species and splits, the head refitted on
+each embedding source — so this *is* the refitted-head case
+(`analysis/int4_cost.py`):
+
+| list | torch S2 | Core ML int4 | delta |
+|---|---|---|---|
+| varied | 0.9267 | 0.8633 | **−6.3pp** |
+| crowded | 0.6573 | 0.6109 | −4.6pp |
+
+Paired over 12 label sets: **mean −0.0549**, min −0.115, max +0.011.
+
+**So cosine was right this time.** The project's standing rule — *"cosine does not
+predict accuracy; measure the head"* — is a warning against trusting cosine in
+either direction, and here the measurement confirmed it rather than dismissing it.
+The mechanism is plausible: reparameterizing MobileOne/FastViT fuses parallel
+branches into single convs with a much wider dynamic range than a ViT's weights,
+which is exactly what 16 palette entries struggle to cover. BioCLIP's experience
+does not carry to this architecture.
+
+### What this does not yet settle
+
+This is **closed-set top-1**, which needs no negatives. The product's headline is
+**label share**, and the two can diverge violently: `TINY_FINDINGS` records a
+0.14 MB student at top-1 0.471 naming **zero** labels while a 1.53 MB student at
+0.492 named 17.4%, because capacity buys *sharpness* as well as accuracy and the
+threshold reads sharpness. If int4 flattens the confidence distribution, label
+share falls further than top-1 does.
+
+The background pool is embedding now; label share, coverage and rejection follow.
+
+### The options, priced
+
+- **int8, ~40 MB.** `ONDEVICE_FINDINGS` has 8 bits at cosine 0.998 against 4 bits'
+  0.898 on BioCLIP, and int8 is far kinder to wide-dynamic-range fused convs.
+  Still 4× under BioCLIP-2's 153 MB.
+- **int4 at 21.7 MB, accepting −5.5pp.** Possibly fine on the *adapted* encoder,
+  which starts at 0.997 and has the headroom to absorb it — unmeasured.
+- Note the whole comparison is stock S2. `s2_ft` has never been exported.
