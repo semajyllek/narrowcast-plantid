@@ -36,11 +36,49 @@ import numpy as np
 
 from plantid.config import DATA_PROCESSED
 
-# open_clip's CLIP normalisation, and the resolution BioCLIP v1 expects.
+# Defaults only, and only for BioCLIP v1. Every constant below is now READ FROM
+# THE ENCODER by `preprocess_spec` -- see the note there. They are kept so the
+# module still imports and `benchmark` has a size to synthesise noise at.
 CLIP_MEAN = (0.48145466, 0.4578275, 0.40821073)
 CLIP_STD = (0.26862954, 0.26130258, 0.27577711)
 SIDE = 224
 OUT_DIR = DATA_PROCESSED / "coreml"
+
+
+def preprocess_spec(variant: str) -> dict:
+    """Resize, interpolation and normalisation, read from the encoder's own transform.
+
+    These were hardcoded to CLIP's mean/std at 224 bicubic, which is right for
+    BioCLIP and **wrong for MobileCLIP2-S2** -- 256, bilinear, mean 0 / std 1. The
+    hardcoding was invisible because `validate` compared Core ML against
+    `build_traceable`, which baked the same wrong constants: a self-consistency
+    check that reports cosine ~1.0 while the embeddings sit in a different space
+    from every cached `.npz` the accuracy numbers came from.
+
+    Reading the spec off `load_encoder`'s returned `preprocess` means a new variant
+    cannot reintroduce the bug by being added to the registry.
+    """
+    from plantid.features.pretrained import load_encoder
+
+    _, pre, _ = load_encoder(variant, device="cpu")
+    spec = {"side": None, "mean": None, "std": None, "interpolation": None}
+    for t in getattr(pre, "transforms", [pre]):
+        name = type(t).__name__
+        if name == "Resize":
+            size = t.size
+            spec["side"] = int(size if isinstance(size, int) else min(size))
+            spec["interpolation"] = t.interpolation
+        elif name == "CenterCrop":
+            size = t.size
+            spec["side"] = int(size if isinstance(size, int) else min(size))
+        elif name == "Normalize":
+            spec["mean"] = tuple(float(x) for x in t.mean)
+            spec["std"] = tuple(float(x) for x in t.std)
+    missing = [k for k, v in spec.items() if v is None]
+    if missing:
+        raise ValueError(f"could not read {missing} from {variant}'s preprocess; "
+                         f"got {[type(t).__name__ for t in getattr(pre, 'transforms', [pre])]}")
+    return spec
 
 
 def build_traceable(variant: str = "bioclip1"):
@@ -57,13 +95,30 @@ def build_traceable(variant: str = "bioclip1"):
 
     tower, _, _ = load_encoder(variant, device="cpu")
     visual = tower.clip.visual if hasattr(tower, "clip") else tower
+    spec = preprocess_spec(variant)
+    side = spec["side"]
+
+    # MobileCLIP2-S2's tower is FastViT/MobileOne: its blocks carry parallel
+    # k x k / scale / BN branches at training time that are algebraically fused
+    # into one conv for inference. Converting the unfused graph would produce a
+    # larger and slower artifact than the size claim assumes, so fuse first when
+    # the architecture supports it.
+    reparam = getattr(visual, "reparameterize", None)
+    if reparam is None:
+        try:
+            from timm.models import reparameterize_model
+            visual = reparameterize_model(visual)
+        except Exception:
+            pass
+    elif callable(reparam):
+        reparam()
 
     class Encoder(nn.Module):
         def __init__(self):
             super().__init__()
             self.visual = visual
-            self.register_buffer("mean", torch.tensor(CLIP_MEAN).view(1, 3, 1, 1))
-            self.register_buffer("std", torch.tensor(CLIP_STD).view(1, 3, 1, 1))
+            self.register_buffer("mean", torch.tensor(spec["mean"]).view(1, 3, 1, 1))
+            self.register_buffer("std", torch.tensor(spec["std"]).view(1, 3, 1, 1))
 
         def forward(self, x):
             x = (x - self.mean) / self.std
@@ -81,7 +136,7 @@ def build_traceable(variant: str = "bioclip1"):
     for p in model.parameters():
         p.requires_grad_(False)
     with torch.no_grad():
-        dim = int(model(torch.zeros(1, 3, SIDE, SIDE)).shape[-1])
+        dim = int(model(torch.zeros(1, 3, side, side)).shape[-1])
     return model, dim
 
 
@@ -97,18 +152,19 @@ def export(variant: str = "bioclip1", out_dir: Path = OUT_DIR, palettize_bits: i
 
     out_dir.mkdir(parents=True, exist_ok=True)
     model, dim = build_traceable(variant)
+    side = preprocess_spec(variant)["side"]
 
     # `torch.jit.trace` fails on this graph under torch 2.13: the ViT emits an
     # `aten::Int` on a non-scalar shape that the Core ML frontend rejects.
     # `torch.export` produces a cleaner ATen graph and converts, but only after
     # `run_decompositions` -- the raw export is in the TRAINING dialect, which
     # the converter refuses.
-    exported = torch.export.export(model, (torch.rand(1, 3, SIDE, SIDE),))
+    exported = torch.export.export(model, (torch.rand(1, 3, side, side),))
     exported = exported.run_decompositions({})
 
     mlmodel = ct.convert(
         exported,
-        inputs=[ct.ImageType(name="image", shape=(1, 3, SIDE, SIDE), scale=1 / 255.0,
+        inputs=[ct.ImageType(name="image", shape=(1, 3, side, side), scale=1 / 255.0,
                              color_layout=ct.colorlayout.RGB)],
         outputs=[ct.TensorType(name="embedding")],
         minimum_deployment_target=getattr(ct.target, target),
@@ -135,26 +191,40 @@ def export(variant: str = "bioclip1", out_dir: Path = OUT_DIR, palettize_bits: i
     return path, dim
 
 
-def _pil_batch(paths):
+def _pil_batch(paths, variant: str = "bioclip1"):
+    """Resize and crop exactly as this variant's own preprocess does.
+
+    Was hardcoded to 224 bicubic. MobileCLIP2-S2 is 256 bilinear, and feeding it
+    224 bicubic pixels produces a plausible embedding in the wrong space.
+    """
     from PIL import Image
     import torchvision.transforms as T
 
-    # match open_clip: bicubic resize of the short side, then centre crop
-    resize = T.Compose([T.Resize(SIDE, interpolation=T.InterpolationMode.BICUBIC),
-                        T.CenterCrop(SIDE)])
+    spec = preprocess_spec(variant)
+    resize = T.Compose([T.Resize(spec["side"], interpolation=spec["interpolation"]),
+                        T.CenterCrop(spec["side"])])
     return [resize(Image.open(p).convert("RGB")) for p in paths]
 
 
 def validate(path: Path, variant: str = "bioclip1", paths=None, n: int = 64):
-    """Cosine agreement between Core ML and PyTorch on real catalogue images.
+    """Cosine agreement between Core ML and the encoder's OWN preprocess.
 
     Random noise would not catch a preprocessing bug -- normalisation errors show
     up as a systematic rotation that only real image statistics reveal -- so this
     deliberately uses photographs from the catalogue.
+
+    **The reference is `load_encoder`'s `preprocess`, not `build_traceable`.** It
+    used to be `build_traceable`, which is the same code path the export is built
+    from and bakes the same constants: if those constants were wrong for the
+    variant, both sides were wrong identically and this returned cosine ~1.0 while
+    the embeddings sat in a different space from every cached `.npz` in the repo.
+    A self-consistency check cannot detect a shared assumption. Comparing against
+    the transform the accuracy numbers were actually produced with can.
     """
     import coremltools as ct
     import torch
-    import torchvision.transforms.functional as TF
+
+    from plantid.features.pretrained import load_encoder
 
     if paths is None:
         import pandas as pd
@@ -163,25 +233,33 @@ def validate(path: Path, variant: str = "bioclip1", paths=None, n: int = 64):
         paths = [DATA_PROCESSED / p
                  for p in cat["local_path"].dropna().sample(n, random_state=0)]
 
-    images = _pil_batch(paths)
-    model, _ = build_traceable(variant)
-    with torch.no_grad():
-        ref = model(torch.stack([TF.to_tensor(im) for im in images])).numpy()
+    from PIL import Image
 
+    tower, preprocess, _ = load_encoder(variant, device="cpu")
+    raw = [Image.open(p).convert("RGB") for p in paths]
+    with torch.no_grad():
+        batch = torch.stack([preprocess(im) for im in raw])
+        ref = tower(batch).numpy()
+    ref = ref / np.clip(np.linalg.norm(ref, axis=1, keepdims=True), 1e-9, None)
+
+    # Core ML takes the resized/cropped PIL image; `ct.ImageType(scale=1/255)`
+    # plus the in-graph mean/std reproduce the rest of `preprocess`.
+    images = _pil_batch(paths, variant)
     mlmodel = ct.models.MLModel(str(path))
     got = np.stack([mlmodel.predict({"image": im})["embedding"].ravel() for im in images])
 
     cos = (ref * got).sum(1) / (np.linalg.norm(ref, axis=1) * np.linalg.norm(got, axis=1))
     return {"n": len(images), "cosine_mean": float(cos.mean()), "cosine_min": float(cos.min()),
-            "max_abs_err": float(np.abs(ref - got).max())}
+            "max_abs_err": float(np.abs(ref - got).max()), "reference": "load_encoder.preprocess"}
 
 
-def benchmark(path: Path, repeats: int = 50, warmup: int = 5):
+def benchmark(path: Path, repeats: int = 50, warmup: int = 5, side: int | None = None):
     """Latency per compute-unit setting, plus where the ops actually ran."""
     import coremltools as ct
     from PIL import Image
 
-    img = Image.fromarray((np.random.rand(SIDE, SIDE, 3) * 255).astype("uint8"))
+    side = side or SIDE
+    img = Image.fromarray((np.random.rand(side, side, 3) * 255).astype("uint8"))
     rows = []
     for name, units in (("CPU_ONLY", ct.ComputeUnit.CPU_ONLY),
                         ("CPU_AND_GPU", ct.ComputeUnit.CPU_AND_GPU),
@@ -247,7 +325,8 @@ def main():
     print(" ", validate(path, args.variant, n=args.n_validate), flush=True)
 
     print("\nlatency:")
-    for row in benchmark(path, repeats=args.repeats):
+    for row in benchmark(path, repeats=args.repeats,
+                         side=preprocess_spec(args.variant)["side"]):
         ms = row["ms_per_image"]
         print(f"  {row['compute_units']:12s} {ms:7.2f} ms" if ms == ms
               else f"  {row['compute_units']:12s}   n/a ({row.get('error')})")

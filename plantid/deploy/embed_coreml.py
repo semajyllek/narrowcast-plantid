@@ -54,12 +54,18 @@ def load_model(path, compute_units=None):
         str(path), compute_units=compute_units or ct.ComputeUnit.CPU_AND_NE)
 
 
-def embed_paths(model, paths, desc="", chunk=CHUNK, workers=WORKERS):
+def embed_paths(model, paths, desc="", chunk=CHUNK, workers=WORKERS,
+                encoder="bioclip1"):
     """(n, dim) float32. Decode is threaded; `predict` is one image at a time.
 
-    The export has a fixed (1,3,224,224) input and stays that way: re-exporting
-    at another batch size would no longer be the artifact whose accuracy is being
-    measured.
+    The export has a fixed input size and stays that way: re-exporting at another
+    batch size would no longer be the artifact whose accuracy is being measured.
+
+    `encoder` selects the resize/interpolation, which is **not** cosmetic. It used
+    to be implicit — `_pil_batch` was hardcoded to 224 bicubic, which is BioCLIP's
+    preprocessing. MobileCLIP2-S2 wants 256 bilinear, and feeding it BioCLIP's
+    pixels produces a perfectly plausible unit-norm embedding in the wrong space,
+    with nothing to indicate it. Pass the encoder whose artifact this is.
     """
     from tqdm import tqdm
 
@@ -67,7 +73,7 @@ def embed_paths(model, paths, desc="", chunk=CHUNK, workers=WORKERS):
     with ThreadPoolExecutor(workers) as pool:
         for i in tqdm(range(0, len(paths), chunk), desc=desc):
             batch = paths[i:i + chunk]
-            images = list(pool.map(lambda p: _pil_batch([p])[0], batch))
+            images = list(pool.map(lambda p: _pil_batch([p], encoder)[0], batch))
             out.append(np.stack([model.predict({"image": im})["embedding"].ravel()
                                  for im in images]).astype(np.float32))
     return np.concatenate(out) if out else np.zeros((0, 0), np.float32)
@@ -92,7 +98,8 @@ def pack(sub: pd.DataFrame, emb: np.ndarray, with_split: bool) -> dict:
     return data
 
 
-def _organ_caches(model, manifest, cache_path_fn, variant, cache_dir, with_split, tag):
+def _organ_caches(model, manifest, cache_path_fn, variant, cache_dir, with_split, tag,
+                  encoder="bioclip1"):
     idx = pd.read_parquet(cache_dir / manifest)
     idx = idx[idx["local_path"].notna()].reset_index(drop=True)
     for organ in ORGANS:
@@ -104,26 +111,26 @@ def _organ_caches(model, manifest, cache_path_fn, variant, cache_dir, with_split
         if sub.empty:
             continue
         emb = embed_paths(model, [str(cache_dir / p) for p in sub["local_path"]],
-                          desc=f"{tag}[{organ}]")
+                          desc=f"{tag}[{organ}]", encoder=encoder)
         np.savez_compressed(out, **pack(sub, emb, with_split))
         print(f"{tag}[{organ}]: {emb.shape} -> {out.name}", flush=True)
 
 
-def catalog(model, variant, cache_dir=DATA_PROCESSED):
+def catalog(model, variant, cache_dir=DATA_PROCESSED, encoder="bioclip1"):
     from plantid.features.embed_catalog import cache_path
 
     _organ_caches(model, "catalog_index.parquet", cache_path, variant, cache_dir,
-                  with_split=True, tag="cat")
+                  with_split=True, tag="cat", encoder=encoder)
 
 
-def background(model, variant, cache_dir=DATA_PROCESSED):
+def background(model, variant, cache_dir=DATA_PROCESSED, encoder="bioclip1"):
     from plantid.features.embed_background import cache_path
 
     _organ_caches(model, "plantnet_background.parquet", cache_path, variant, cache_dir,
-                  with_split=False, tag="bg")
+                  with_split=False, tag="bg", encoder=encoder)
 
 
-def inat(model, variant, cache_dir=DATA_PROCESSED):
+def inat(model, variant, cache_dir=DATA_PROCESSED, encoder="bioclip1"):
     """Keyed by file path rather than row, since an observation has many photos."""
     from plantid.features.embed_inat import MANIFEST, cache_path
 
@@ -133,7 +140,7 @@ def inat(model, variant, cache_dir=DATA_PROCESSED):
         return
     df = pd.read_parquet(cache_dir / MANIFEST)
     paths = [p for ps in df["local_paths"] for p in ps]
-    emb = embed_paths(model, paths, desc="inat")
+    emb = embed_paths(model, paths, desc="inat", encoder=encoder)
     np.savez_compressed(out, descriptor=emb, path=np.asarray(paths, dtype=str))
     print(f"inat: {emb.shape} -> {out.name}", flush=True)
 
@@ -142,6 +149,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True, help="path to the .mlpackage under test")
     ap.add_argument("--variant", required=True, help="cache variant string to write")
+    ap.add_argument("--encoder", required=True,
+                    help="the torch encoder this artifact was exported from, e.g. "
+                         "`mobileclip2_s2`. Selects resize and interpolation; getting "
+                         "it wrong yields plausible embeddings in the wrong space.")
     ap.add_argument("--targets", default="catalog,background,inat")
     ap.add_argument("--compute-units", default="CPU_AND_NE",
                     help="pinning this away from CPU_AND_NE is almost certainly a mistake")
@@ -149,13 +160,17 @@ def main():
 
     import coremltools as ct
 
+    from plantid.deploy.coreml import preprocess_spec
+
     units = getattr(ct.ComputeUnit, args.compute_units)
+    spec = preprocess_spec(args.encoder)
     print(f"model {Path(args.model).name}  units {args.compute_units}  "
-          f"variant {args.variant}", flush=True)
+          f"variant {args.variant}  encoder {args.encoder} "
+          f"({spec['side']}px {spec['interpolation'].value})", flush=True)
     model = load_model(args.model, units)
     for target in args.targets.split(","):
         {"catalog": catalog, "background": background, "inat": inat}[target](
-            model, args.variant)
+            model, args.variant, encoder=args.encoder)
 
 
 if __name__ == "__main__":
