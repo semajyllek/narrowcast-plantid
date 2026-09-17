@@ -184,3 +184,68 @@ The background pool is embedding now; label share, coverage and rejection follow
 - **int4 at 21.7 MB, accepting −5.5pp.** Possibly fine on the *adapted* encoder,
   which starts at 0.997 and has the headroom to absorb it — unmeasured.
 - Note the whole comparison is stock S2. `s2_ft` has never been exported.
+
+---
+
+## Correction: int4 costs ~4pp, not 14pp — and a bug of mine inflated everything
+
+Two things above were wrong, both mine.
+
+### The throughput figure was a bug I introduced
+
+I reported "~0.82 s/image, consistent across organs" as the real cost, and framed
+it as a correction to the `benchmark()` figure of 3.1 ms. **The 0.82 s was my
+bug.** The 0b fix made `_pil_batch` call `preprocess_spec(variant)`, which
+constructs the torch encoder and touches the HF Hub — and `embed_coreml.embed_paths`
+calls `_pil_batch` **once per image**. So a 51,000-image run rebuilt MobileCLIP2-S2
+about fifty thousand times.
+
+Measured after adding `@lru_cache` to `preprocess_spec`:
+
+| | |
+|---|---|
+| cold call (builds the encoder) | 4.48 s |
+| per image, cached | **2.0 ms** |
+| speedup | ~2,200× |
+
+The 12.5-hour run was ~99.97% rebuilding an encoder. It eventually died when the
+Hub closed the connection — which is the only reason the bug surfaced at all.
+Re-running the one missing cache took **32 seconds** against a 1h30m projection.
+
+The five caches written before the failure are valid: the preprocessing was
+correct, just recomputed wastefully.
+
+### Leaf-only overstated the damage by ~3×
+
+The `-14pp label share` verdict was measured on leaf alone, because flower had not
+finished embedding. On the two-organ footing `TINY_K_FINDINGS` actually uses:
+
+| metric | varied | crowded |
+|---|---|---|
+| fine (top-1) | −2.8pp | −3.1pp |
+| **label share** | **−6.2pp** | −2.0pp |
+| coverage | −5.1pp | −7.9pp |
+| precision | −0.8pp | −0.1pp |
+| decline share | +6.4pp | +8.7pp |
+
+Paired over 12 label sets: **mean −0.0408**, min −0.147, max +0.110.
+
+So **int4 costs about 4pp of label share, not 14pp.** A second organ gives the head
+enough redundancy to absorb much of the quantization noise — which is its own small
+finding, and a reason guided multi-photo capture may matter more than the fusion
+numbers alone suggest.
+
+The mechanism is unchanged and still visible: precision is flat, declines rise.
+int4 makes the model less confident rather than more wrong.
+
+### Revised verdict
+
+~~int4 per-grouped-channel is not acceptable here.~~ **Not established.** At
+−4.1pp of label share for 21.7 MB it is a real but arguable cost, where at −11.9pp
+it was not. int8 at ~40 MB is still worth measuring, but int4 is no longer
+disqualified — and on the *adapted* encoder, which starts at 0.941 label share,
+−4pp lands near 0.90.
+
+Both errors point the same way: **a partial measurement read as a verdict.** The
+leaf-only run was the right thing to do while waiting, and the wrong thing to
+conclude from.

@@ -7,9 +7,9 @@ student at top-1 0.471 naming *zero* labels while a 1.53 MB student at 0.492 nam
 17.4%, because capacity buys sharpness as well as accuracy and the threshold reads
 sharpness.
 
-Leaf only, because that is the organ embedded through Core ML on both sides at the
-time of writing. Same species, same draws, same splits, same declared p_ood; only
-the embedding source differs.
+`--organs both` is the footing TINY_K_FINDINGS uses; `--organs leaf` was the
+interim run made while flower was still embedding. Same species, same draws, same
+splits, same declared p_ood; only the embedding source differs.
 """
 import sys; sys.path.insert(0, '.')
 import argparse
@@ -18,7 +18,7 @@ import pandas as pd
 
 import analysis.headroom_arms as H
 
-H.ORGANS = ["leaf"]
+ORGAN_SETS = {"leaf": ["leaf"], "both": ["leaf", "flower"]}
 
 
 def main():
@@ -26,8 +26,11 @@ def main():
     ap.add_argument("--k", type=int, default=20)
     ap.add_argument("--sets", type=int, default=6)
     ap.add_argument("--p-ood", type=float, default=0.20)
-    ap.add_argument("--out", default="data/processed/int4_cascade_leaf.csv")
+    ap.add_argument("--organs", default="both", choices=sorted(ORGAN_SETS))
+    ap.add_argument("--out", default=None)
     a = ap.parse_args()
+    H.ORGANS = ORGAN_SETS[a.organs]
+    a.out = a.out or f"data/processed/int4_cascade_{a.organs}.csv"
 
     ref, _ = H.load("mobileclip2_s2")
     allsp = np.array(sorted(set(ref["leaf"][1])))

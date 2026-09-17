@@ -30,6 +30,7 @@ Usage:
 
 import argparse
 import time
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -45,8 +46,18 @@ SIDE = 224
 OUT_DIR = DATA_PROCESSED / "coreml"
 
 
+@lru_cache(maxsize=None)
 def preprocess_spec(variant: str) -> dict:
     """Resize, interpolation and normalisation, read from the encoder's own transform.
+
+    **Cached, and that is load-bearing rather than an optimisation.** Reading the
+    spec means constructing the torch encoder, which pulls config and weights from
+    the HF Hub. `_pil_batch` is called once per *image* by
+    `embed_coreml.embed_paths`, so an uncached call here rebuilt MobileCLIP2-S2
+    about fifty thousand times in one run: ~0.8 s/image instead of the ~20 ms the
+    decode and a 3.1 ms inference actually cost, and eventually a hard failure when
+    the Hub closed the connection. The returned dict is shared -- callers read it,
+    never mutate it.
 
     These were hardcoded to CLIP's mean/std at 224 bicubic, which is right for
     BioCLIP and **wrong for MobileCLIP2-S2** -- 256, bilinear, mean 0 / std 1. The
