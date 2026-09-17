@@ -93,6 +93,38 @@ Nothing else is blocked. What follows is data collection.
 
 ## Then
 
+**An Oregon phone app.** The export path exists: `plantid/deploy/export_ios.py`
+turns a narrowcast bundle plus a Core ML encoder into one directory — the
+`.mlpackage` and a `bundle.json` carrying the head, the thresholds, the group map
+and the preprocessing contract. A worked artifact is 24 Oregon species at
+**83 MB total** (87 MB encoder, 106 KB bundle).
+
+`plantid/deploy/cascade.swift` is the port, and
+`tests/test_export_ios.py` is its specification: a reimplementation reading only
+`bundle.json` agrees with `narrowcast.predict.Bundle` on **all 618** real Oregon
+rows, zero disagreements, with the gate and suppression on. The Swift is
+**unbuilt** — nothing here can compile it.
+
+What is actually unknown is **latency on an A-series chip**. Every number is M4
+Max ANE (36.4 ms/image for this encoder). That is a twenty-line Xcode spike
+against the `.mlpackage` alone and does not need the head.
+
+Two things the artifact declares rather than assumes: the head was fitted on
+*torch* embeddings while the app will use the *Core ML int8* export (cosine
+0.9996, `ENCODER_DECISION.md`), and the encoder identity says `+coreml:` so that
+mismatch is legible; and the preprocessing is read off the encoder's own
+transform at export time, never hardcoded — 518 px bicubic here, and the graph
+already carries the 1/255 scale, the channel normalisation and the final L2.
+
+**Using it in Oregon is the domain-shift experiment.** A phone camera in your
+hands is precisely the axis `DOMAIN_SHIFT_FINDINGS.md` says is untested. Logged
+photographs with determinations would be worth more than the herbarium probe,
+because they are real field use rather than a brittleness test.
+
+**Do not use it to decide what to eat.** The forager 0% is 0 events in 70
+clusters — rule of three, ≈4.3% upper bound — measured on GBIF photographs, not
+yours. Both hemlocks grow in Oregon.
+
 **More regions.** Everything is Oregon. `regions.py` has a `PLACES` registry and a
 GBIF path that needs only `--state`.
 
@@ -101,10 +133,9 @@ PlantCLEF's classes is the binding constraint. A European region would allow the
 test at full size, and the prediction is that FIT's margin *shrinks* where the
 general model actually knows the flora.
 
-**Domain shift.** Still the one unmeasured axis, and now the largest. Every number
-here comes from iNaturalist/GBIF photographs; nobody has pointed a different
-camera at a plant. `DATA_STRATEGY.md` proposes herbarium specimens through GBIF as
-a source that ships its own labels. This is data collection, not coding.
+**Domain shift.** `DATA_STRATEGY.md` proposes herbarium specimens through GBIF as
+a source that ships its own labels. Data collection, not coding — and see the app
+note above for a cheaper source.
 
 ## How to report a measurement here
 
