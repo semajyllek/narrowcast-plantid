@@ -25,33 +25,53 @@ embed → audit → card, no manual step. `plantid/data/regions.py` →
   three times — but **+27.9 points** better than filtering a general classifier to
   the same species, and able to name the ~75% of a regional flora that a
   7,806-class model has no class for. (`NARROW_THESIS_FINDINGS.md`)
-- **Safety**: pooled over 8 splits and 672 hemlock rows, the `forage` utility
+- **Safety**: ~~pooled over 8 splits and 672 hemlock rows, the `forage` utility
   profile takes *Conium maculatum* to **0.00%** named-from-your-list, against
-  3.27% under `identify`, for ~17 points of label share.
-  (`FORAGER_FINDINGS.md`)
+  3.27% under `identify`, for ~17 points of label share.~~
+  **Do not quote this.** It is in no findings doc and in neither repository's
+  history — it was run and reported without being written down, which is the
+  failure the "every number traces to a findings doc" rule exists to prevent. The
+  pooling was also over the coin flip that `bde128f` removed, so it cannot be
+  carried forward either. See the note appended to `FORAGER_FINDINGS.md`;
+  re-running it under the new split is the first thing that belongs in that file.
 
-## Do these first
+## Done since this was written
 
-### 1. Stratify declared hazards across the split — narrowcast
+Both of the first two are landed in `narrowcast` on `auditor-cut`, with tests.
 
-`Conium` reached a test half in **6 of 8** splits and `Cicuta` in **2 of 8**,
-because `make_splits` shuffles near-OOD species and there are 23 of them. The card
-correctly reports the misses as *unmeasured* rather than passed, but a single
-audit is a coin-flip on whether your declared hazard was checked at all.
+- **Stratify declared hazards across the split** — `bde128f`. A declared hazard is
+  forced into both halves, halved at the cluster, drawn from a generator keyed on
+  its own name so declaring one moves nothing else. The predicate was the part
+  that could have failed quietly: `hazard_metrics` keys on `truth` and
+  `outside_hazard_metrics` on `species` and out-of-list, so stratifying under one
+  and measuring under the other would still have printed "unmeasured" with nothing
+  to show the miss — `cascade.hazard_rows` is now the union, shared by the split
+  and both metrics. Note the headline numbers are *not* comparable across a
+  declaration: the hazard's own rows change sides, the calibration composition
+  moves with them, and the fitted operating point moves too (up to 8 points of
+  label share on the test fixture). Also fixed a crash this made reachable —
+  `card._hazard_section` compared an unmeasured hazard's `None` rate to the bar.
 
-A declared hazard should be forced into both halves. Touch
-`cascade.make_splits`, which now takes a `species` column it can key on.
-Note `MAX_CLUSTER_SHARE` already exists there for the related problem.
+- **Per-label cost** — `292b269`. `--never-answer LABEL`: when the cascade would
+  name that label, it declines. **Suppress the look-alike, not the hazard** —
+  suppressing the hazard is inert, because `hazard_metrics` counts rows whose
+  prediction is *not* the hazard, so those rows were never in the numerator. The
+  card used to recommend the inert version and now names the look-alikes from
+  `named_as`, which was added to the in-list path for this. Applied after the fit,
+  never inside it, so the cost stays a printable delta. Read by `predict` too.
+  Per-label *thresholds* are still the larger change and still want a prereg.
 
-### 2. Per-label cost — narrowcast
+- **`FORAGER_FINDINGS.md` numbers no longer trace** — `ba38147`. Two reasons, and
+  the second is the serious one: the pooled 8-split forage result quoted below is
+  in no findings doc and in neither repository's history. Treat it as unrecorded.
 
-`UTILITY["wrong"]` is **one scalar over all labels**, and `fit_thresholds` never
-sees the hazard list. `--profile forage` makes the whole model cautious; it cannot
-make it cautious *about hemlock specifically*. The cheap version is an explicit
-always-decline override at predict time. Per-label thresholds are a larger change
-and want a prereg.
+## Do this first
 
-### 3. Finish Phase 3 — narrowcast
+### Finish Phase 3 — narrowcast
+
+Take the near-OOD gate on its own pass: it is the four-place seam and the only
+one of these that changes the cascade's shape. The other three are independent
+and can share a commit after it.
 
 - **Near-OOD gate.** `1 − P(__OTHER__)` is statistically level with the
   centroid-geometry gate (−0.0901 vs −0.0995) and free: `Bundle.proba` already
@@ -86,7 +106,11 @@ a source that ships its own labels. This is data collection, not coding.
 - **Cluster, never row.** Row-level intervals have twice produced effects here
   that failed to replicate. `regional_embed` carries the GBIF occurrence key for
   exactly this; without it a regional bundle's intervals come out ~√2 too narrow,
-  silently.
+  silently. **One declared exception since `bde128f`**: a hazard named by
+  `--hazard` or `--hazard-absent` is stratified into both halves on purpose, so
+  the whole-genus rule breaks for that one genus. The cluster itself is still
+  never split — a single-cluster hazard goes wholly to test and loses its
+  interval.
 - **The caller's group column wins.** Deriving the group from
   `label.split()[0]` is a Latin-binomial convention and has now been wrong in
   **five** places. It is invisible when wrong because it always returns something
