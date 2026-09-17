@@ -179,3 +179,49 @@ PYTHONPATH=. .venv/bin/python -m analysis.near_ood
 PYTHONPATH=. .venv/bin/python -m analysis.near_ood --variant bioclip2_cml4 \
     --arms none retreat retreat_omo retreat_genusconf
 ```
+
+## narrowcast ships the reject arm, and why that is this document read correctly
+
+*Added after narrowcast `5a9cc41`.* This document concludes **not shipped** — the
+gate's utility effect was a null at `p_ood = 0.20`, because near-OOD is 6.4% of
+traffic. narrowcast now ships it behind `--gate-near-ood` anyway, and ships the
+arm this document ranked *second*. Both departures have the same cause and it is
+worth recording, because the cause is a disagreement between two repositories
+about what a coarse answer is worth.
+
+**Why fitted rather than assumed.** narrowcast fits `t_novel` against the
+caller's declared utility, and the sweep can always choose a threshold that gates
+nothing. So the null measured here is not a reason to withhold the gate — it is
+one of the outcomes the fit can report, and it reports it: a card whose fit turned
+the gate off says so, and no threshold is written into the bundle. A caller
+declaring `forage` (`wrong = -20` against the `-4` used here) is buying a
+different trade in the bucket where a forager's hazard actually lives.
+
+**Why reject rather than retreat.** The retreat arm won here — near-OOD wrong
+−0.0995 against −0.0695 — because *a near-OOD congener answered at its own genus
+scored correct*. An unlisted *Lomatium* called "Lomatium" is right, and retreating
+converted wrong species answers into right genus ones.
+
+**narrowcast scores no out-of-list row as correct at any rank.** Its
+`frame_from_posteriors` sets `true_group` to `__OTHER__` for every out-of-list
+row, so `group_ok` is False by construction. Retreating one there moves it from
+`wrong` to `wrong` — the retreat arm is not weaker, it is arithmetically inert,
+at any declared payoffs. Declining is the only lever: `decline_ood` is +1.0
+against `wrong` at −4.0. Measured on narrowcast's fixtures, the reject gate takes
+near-OOD wrong from 95.8% to 0.0% at `p_ood = 0.10` **without moving the in-list
+label share at all**, and 51.6% → 9.4% on a scores fixture.
+
+**The durable result is the disagreement itself.** narrowcast holds two
+incompatible readings of the same event. `outside_hazard_metrics` counts a group
+answer naming an out-of-list row's own group as a **warning**, and therefore safe
+— "it is an umbellifer" is a true statement that helps the person holding the
+root. `utility` scores the identical answer as **wrong**. Both readings are
+defensible; holding both at once is not, and which one is in force decides
+whether a whole arm of this finding can exist. Reconciling them would change what
+`coverage` and `precision` mean on every card ever printed, so it is a
+declared-utility decision needing its own pass and a written reason. It is
+recorded in narrowcast's `CLAUDE.md` and unresolved.
+
+This project's own answer is the warning reading — that is what made the retreat
+arm win above. Anyone re-running this measurement should know the two repos
+disagree before comparing numbers across them.

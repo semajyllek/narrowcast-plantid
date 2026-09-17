@@ -69,15 +69,19 @@ Both of the first two are landed in `narrowcast` on `auditor-cut`, with tests.
 
 ### Finish Phase 3 — narrowcast
 
-Take the near-OOD gate on its own pass: it is the four-place seam and the only
-one of these that changes the cascade's shape. The other three are independent
-and can share a commit after it.
+~~Take the near-OOD gate on its own pass~~ — **done, `5a9cc41`** (`--gate-near-ood`).
+Three sub-items remain and they are independent of each other; one commit is fine.
 
-- **Near-OOD gate.** `1 − P(__OTHER__)` is statistically level with the
-  centroid-geometry gate (−0.0901 vs −0.0995) and free: `Bundle.proba` already
-  returns that column and discards it. Four-place seam — `cascade.decide` (third
-  threshold), `build.fit_and_measure` (grid 2-D → 3-D), `predict.Bundle.predict`,
-  the manifest.
+- ~~**Near-OOD gate.**~~ Shipped, with two departures from `NEAR_OOD_FINDINGS.md`
+  that are recorded in a note appended to that file. It **declines** rather than
+  retreating, because narrowcast scores no out-of-list row correct at any rank, so
+  the retreat arm is arithmetically inert there at any payoffs. And it is fitted
+  as a greedy *second* stage rather than as a 3-D grid — 3,600 + 60 evaluations
+  against 216,000, which is ~90 s on a real audit. The durable finding is the
+  asymmetry it exposed: narrowcast's `outside_hazard_metrics` calls a group answer
+  on an out-of-list row a *warning* while its `utility` calls it *wrong*. Two
+  readings of one event, and this project assumes the first. Unresolved on
+  purpose; it is a declared-utility change.
 - **`regional_ood` bucket.** Vestigial in `cascade.SPLIT_CLUSTER`; plantid has
   `OOD_MIX_REGIONAL` and calls it "the deployment-realistic one".
 - **Encoder ↔ bundle binding.** `manifest["encoder"]` is a name string defaulting
