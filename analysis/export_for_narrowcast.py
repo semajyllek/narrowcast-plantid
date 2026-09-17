@@ -19,6 +19,12 @@ into narrowcast's source format, so the workflow is:
 group its images by individual plant, so there is no honest cluster to declare.
 narrowcast will say so on the card and report that its intervals are
 anticonservative -- which is true, and better than inventing a grouping.
+
+That is a fact about *this corpus*, not about the tool, and it does not carry to
+regional data. `plantid.data.regional_fetch` records the GBIF occurrence key, so
+several photographs of one plant are identifiable, and
+`plantid.data.regional_embed` writes that `cluster` column into the `.npz`. Use
+that path for a regional bundle; this one exports the Pl@ntNet catalogue.
 """
 
 import argparse
