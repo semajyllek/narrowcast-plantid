@@ -14,7 +14,7 @@ species, name the genus, or decline.
 | repo | is | note |
 |---|---|---|
 | **narrowcast-plantid** (here) | the research record, and where the tool came from | 28 findings/prereg docs, 129 tests. Evidence only. Consumes the installed package in `analysis/headroom_arms.py`. |
-| [**narrowcast**](https://github.com/semajyllek/narrowcast) | the tool, pip-installable | domain-general, 111 tests, CI. `audit / card / predict` |
+| [**narrowcast**](https://github.com/semajyllek/narrowcast) | the tool, pip-installable | domain-general, 138 tests, CI. `audit / card / predict` |
 | [**narrowcast-kws**](https://github.com/semajyllek/narrowcast-kws) | audio demo | consumes the *installed package*; ESC-50 + Speech Commands |
 | [**narrowcast-derm**](https://github.com/semajyllek/narrowcast-derm) | medical-image demo | Fitzpatrick17k + DINOv2. Preregistered; found that `1.8 ×` omits `p_ood` |
 
@@ -33,8 +33,9 @@ is superseded, since nothing consumes a `--manifest` of paths any more, and the
 Read this first, then **[`DISPOSITION.md`](DISPOSITION.md)** for where the whole
 body of work is going — it argues the tool was the wrong deliverable and the
 finding is the right one, and it lists what is safe to delete and what is not.
-Then `ROADMAP.md` for the plan and the `*_FINDINGS.md` docs for evidence. The newest four are `DOMAIN_SHIFT_FINDINGS`, `HEADROOM_FINDINGS`,
-`EMBEDDED_FINDINGS` and `CONTAMINATION_FINDINGS`. **Git history is the chronological record** — commit messages carry the
+Then `ROADMAP.md` for the plan and the `*_FINDINGS.md` docs for evidence. The newest are `SPACE_CHECK_FINDINGS` (the embedding-space check is blind to the
+failure it was written for), the re-measured `FORAGER_FINDINGS`,
+`DOMAIN_SHIFT_FINDINGS` and `HEADROOM_FINDINGS`. **Git history is the chronological record** — commit messages carry the
 reasoning, the numbers, and the retractions.
 
 ## The one thing that is easy to get wrong

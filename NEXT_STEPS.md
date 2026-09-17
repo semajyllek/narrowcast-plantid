@@ -67,17 +67,22 @@ came out of it worth carrying forward:
 - **Spread across seeds is not uncertainty.** Test halves overlap, so it
   understates. Report it as split sensitivity or not at all.
 
-### 1. Measure the embedding-space check's false-positive rate
+~~### 1. Measure the embedding-space check's false-positive rate~~ — **done**,
+`a6c07a0` (`SPACE_CHECK_FINDINGS.md`). The answer was worse than expected: the
+geometry test catches **0 of 21** export/quantization pairs — including the exact
+recorded failure, torch BioCLIP-2 against its own Core ML int4 export at every
+organ — while false-positiving on 2 of 39 same-encoder pairs. Not promoted to a
+refusal; narrowcast's warning now prints these rates and says what it cannot see.
 
-`build.check_same_space` warns instead of refusing, and that is the only thing
-keeping it a warning. It rests on the premise that one encoder's embeddings share
-a common cone, so a cross-pool cosine near zero means two encoders. Nothing in
-narrowcast can load an encoder to test that — **this repo can**. Embed one pool
-with several encoders and cross-compare; embed genuinely unrelated subject matter
-with a *single* encoder and confirm it does not trip. If the false-positive rate
-is negligible, promote it to a refusal, which is what the recorded failure
-deserves: a Core ML-embedded bundle against a torch-embedded background pool
-flattered label share by three points in silence.
+### 1. Write the `encoder` field from the embedding scripts
+
+The follow-on, and the part that is not done. Declaration is what catches the
+recorded failure — both npz files naming their encoder, which narrowcast compares
+and refuses on mismatch (`cbca6a3`). The narrowcast side is finished and the
+mechanism has **no producer**: `regional_embed.py`, `export_for_narrowcast.py`
+and anything else here that emits an npz should write `encoder` into it. One
+string per file, and it is the only thing that sees a Core ML export measured
+against its torch original.
 
 ### 2. Feed `regional_ood` from the regional pipeline
 
