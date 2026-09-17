@@ -102,7 +102,27 @@ def embed_manifest(manifest: Path, variant: str, root: Path | None = None,
         # The occurrence, not the photograph. This is the column that makes the
         # intervals honest.
         "cluster": np.asarray(df["cluster"].astype(str)),
+        # What produced these vectors, torch or Core ML export distinguished.
+        # narrowcast compares this between two pools and refuses a mismatch, and
+        # that is the *only* thing that catches the failure this identity exists
+        # for: SPACE_CHECK_FINDINGS.md measures its geometric check catching 0 of
+        # 21 export/quantization pairs, including torch BioCLIP-2 against its own
+        # Core ML int4 at every organ. So the variant name alone is not enough --
+        # `bioclip2` and `bioclip2` via Core ML are different encoders here.
+        "encoder": encoder_identity(variant, coreml),
     }
+
+
+def encoder_identity(variant: str, coreml=None) -> str:
+    """The string that has to match between any two pools measured together.
+
+    The export matters as much as the variant. A Core ML int4 build of BioCLIP-2
+    lands at cosine 0.79-0.82 from its torch original -- close enough that
+    narrowcast's geometric check cannot see the difference, far enough that mixing
+    them cost three points of label share once. So the artifact name is part of
+    the identity, not a footnote to it.
+    """
+    return variant if coreml is None else f"{variant}+coreml:{Path(coreml).stem}"
 
 
 def main():

@@ -74,22 +74,33 @@ recorded failure, torch BioCLIP-2 against its own Core ML int4 export at every
 organ — while false-positiving on 2 of 39 same-encoder pairs. Not promoted to a
 refusal; narrowcast's warning now prints these rates and says what it cannot see.
 
-### 1. Write the `encoder` field from the embedding scripts
+~~### 1. Write the `encoder` field from the embedding scripts~~ — **done** for the
+regional pipeline. `regional_embed.py` writes `encoder`, with the *export*
+distinguished from the variant (`plantclef24` vs `plantclef24+coreml:...`),
+because that is the distinction the geometric check provably cannot see.
+`regional_scores.py` refuses inputs whose declarations disagree — it is the point
+where separately embedded pools are combined, so it is where a Core ML pool would
+meet a torch one — and propagates the declaration to its output.
 
-The follow-on, and the part that is not done. Declaration is what catches the
-recorded failure — both npz files naming their encoder, which narrowcast compares
-and refuses on mismatch (`cbca6a3`). The narrowcast side is finished and the
-mechanism has **no producer**: `regional_embed.py`, `export_for_narrowcast.py`
-and anything else here that emits an npz should write `encoder` into it. One
-string per file, and it is the only thing that sees a Core ML export measured
-against its torch original.
+**Still to do**: the same one line in `export_for_narrowcast.py`,
+`features/embed_*.py` and `features/store.py`. Those npz files carry no encoder
+declaration, and until they do, anything built from them falls back to the
+geometric warning that catches 0 of 21 export pairs.
 
-### 2. Feed `regional_ood` from the regional pipeline
+~~### 2. Feed `regional_ood` from the regional pipeline~~ — **done**.
+`regional_scores.py` flags its far-OOD rows regional, and they are: the
+`oregon_farood.json` manifest carries `place_name: Oregon, US`, so those species
+were drawn from the deployment region all along. narrowcast was calling them
+"unrelated inputs" on the card and anchoring the operating point to the global
+mix; it now uses `OOD_MIX_REGIONAL` and labels them "unlisted, but plausible where
+this deploys".
 
-`regional_embed.py` already writes the npz; adding a `regional` boolean column is
-a small change. It is what makes the Oregon numbers deployment-realistic instead
-of flattered by tropical filler, which is this project's own argument for the
-bucket.
+**It changes no number, and that took a fix to be true.** The mix shares are
+0.32/0.68 either way, so a relabelling should have been numerically inert — it was
+not, because `make_splits` shared one generator across buckets and the split
+therefore depended on the alphabetical order of the bucket names. Renaming one
+bucket reshuffled the others and moved coverage by 12 points. narrowcast `9e36d0c`
+keys each bucket's shuffle on its contents; the flag is now inert, as intended.
 
 ## Then
 
