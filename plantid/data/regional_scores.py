@@ -118,9 +118,15 @@ def main():
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(a.out, **p)
 
+    # Use the GROUP COLUMN, not the first token of the label. Taking the genus
+    # from the label string is the bug this project has now hit four times --
+    # narrowcast fixed it in score_frame, predict and labels.analyse, it is still
+    # live at build.py:408, and this summary had it too. With --group-by family it
+    # reports zero relatives while narrowcast correctly buckets 588, because
+    # "Conium" is not "Apiaceae".
     listed = set(p["classes"].tolist()) - {OTHER}
-    listed_groups = {s.split()[0] for s in listed}
     lab, grp = p["label"], p["group"]
+    listed_groups = {g for l, g in zip(lab, grp) if l in listed}
     in_list = np.isin(lab, list(listed))
     near = ~in_list & np.isin(grp, list(listed_groups))
     print(f"\n{a.out}: proba {p['proba'].shape}, {len(listed)} labels")
