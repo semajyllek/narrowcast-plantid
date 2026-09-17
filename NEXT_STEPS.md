@@ -26,81 +26,59 @@ embed → audit → card, no manual step. `plantid/data/regions.py` →
   the same species, and able to name the ~75% of a regional flora that a
   7,806-class model has no class for. (`NARROW_THESIS_FINDINGS.md`)
 - **Safety**: on 112 *Conium maculatum* rows over 70 clusters, the `forage`
-  profile takes poison hemlock to **0% named-from-your-list** against **3.90%**
-  under `identify`, for 18.2 points of label share — and `p_ood = 0.4` eliminates
+  profile takes poison hemlock to **0% named-from-your-list** against **1.70%**
+  under `identify`, for 16.2 points of label share — and `p_ood = 0.4` eliminates
   every breakthrough under every profile. Read "0%" as the rule of three over
   clusters (**≈4.3%** upper bound), not a demonstrated zero.
-  (`FORAGER_FINDINGS.md`, re-measured against narrowcast `e9c073e`.)
-  *The earlier "0.00% against 3.27%, 672 hemlock rows" is retired: it counted 112
-  rows once per split in the 6 of 8 splits that happened to contain them.*
+  (`FORAGER_FINDINGS.md`, re-measured against narrowcast `9e36d0c`.)
+  *The earlier "0.00% against 3.27%, 672 hemlock rows" is retired; the doc
+  explains where 672 came from.*
 
-## Item 3 is done; what is left is measurement, not code
+## Landed since the last handoff
 
-All four Phase 3 sub-items are landed in `narrowcast` on `auditor-cut`
-(`5a9cc41`, `38f474d`, `e9c073e`), and narrowcast is at 134 tests.
+narrowcast `auditor-cut` is at **142 tests**. Twelve commits, `bde128f`…`99cd984`.
 
-- **Near-OOD gate** — `--gate-near-ood`. Declines rather than retreating, and the
-  reason is a disagreement between the two repos that is now written up in
-  `NEAR_OOD_FINDINGS.md`. Fitted, so a card whose fit turns it off says so.
-- **`regional_ood`** — real, and the caller declares it: an optional `regional`
-  boolean column on the scores npz. With it the mix becomes `OOD_MIX_REGIONAL`
-  and leftover `distant_ood` rows carry weight **zero**.
-- **Encoder ↔ bundle binding** — the bundle stores the direction its training
-  vectors point in; `audit` and `predict` both compare against it. Different
-  vector widths are refused, orthogonal geometry only **warns**. See the open
-  task below.
-- **float32 heads** — already true. `_vecs` casts to float32 and sklearn keeps
-  the dtype, so the 83 KB figure predated that. Pinned by a test.
+| what | commit | note |
+|---|---|---|
+| declared hazards stratified into both halves | `bde128f` | ends the coin flip; `cascade.hazard_rows` unifies the two threat models' predicates |
+| `--never-answer` (per-label cost) | `292b269` | suppresses the **look-alike**, not the hazard |
+| the reject class is not a user label | `7b678dd` | `__OTHER__` was counted among `--scores` labels |
+| near-OOD gate `--gate-near-ood` | `5a9cc41`, `f9073e0` | declines rather than retreats; fitted, so it can turn itself off |
+| `regional_ood`, encoder binding, float32 heads | `38f474d`, `e9c073e` | the last three Phase 3 items |
+| encoder declaration beats the flag | `cbca6a3`, `89f67f7` | after measuring the geometry check |
+| bucket splits keyed on contents | `9e36d0c`, `99cd984` | a relabelling was moving coverage 12 points |
+
+Here: `FORAGER_FINDINGS.md` re-measured, `NEAR_OOD_FINDINGS.md` extended with the
+reject arm on real data, `SPACE_CHECK_FINDINGS.md` written, the regional pipeline
+declaring its encoder and flagging its regional rows.
+
+**Three results worth carrying, all of them negative:**
+
+- **The embedding-space check is blind to the failure it was written for.** 0 of
+  21 export/quantization pairs caught, including torch BioCLIP-2 against its own
+  Core ML int4 at every organ; 2 of 39 false positives. Not promoted to a
+  refusal. What catches it is **declaration**, not geometry.
+  (`SPACE_CHECK_FINDINGS.md`)
+- **The near-OOD gate is marginal.** Adopted in 8 of 8 `identify` seeds and 5 of 8
+  under `forage`, buying 1.6 points of near-OOD error for 2.4 of label share.
+  Consistent with this repo's original null, not a win over it.
+- **Family grouping never once produced a warning.** `warned_at_group` is 0.000
+  across all 48 forager arms; every safe outcome comes from declining.
 
 ## Do this first
 
-~~### 1. Re-measure the findings docs against the current tool~~ — **done**,
-`a1956ff`. `FORAGER_FINDINGS.md` carries the re-measurement and supersedes its own
-table; `NEAR_OOD_FINDINGS.md` carries the reject arm on real data. Three things
-came out of it worth carrying forward:
+### Write the `encoder` field from the remaining npz producers
 
-- **Where 672 came from**: 112 *Conium* rows × the 6 of 8 splits that contained
-  them. The false precision and the coin-flip bug were one thing.
-- **The cluster bootstrap cannot express a zero-event rate** — it returns
-  `[0, 0]`. Use the rule of three over *clusters*. This will recur anywhere a
-  safety rate is reported as zero.
-- **Spread across seeds is not uncertainty.** Test halves overlap, so it
-  understates. Report it as split sensitivity or not at all.
+The one piece of the declaration mechanism with no producer. `regional_embed.py`
+does it; `analysis/export_for_narrowcast.py`, `plantid/features/embed_catalog.py`,
+`embed_background.py`, `embed_inat.py` and `features/store.py` do not. Until they
+do, anything built from those files falls back to the geometric warning that
+catches **0 of 21** export pairs — i.e. to nothing, for the failure that matters.
 
-~~### 1. Measure the embedding-space check's false-positive rate~~ — **done**,
-`a6c07a0` (`SPACE_CHECK_FINDINGS.md`). The answer was worse than expected: the
-geometry test catches **0 of 21** export/quantization pairs — including the exact
-recorded failure, torch BioCLIP-2 against its own Core ML int4 export at every
-organ — while false-positiving on 2 of 39 same-encoder pairs. Not promoted to a
-refusal; narrowcast's warning now prints these rates and says what it cannot see.
-
-~~### 1. Write the `encoder` field from the embedding scripts~~ — **done** for the
-regional pipeline. `regional_embed.py` writes `encoder`, with the *export*
-distinguished from the variant (`plantclef24` vs `plantclef24+coreml:...`),
-because that is the distinction the geometric check provably cannot see.
-`regional_scores.py` refuses inputs whose declarations disagree — it is the point
-where separately embedded pools are combined, so it is where a Core ML pool would
-meet a torch one — and propagates the declaration to its output.
-
-**Still to do**: the same one line in `export_for_narrowcast.py`,
-`features/embed_*.py` and `features/store.py`. Those npz files carry no encoder
-declaration, and until they do, anything built from them falls back to the
-geometric warning that catches 0 of 21 export pairs.
-
-~~### 2. Feed `regional_ood` from the regional pipeline~~ — **done**.
-`regional_scores.py` flags its far-OOD rows regional, and they are: the
-`oregon_farood.json` manifest carries `place_name: Oregon, US`, so those species
-were drawn from the deployment region all along. narrowcast was calling them
-"unrelated inputs" on the card and anchoring the operating point to the global
-mix; it now uses `OOD_MIX_REGIONAL` and labels them "unlisted, but plausible where
-this deploys".
-
-**It changes no number, and that took a fix to be true.** The mix shares are
-0.32/0.68 either way, so a relabelling should have been numerically inert — it was
-not, because `make_splits` shared one generator across buckets and the split
-therefore depended on the alphabetical order of the bucket names. Renaming one
-bucket reshuffled the others and moved coverage by 12 points. narrowcast `9e36d0c`
-keys each bucket's shuffle on its contents; the flag is now inert, as intended.
+Use `regional_embed.encoder_identity(variant, coreml)`: the export is part of the
+identity, not a footnote to it. `plantclef24` and `plantclef24+coreml:…` are
+different encoders for this purpose, and that is precisely the distinction the
+geometry cannot see.
 
 ## Then
 
@@ -116,6 +94,24 @@ general model actually knows the flora.
 here comes from iNaturalist/GBIF photographs; nobody has pointed a different
 camera at a plant. `DATA_STRATEGY.md` proposes herbarium specimens through GBIF as
 a source that ships its own labels. This is data collection, not coding.
+
+## How to report a measurement here
+
+Learned the hard way this pass; each of these was nearly got wrong.
+
+- **The cluster bootstrap cannot express a zero-event rate.** It returns
+  `[0, 0]`, which is not an interval. Use the rule of three over *clusters*
+  (3/70 ≈ 4.3% on the forager bundle). This recurs anywhere a safety rate is
+  reported as zero.
+- **Spread across seeds is not uncertainty.** Test halves overlap, so it
+  understates — structurally the same error as counting 672. Report it as *split
+  sensitivity*, separately, or not at all.
+- **Re-run when the tool moves underneath.** `9e36d0c` changed every threshold in
+  the repo and made numbers written one commit earlier stale: *Conium* under
+  `identify` went 3.90% → 1.70%. The conclusions held; the figures did not. Two
+  findings docs carry the corrected values and say so.
+- **Do not call a near miss a reproduction.** 1.70% is not 3.27%. When the
+  original was never recorded, the gap cannot be attributed — say that.
 
 ## Conventions that will bite a fresh session
 
