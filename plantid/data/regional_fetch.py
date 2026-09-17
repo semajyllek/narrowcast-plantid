@@ -221,7 +221,12 @@ def main():
         for r in recs:
             dest = sp_dir / f"{r['cluster']}_{r['photo_index']}.jpg"
             if dest.exists() or grab(r["url"], dest):
-                rows.append({**r, "local_path": str(dest.relative_to(out_dir.parent.parent))})
+                # Relative to the region directory, so that directory is
+                # self-contained and portable: move it anywhere and the manifest
+                # still resolves. It was relative to out_dir.parent.parent, which
+                # is unguessable from the manifest alone and duly produced a
+                # `regions/regions/...` on first use.
+                rows.append({**r, "local_path": str(dest.relative_to(out_dir))})
                 kept += 1
             time.sleep(a.sleep)
         n_clusters = len({r["cluster"] for r in recs})

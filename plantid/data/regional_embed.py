@@ -49,16 +49,27 @@ def group_of(label: str) -> str:
     return parts[0] if parts else str(label)
 
 
-def embed_manifest(manifest: Path, variant: str, root: Path,
+def embed_manifest(manifest: Path, variant: str, root: Path | None = None,
                    coreml: Path | None = None, batch: int = 64) -> dict:
     """Embed every photograph in a regional manifest.
 
     Returns the npz payload rather than writing it, so the caller decides where it
     lands and tests can exercise this without a model.
     """
+    manifest = Path(manifest)
+    # Paths are relative to the region directory, which is the manifest's own
+    # directory. Defaulting to it means the common case needs no --root at all.
+    root = Path(root) if root is not None else manifest.parent
     df = pd.read_parquet(manifest)
     df = df[df["local_path"].notna()].reset_index(drop=True)
     paths = [str(root / p) for p in df["local_path"]]
+    missing = [p for p in paths[:20] if not Path(p).exists()]
+    if missing:
+        raise SystemExit(
+            f"{len(missing)} of the first 20 images are not under {root}:\n"
+            f"  e.g. {missing[0]}\n"
+            "local_path is relative to the region directory (the manifest's own "
+            "directory); pass --root only if the images have been moved.")
 
     if coreml is not None:
         from plantid.deploy.embed_coreml import embed_paths, load_model
@@ -91,11 +102,13 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--coreml", default=None,
                     help="embed through a Core ML artifact instead of torch")
-    ap.add_argument("--root", default=".",
-                    help="prefix for local_path values in the manifest")
+    ap.add_argument("--root", default=None,
+                    help="prefix for local_path; defaults to the manifest's own "
+                         "directory, which is where regional_fetch writes images")
     a = ap.parse_args()
 
-    payload = embed_manifest(Path(a.manifest), a.variant, Path(a.root),
+    payload = embed_manifest(Path(a.manifest), a.variant,
+                             Path(a.root) if a.root else None,
                              coreml=Path(a.coreml) if a.coreml else None)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(a.out, **payload)

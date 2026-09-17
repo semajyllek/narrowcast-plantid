@@ -13,12 +13,28 @@ import pytest
 from plantid.data import regional_embed as re_
 
 
+def _touch(root, rel):
+    """Real files, because `embed_manifest` checks they exist before embedding.
+
+    That guard is worth satisfying rather than bypassing: it is what turns a
+    wrong --root into an immediate error naming the path, instead of a
+    FileNotFoundError from inside PIL a few hundred images later.
+    """
+    p = root / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(b"")
+    return rel
+
+
 @pytest.fixture
 def manifest(tmp_path):
+    rels = [f"img/{i}.jpg" for i in range(5)]
+    for r in rels:
+        _touch(tmp_path, r)
     df = pd.DataFrame({
         "species_name": ["Trillium ovatum"] * 3 + ["Rubus ursinus"] * 2,
         "cluster": ["111", "111", "222", "333", "333"],
-        "local_path": [f"img/{i}.jpg" for i in range(5)],
+        "local_path": rels,
         "licence": ["CC_BY"] * 5,
     })
     p = tmp_path / "manifest.parquet"
@@ -37,7 +53,7 @@ def _fake_embed(monkeypatch, dim=8):
 
 def test_cluster_survives_into_the_payload(monkeypatch, manifest, tmp_path):
     _fake_embed(monkeypatch)
-    out = re_.embed_manifest(manifest, "mobileclip2_s2", tmp_path)
+    out = re_.embed_manifest(manifest, "mobileclip2_s2")
     assert list(out["cluster"]) == ["111", "111", "222", "333", "333"]
     # three plants, five photographs -- the whole point
     assert len(set(out["cluster"].tolist())) == 3
@@ -48,7 +64,7 @@ def test_payload_is_narrowcast_embeddings_format(monkeypatch, manifest, tmp_path
     """narrowcast.sources.from_embeddings requires `descriptor` and `label`, and
     reads `group`, `cluster`, `origin` when present."""
     _fake_embed(monkeypatch)
-    out = re_.embed_manifest(manifest, "mobileclip2_s2", tmp_path)
+    out = re_.embed_manifest(manifest, "mobileclip2_s2")
     assert {"descriptor", "label"} <= set(out)
     assert out["descriptor"].shape[0] == len(out["label"]) == len(out["cluster"])
     assert out["descriptor"].dtype == np.float32
@@ -60,17 +76,18 @@ def test_group_is_written_explicitly_not_left_to_the_default(monkeypatch,
     first-whitespace-token default is how the group rank silently died on a
     non-binomial domain."""
     _fake_embed(monkeypatch)
-    out = re_.embed_manifest(manifest, "mobileclip2_s2", tmp_path)
+    out = re_.embed_manifest(manifest, "mobileclip2_s2")
     assert list(out["group"]) == ["Trillium"] * 3 + ["Rubus"] * 2
 
 
 def test_labels_are_curated(monkeypatch, tmp_path):
+    _touch(tmp_path, "img/0.jpg")
     df = pd.DataFrame({"species_name": ["Fragaria × ananassa"],
                        "cluster": ["1"], "local_path": ["img/0.jpg"]})
     p = tmp_path / "m.parquet"
     df.to_parquet(p, index=False)
     _fake_embed(monkeypatch)
-    out = re_.embed_manifest(p, "mobileclip2_s2", tmp_path)
+    out = re_.embed_manifest(p, "mobileclip2_s2")
     assert out["label"][0] == "Fragaria x ananassa"
     assert out["group"][0] == "Fragaria"
 
@@ -82,10 +99,18 @@ def test_a_round_trip_through_narrowcast_keeps_the_clusters(monkeypatch, manifes
     from narrowcast import sources
 
     _fake_embed(monkeypatch)
-    out = re_.embed_manifest(manifest, "mobileclip2_s2", tmp_path)
+    out = re_.embed_manifest(manifest, "mobileclip2_s2")
     npz = tmp_path / "r.npz"
     np.savez_compressed(npz, **out)
     rows = sources.from_embeddings(npz)
     assert rows.has_clusters is True
     assert len(set(rows.cluster.tolist())) == 3
     assert list(rows.group) == ["Trillium"] * 3 + ["Rubus"] * 2
+
+
+def test_a_wrong_root_fails_immediately_and_says_why(tmp_path, manifest):
+    """The bug this guard was added for: a mismatched root produced
+    `regions/regions/oregon/...` and surfaced as a FileNotFoundError from inside
+    PIL, after the model had already loaded."""
+    with pytest.raises(SystemExit, match="relative to the region directory"):
+        re_.embed_manifest(manifest, "mobileclip2_s2", root=tmp_path / "wrong")
