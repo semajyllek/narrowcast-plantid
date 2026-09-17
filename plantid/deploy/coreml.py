@@ -152,7 +152,8 @@ def build_traceable(variant: str = "bioclip1"):
 
 
 def export(variant: str = "bioclip1", out_dir: Path = OUT_DIR, palettize_bits: int | None = None,
-           granularity: str = "per_grouped_channel", target: str = "iOS18"):
+           granularity: str = "per_grouped_channel", target: str = "iOS18",
+           quantize_bits: int | None = None):
     """Convert and write an .mlpackage. Returns (path, embedding_dim).
 
     `granularity` only bites when palettizing. `per_grouped_channel` needs an
@@ -183,7 +184,23 @@ def export(variant: str = "bioclip1", out_dir: Path = OUT_DIR, palettize_bits: i
         convert_to="mlprogram",
     )
     suffix = f"_int{palettize_bits}_{granularity}" if palettize_bits else ""
-    if palettize_bits:
+    if quantize_bits:
+        # Linear quantization, not palettization. A 4-bit palette has 16 shared
+        # centroids per group; 8-bit linear keeps a scale and zero-point per
+        # channel and represents 256 levels across the *actual* weight range.
+        # That matters here because reparameterizing MobileOne/FastViT fuses
+        # parallel branches into single convs whose dynamic range is much wider
+        # than a ViT's -- which is the leading explanation for int4 costing this
+        # architecture ~4pp of label share where it cost BioCLIP ~1pp.
+        from coremltools.optimize.coreml import (
+            OpLinearQuantizerConfig, OptimizationConfig, linear_quantize_weights,
+        )
+        cfg = OptimizationConfig(global_config=OpLinearQuantizerConfig(
+            mode="linear_symmetric", dtype=f"int{quantize_bits}",
+            granularity="per_channel"))
+        mlmodel = linear_quantize_weights(mlmodel, config=cfg)
+        suffix = f"_q{quantize_bits}_per_channel"
+    elif palettize_bits:
         from coremltools.optimize.coreml import (
             OpPalettizerConfig, OptimizationConfig, palettize_weights,
         )
@@ -320,6 +337,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", default="bioclip1")
     ap.add_argument("--bits", type=int, default=None, help="palettize weights to N bits")
+    ap.add_argument("--quantize-bits", type=int, default=None,
+                    help="linear-quantize weights to N bits (per channel). Use instead "
+                         "of --bits: 8-bit linear keeps a scale per channel over the "
+                         "real weight range, where a 4-bit palette has 16 shared "
+                         "centroids -- which costs FastViT far more than it costs a ViT.")
     ap.add_argument("--granularity", default="per_grouped_channel",
                     choices=("per_grouped_channel", "per_tensor"))
     ap.add_argument("--target", default="iOS18", help="minimum deployment target")
@@ -328,7 +350,8 @@ def main():
     args = ap.parse_args()
 
     path, dim = export(args.variant, palettize_bits=args.bits,
-                       granularity=args.granularity, target=args.target)
+                       granularity=args.granularity, target=args.target,
+                       quantize_bits=args.quantize_bits)
     size = sum(f.stat().st_size for f in path.rglob("*") if f.is_file()) / 1e6
     print(f"exported {path}  ({size:.1f} MB on disk, embedding dim {dim})", flush=True)
 

@@ -54,7 +54,7 @@ def load_model(path, compute_units=None):
         str(path), compute_units=compute_units or ct.ComputeUnit.CPU_AND_NE)
 
 
-def embed_paths(model, paths, desc="", chunk=CHUNK, workers=WORKERS,
+def embed_paths(model, paths, desc="", chunk=CHUNK, workers=None,
                 encoder="bioclip1"):
     """(n, dim) float32. Decode is threaded; `predict` is one image at a time.
 
@@ -69,6 +69,10 @@ def embed_paths(model, paths, desc="", chunk=CHUNK, workers=WORKERS,
     """
     from tqdm import tqdm
 
+    # Resolved at call time, not bound as a default: a default argument is
+    # evaluated once when the function is defined, so `--workers` set on the
+    # module afterwards would have been silently ignored.
+    workers = workers or WORKERS
     out = []
     with ThreadPoolExecutor(workers) as pool:
         for i in tqdm(range(0, len(paths), chunk), desc=desc):
@@ -154,6 +158,9 @@ def main():
                          "`mobileclip2_s2`. Selects resize and interpolation; getting "
                          "it wrong yields plausible embeddings in the wrong space.")
     ap.add_argument("--targets", default="catalog,background,inat")
+    ap.add_argument("--workers", type=int, default=WORKERS,
+                    help="decode threads. Lower it to leave cores for other work; "
+                         "inference is one image at a time regardless.")
     ap.add_argument("--compute-units", default="CPU_AND_NE",
                     help="pinning this away from CPU_AND_NE is almost certainly a mistake")
     args = ap.parse_args()
@@ -167,6 +174,7 @@ def main():
     print(f"model {Path(args.model).name}  units {args.compute_units}  "
           f"variant {args.variant}  encoder {args.encoder} "
           f"({spec['side']}px {spec['interpolation'].value})", flush=True)
+    globals()["WORKERS"] = args.workers
     model = load_model(args.model, units)
     for target in args.targets.split(","):
         {"catalog": catalog, "background": background, "inat": inat}[target](
