@@ -50,7 +50,8 @@ def group_of(label: str) -> str:
 
 
 def embed_manifest(manifest: Path, variant: str, root: Path | None = None,
-                   coreml: Path | None = None, batch: int = 64) -> dict:
+                   coreml: Path | None = None, batch: int = 64,
+                   group_by: str = "genus") -> dict:
     """Embed every photograph in a regional manifest.
 
     Returns the npz payload rather than writing it, so the caller decides where it
@@ -82,10 +83,22 @@ def embed_manifest(manifest: Path, variant: str, root: Path | None = None,
                          desc="regional")
 
     labels = np.array([curated_name(s) or s for s in df["species_name"].astype(str)])
+    if group_by == "family":
+        from plantid.data.regions import families
+        fam = families(sorted(set(labels.tolist())))
+        missing = sorted(set(labels.tolist()) - set(fam))
+        if missing:
+            raise SystemExit(
+                f"no GBIF family for {len(missing)} label(s): {', '.join(missing[:5])}.\n"
+                "A partial family map would silently put some labels in a genus "
+                "group and others in a family group.")
+        groups = np.array([fam[s] for s in labels])
+    else:
+        groups = np.array([group_of(s) for s in labels])
     return {
         "descriptor": np.asarray(X, dtype="float32"),
         "label": labels,
-        "group": np.array([group_of(s) for s in labels]),
+        "group": groups,
         # The occurrence, not the photograph. This is the column that makes the
         # intervals honest.
         "cluster": np.asarray(df["cluster"].astype(str)),
@@ -102,6 +115,11 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--coreml", default=None,
                     help="embed through a Core ML artifact instead of torch")
+    ap.add_argument("--group-by", default="genus", choices=("genus", "family"),
+                    help="the coarse rank the cascade retreats to. `family` is what "
+                         "a foraging bundle wants: poison hemlock is not a Lomatium, "
+                         "so a genus map calls it an unrelated input against a "
+                         "Lomatium list rather than the hard case it is.")
     ap.add_argument("--root", default=None,
                     help="prefix for local_path; defaults to the manifest's own "
                          "directory, which is where regional_fetch writes images")
@@ -109,7 +127,8 @@ def main():
 
     payload = embed_manifest(Path(a.manifest), a.variant,
                              Path(a.root) if a.root else None,
-                             coreml=Path(a.coreml) if a.coreml else None)
+                             coreml=Path(a.coreml) if a.coreml else None,
+                             group_by=a.group_by)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(a.out, **payload)
 

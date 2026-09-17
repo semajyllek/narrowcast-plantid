@@ -221,6 +221,32 @@ def gbif_species_counts(state_province: str | None = None, country: str = "US",
     return named
 
 
+def families(names: list[str]) -> dict[str, str]:
+    """species -> family, from the GBIF backbone.
+
+    The default group rank in this project is the genus, taken as the first
+    whitespace token. That is right for most purposes and **wrong for safety**:
+    the classic poisonings are cross-genus within a family. *Conium maculatum* is
+    not a *Lomatium*, so a genus-keyed group map calls poison hemlock an unrelated
+    input against a forager's *Lomatium* list, when it is the single most dangerous
+    thing that list will ever be shown.
+
+    A family-grouped bundle answers "it is an umbellifer" instead, which is both
+    true and the useful thing to say to someone holding a root.
+    """
+    out = {}
+    for n in names:
+        try:
+            r = _get("https://api.gbif.org/v1/species/match",
+                     {"name": n, "kingdom": "Plantae"}, sleep=0.05, retries=3)
+        except SystemExit:
+            continue
+        fam = r.get("family")
+        if fam:
+            out[n] = fam
+    return out
+
+
 def usable(species: list[dict], min_obs: int = 20) -> list[dict]:
     """Species with enough independent observations to train a head on.
 
