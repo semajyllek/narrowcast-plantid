@@ -226,7 +226,7 @@ This project's own answer is the warning reading — that is what made the retre
 arm win above. Anyone re-running this measurement should know the two repos
 disagree before comparing numbers across them.
 
-## The reject arm measured on real data, at narrowcast `e9c073e`
+## The reject arm measured on real data, at narrowcast `9e36d0c`
 
 The note above argued the reject arm is the only one that can pay in narrowcast.
 It does pay, and it is neither free nor decisive — which leaves this document's
@@ -234,31 +234,32 @@ It does pay, and it is neither free nor decisive — which leaves this document'
 
 `forager_big_scores.npz`: 26 labels grouped by family, 1,158 near-OOD rows, a
 fitted reject class, so `1 − P(__OTHER__)` is real rather than constant. Mean
-novelty is **0.957 in-catalogue against 0.800 near-OOD** — separated, but far
-less cleanly than the centroid geometry measured above (AUROC 0.848).
+novelty is **0.957 in-catalogue against 0.800 near-OOD** — separated, but far less
+cleanly than the centroid geometry measured above (AUROC 0.848).
 
 Eight seeds, `p_ood = 0.20`, `--gate-near-ood`:
 
 | profile | gate adopted | near-OOD wrong | label share |
 |---|---|---|---|
-| `identify` | 7 of 8 seeds | 0.1592 → **0.1372** | 0.8201 → 0.8015 |
-| `standard` | 7 of 8 | 0.0801 → **0.0742** | 0.7458 → 0.7349 |
-| `forage` | 7 of 8 | 0.0142 → **0.0127** | 0.6271 → 0.6083 |
+| `identify` | **8 of 8** seeds | 0.1121 → **0.0957** | 0.7703 → 0.7464 |
+| `standard` | 7 of 8 | 0.0716 → **0.0522** | 0.7070 → 0.6750 |
+| `forage` | 5 of 8 | 0.0177 → **0.0139** | 0.6220 → 0.6067 |
 
-So the fit adopts it almost always and buys **2.2 points** of near-OOD error at
-`identify` for **1.9 points** of label share — a roughly one-for-one trade, and a
-far smaller effect than the −0.0995 the retreat gate bought on the 490-species
-catalogue. On the hazards specifically it moves *Conium* from 3.90% to 3.28% at
-`identify` and changes nothing at `forage`, where both are already zero.
+So the fit adopts it most of the time and buys **1.6 points** of near-OOD error at
+`identify` for **2.4 points** of label share — it costs slightly more than it
+buys, in those units, and is far smaller than the −0.0995 the retreat gate bought
+on the 490-species catalogue. On the hazards it moves *Conium* from 1.70% to
+1.50% at `identify` and changes nothing at `forage`, where both are already zero.
 
-**Read this as consistent with the null, not as a win.** The gate here is
-statistically alive and practically marginal, and it costs label share at every
-operating point rather than being free. Three things separate it from the arm
-measured earlier in this document: it declines rather than retreating (so it
-cannot convert a wrong species answer into a right genus one), it reads
-`1 − P(__OTHER__)` rather than centroid geometry (the control, not the primary
-arm), and it is fitted as a greedy second stage after the other two thresholds
-rather than jointly.
+**Read this as consistent with the null, not as a win.** The gate is
+statistically alive and practically marginal, and it spends label share at every
+operating point. Three things separate it from the arm measured earlier here: it
+declines rather than retreating (so it cannot convert a wrong species answer into
+a right genus one), it reads `1 − P(__OTHER__)` rather than centroid geometry (the
+control, not the primary arm), and it is fitted as a greedy second stage after the
+other two thresholds rather than jointly.
 
-The one seed in eight where the fit turns it off is the mechanism working: the
-sweep can always choose a threshold that gates nothing, and on that split it did.
+That the fit turns it off in **3 of 8 seeds under `forage`** and none under
+`identify` is the mechanism working: the sweep can always choose a threshold that
+gates nothing, and the higher the cost of a wrong answer, the more the other two
+thresholds have already done and the less is left for this one to buy.
