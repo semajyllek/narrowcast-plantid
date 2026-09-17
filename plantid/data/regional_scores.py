@@ -63,6 +63,15 @@ def _load(path):
 def build_scores(in_list, near_ood=None, far_ood=None, background=None,
                  seed=0, C=10.0, train_frac=0.5):
     """Fit a head on half the in-list clusters; score the rest plus every OOD row."""
+    given = [p for p in (in_list, near_ood, far_ood, background) if p]
+    dupes = {p for p in given if given.count(p) > 1}
+    if dupes:
+        raise SystemExit(
+            "the same file was given for more than one role: "
+            + ", ".join(sorted(str(d) for d in dupes))
+            + "\nIts rows would be scored twice, doubling that bucket and "
+              "putting the same observation on both sides of narrowcast's split.")
+
     X, y, g, cl, enc = _load(in_list)
     declared = {in_list: enc}
     rng = np.random.default_rng(seed)
