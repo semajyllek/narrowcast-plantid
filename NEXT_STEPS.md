@@ -65,30 +65,60 @@ Both of the first two are landed in `narrowcast` on `auditor-cut`, with tests.
   the second is the serious one: the pooled 8-split forage result quoted below is
   in no findings doc and in neither repository's history. Treat it as unrecorded.
 
+## Item 3 is done; what is left is measurement, not code
+
+All four Phase 3 sub-items are landed in `narrowcast` on `auditor-cut`
+(`5a9cc41`, `38f474d`, `e9c073e`), and narrowcast is at 134 tests.
+
+- **Near-OOD gate** — `--gate-near-ood`. Declines rather than retreating, and the
+  reason is a disagreement between the two repos that is now written up in
+  `NEAR_OOD_FINDINGS.md`. Fitted, so a card whose fit turns it off says so.
+- **`regional_ood`** — real, and the caller declares it: an optional `regional`
+  boolean column on the scores npz. With it the mix becomes `OOD_MIX_REGIONAL`
+  and leftover `distant_ood` rows carry weight **zero**.
+- **Encoder ↔ bundle binding** — the bundle stores the direction its training
+  vectors point in; `audit` and `predict` both compare against it. Different
+  vector widths are refused, orthogonal geometry only **warns**. See the open
+  task below.
+- **float32 heads** — already true. `_vecs` casts to float32 and sklearn keeps
+  the dtype, so the 83 KB figure predated that. Pinned by a test.
+
 ## Do this first
 
-### Finish Phase 3 — narrowcast
+### 1. Re-measure the findings docs against the current tool
 
-~~Take the near-OOD gate on its own pass~~ — **done, `5a9cc41`** (`--gate-near-ood`).
-Three sub-items remain and they are independent of each other; one commit is fine.
+**This is the highest-value task in this repo and it outranks more regions.** Two
+findings docs now carry addenda saying their headline numbers predate changes to
+the tool, and both describe behaviour narrowcast no longer has:
 
-- ~~**Near-OOD gate.**~~ Shipped, with two departures from `NEAR_OOD_FINDINGS.md`
-  that are recorded in a note appended to that file. It **declines** rather than
-  retreating, because narrowcast scores no out-of-list row correct at any rank, so
-  the retreat arm is arithmetically inert there at any payoffs. And it is fitted
-  as a greedy *second* stage rather than as a 3-D grid — 3,600 + 60 evaluations
-  against 216,000, which is ~90 s on a real audit. The durable finding is the
-  asymmetry it exposed: narrowcast's `outside_hazard_metrics` calls a group answer
-  on an out-of-list row a *warning* while its `utility` calls it *wrong*. Two
-  readings of one event, and this project assumes the first. Unresolved on
-  purpose; it is a declared-utility change.
-- **`regional_ood` bucket.** Vestigial in `cascade.SPLIT_CLUSTER`; plantid has
-  `OOD_MIX_REGIONAL` and calls it "the deployment-realistic one".
-- **Encoder ↔ bundle binding.** `manifest["encoder"]` is a name string defaulting
-  to `"unstated"`. Mixing a Core ML-embedded bundle with a torch-embedded
-  background pool silently flattered label share by 3 points during this work.
-- **float32 heads.** `head.npz` is 83 KB at K=20/D=512 because sklearn gives
-  float64; casting recovers ~40 KB and is numerically free.
+- `FORAGER_FINDINGS.md` — the split changed under it (declared hazards are
+  stratified into both halves, so a rerun sees about half the hemlock test rows
+  and a wider interval), and the pooled 8-split `forage` result quoted in this
+  file has **no findings entry anywhere**. Treat it as unrecorded.
+- `NEAR_OOD_FINDINGS.md` — concluded "not shipped"; narrowcast ships the reject
+  arm. The note there explains why, but nothing has been re-measured.
+
+Everything needed exists: the bundles, `--profile`, `--gate-near-ood`,
+`--never-answer`. This is running things, not writing them.
+
+### 2. Measure the embedding-space check's false-positive rate
+
+`build.check_same_space` warns instead of refusing, and that is the only thing
+keeping it a warning. It rests on the premise that one encoder's embeddings share
+a common cone, so a cross-pool cosine near zero means two encoders. Nothing in
+narrowcast can load an encoder to test that — **this repo can**. Embed one pool
+with several encoders and cross-compare; embed genuinely unrelated subject matter
+with a *single* encoder and confirm it does not trip. If the false-positive rate
+is negligible, promote it to a refusal, which is what the recorded failure
+deserves: a Core ML-embedded bundle against a torch-embedded background pool
+flattered label share by three points in silence.
+
+### 3. Feed `regional_ood` from the regional pipeline
+
+`regional_embed.py` already writes the npz; adding a `regional` boolean column is
+a small change. It is what makes the Oregon numbers deployment-realistic instead
+of flattered by tropical filler, which is this project's own argument for the
+bucket.
 
 ## Then
 
