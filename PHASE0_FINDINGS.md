@@ -249,3 +249,53 @@ disqualified — and on the *adapted* encoder, which starts at 0.941 label share
 Both errors point the same way: **a partial measurement read as a verdict.** The
 leaf-only run was the right thing to do while waiting, and the wrong thing to
 conclude from.
+
+---
+
+## Decision: int8, at 36.8 MB
+
+Three-way, two organs, K=20, identical species and splits, head refitted on each
+source (`analysis/int4_cascade.py`, `data/processed/quant_cascade_both.csv`):
+
+| | torch fp32 | int4 (21.7 MB) | **int8 (36.8 MB)** |
+|---|---|---|---|
+| cosine vs fp32 | — | 0.838 | **0.995** |
+| label share, varied | 0.7461 | 0.6841 | **0.7580** |
+| label share, crowded | 0.2364 | 0.2167 | **0.2524** |
+| decline share, varied | 0.2061 | 0.2705 | **0.1907** |
+| **paired label-share delta** | — | **−0.0408** | **+0.0139** |
+| worst single set | — | −0.1465 | **−0.0045** |
+
+**int8 is free.** The +1.4pp is inside noise over twelve sets and is not claimed as
+a gain; what matters is that the *worst* set moves −0.0045 where int4's moved
+−0.147. int4's cost was never uniform — it was a tail.
+
+### Latency, and a backend difference worth knowing
+
+| | int4 | int8 |
+|---|---|---|
+| CPU_AND_NE | 3.12 ms | **2.75 ms** |
+| CPU_AND_GPU | 89.9 ms | 4.89 ms |
+| op dispatch | 708 ANE / 5 GPU | **94 ANE / 626 GPU** |
+
+int8 is *faster* and lands mostly on the **GPU**, where int4 per-grouped-channel is
+silently wrong (`ONDEVICE_FINDINGS.md`: cosine 0.204). So int8 was checked on every
+backend rather than assumed:
+
+| backend | cosine mean | min |
+|---|---|---|
+| CPU_ONLY | 0.9950 | 0.9922 |
+| CPU_AND_GPU | 0.9951 | 0.9924 |
+| CPU_AND_NE | 0.9915 | 0.9863 |
+| ALL | 0.9951 | 0.9924 |
+
+**Correct everywhere.** Linear per-channel quantization does not have the
+per-grouped-channel palette's GPU bug, which means an int8 build does *not* need
+the `.cpuAndNeuralEngine` pin that `CLAUDE.md` requires for int4 — it is free to
+take whichever backend Core ML prefers.
+
+### The trade
+
+15 MB buys back 4pp of label share, removes a −15pp tail, runs 12% faster, and
+drops a deployment constraint. Take it. **36.8 MB** is still 4× under BioCLIP-2's
+153 MB, and the encoder is the entire download — the per-region head is ~83 KB.

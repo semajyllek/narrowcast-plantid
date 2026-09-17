@@ -35,7 +35,7 @@ def main():
     ref, _ = H.load("mobileclip2_s2")
     allsp = np.array(sorted(set(ref["leaf"][1])))
     rows = []
-    for variant in ("mobileclip2_s2", "mobileclip2_s2_cml4"):
+    for variant in ("mobileclip2_s2", "mobileclip2_s2_cml4", "mobileclip2_s2_cq8"):
         cat, bg = H.load(variant)
         for crowded in (False, True):
             sets = H.draw_label_sets(allsp, a.k, a.sets,
@@ -55,13 +55,18 @@ def main():
     print(f"\nwrote {a.out}: {len(d)} rows\n")
     for m in ("fine", "label_share", "coverage", "precision", "decline_share"):
         piv = d.pivot_table(index="crowded", columns="variant", values=m)
-        piv["delta"] = piv["mobileclip2_s2_cml4"] - piv["mobileclip2_s2"]
+        for v in ("mobileclip2_s2_cml4", "mobileclip2_s2_cq8"):
+            if v in piv:
+                piv[f"d_{v.split('_')[-1]}"] = piv[v] - piv["mobileclip2_s2"]
         print(f"=== {m} ===");  print(piv.round(4).to_string()); print()
     paired = d.pivot_table(index=["crowded", "set_id"], columns="variant",
                            values="label_share").dropna()
-    dl = paired["mobileclip2_s2_cml4"] - paired["mobileclip2_s2"]
-    print(f"label_share paired over {len(dl)} sets: mean {dl.mean():+.4f} "
-          f"min {dl.min():+.4f} max {dl.max():+.4f}")
+    for v in ("mobileclip2_s2_cml4", "mobileclip2_s2_cq8"):
+        if v not in paired:
+            continue
+        dl = paired[v] - paired["mobileclip2_s2"]
+        print(f"label_share paired, {v.split('_')[-1]:>5} vs torch, over {len(dl)} sets: "
+              f"mean {dl.mean():+.4f}  min {dl.min():+.4f}  max {dl.max():+.4f}")
 
 
 if __name__ == "__main__":
