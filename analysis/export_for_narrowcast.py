@@ -35,7 +35,6 @@ import numpy as np
 from plantid.config import DATA_PROCESSED
 from plantid.data.curation import canonical_name
 from plantid.features.embed_background import catalog_species, load_background
-from plantid.features.pretrained import encoder_identity
 
 ORGANS = ("leaf", "flower")
 
@@ -95,12 +94,24 @@ def main():
                   f"{a.variant} catalogue and NOT exported: {', '.join(missing[:8])}"
                   + (" ..." if len(missing) > 8 else ""))
     X = np.vstack(vecs)
-    # Carried through from the caches rather than taken from --variant: the point
-    # is to describe the vectors, and the caches are what produced them. Falls
-    # back to the variant name for caches written before the field existed.
-    out = {"descriptor": X, "label": np.asarray(labels, dtype=str),
-           "encoder": (declared.pop() if len(declared) == 1
-                       else encoder_identity(a.variant))}
+    # Carried through from the caches, and **omitted entirely when they declare
+    # nothing**. `--variant` is only a filename selector here
+    # (`catalog_{organ}_{variant}.npz`); nothing in this script verifies the cache
+    # was produced by that encoder, so writing it would be a claim this script
+    # cannot vouch for. Every other producer writes the identity at the moment of
+    # embedding, where the variant is ground truth.
+    #
+    # A fabricated declaration is worse than none: narrowcast compares two
+    # declarations and passes when they agree, so two invented labels would
+    # silently disable the geometric check as well -- turning the one mechanism
+    # that catches an export mismatch into the thing that hides it. Absent is
+    # handled: `sources` notes it and the check falls back to geometry.
+    out = {"descriptor": X, "label": np.asarray(labels, dtype=str)}
+    if len(declared) == 1:
+        out["encoder"] = declared.pop()
+    else:
+        print("  note: the caches declare no encoder, so neither does this export "
+              "— re-embed to record it")
     np.savez_compressed(a.out, **out)
     print(f"{a.out}: {X.shape}, {len(set(labels))} labels")
 

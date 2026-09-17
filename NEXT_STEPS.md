@@ -77,11 +77,17 @@ and `export_for_narrowcast` — refuse inputs whose declarations disagree.
 `export_for_narrowcast` carries the caches' own declaration through rather than
 taking it from `--variant`, because the point is to describe the vectors.
 
-**The caches on disk predate the field**, so they declare nothing and the checks
-fall back to the geometric warning that sees 0 of 21 export pairs. That is the
-one loose end: re-embedding is expensive and not obviously worth it on its own,
-but anything re-embedded from here carries the declaration, and a pool mixed with
-one that does will be caught.
+**The caches on disk predate the field**, so they declare nothing and
+`export_for_narrowcast` correctly writes **no** `encoder` rather than repeating
+`--variant`, which there is only a filename selector and would be a claim the
+script cannot vouch for. A fabricated declaration would be worse than none:
+narrowcast passes when two declarations agree, so two invented labels would
+disable the geometric check as well. Exports from today's caches therefore fall
+back to geometry, which sees 0 of 21 export pairs.
+
+That is the one loose end. Re-embedding is expensive and not obviously worth it
+on its own, but anything re-embedded from here carries the declaration, and a
+pool mixed with one that does will be caught.
 
 Nothing else is blocked. What follows is data collection.
 

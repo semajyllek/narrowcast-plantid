@@ -113,6 +113,15 @@ def build_scores(in_list, near_ood=None, far_ood=None, background=None,
         # `regional_ood` and anchors the operating point to it; without the flag
         # it buckets them as unrelated inputs and the card says so, which
         # understates the difficulty of exactly the rows that make it honest.
+        # **`--far-ood` is assumed regional because of where it comes from**, not
+        # because of anything in the data: `regional_fetch` draws it from the same
+        # place as the rest, and `oregon_farood.json` carries
+        # `place_name: Oregon, US`. The flag is derived from the argument
+        # position. Hand this a genuinely global pool -- mosses and tropical
+        # flora -- and it would be labelled "plausible where this deploys" and
+        # anchored at 0.68 of the deployment mix, which is the overstatement the
+        # regional bucket exists to prevent, inverted. Pass such a pool as
+        # `--background` instead, or add a flag when someone actually has one.
         regional.append(np.full(len(Xo), path == far_ood))
 
     # One encoder, or refuse. This is the point where separately embedded pools
