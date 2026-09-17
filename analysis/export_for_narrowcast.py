@@ -35,6 +35,7 @@ import numpy as np
 from plantid.config import DATA_PROCESSED
 from plantid.data.curation import canonical_name
 from plantid.features.embed_background import catalog_species, load_background
+from plantid.features.pretrained import encoder_identity
 
 ORGANS = ("leaf", "flower")
 
@@ -48,13 +49,15 @@ def main():
                     help="export the reject pool instead of the catalogue")
     a = ap.parse_args()
 
-    vecs, labels, keep = [], [], None
+    vecs, labels, keep, declared = [], [], None, set()
     if a.background:
         cs = catalog_species()
         for organ in ORGANS:
             d = load_background(organ, exclude_species=cs, variant=a.variant)
             vecs.append(d["descriptor"])
             labels += ["__OTHER__"] * len(d["descriptor"])
+            if "encoder" in d:
+                declared.add(str(np.asarray(d["encoder"]).ravel()[0]))
     else:
         if a.species:
             keep = {canonical_name(x) for x in Path(a.species).read_text().split("\n")
@@ -69,9 +72,20 @@ def main():
             m = np.ones(len(names), bool) if keep is None else np.isin(names, list(keep))
             vecs.append(d["descriptor"][m])
             labels += list(names[m])
+            if "encoder" in d:
+                declared.add(str(np.asarray(d["encoder"]).ravel()[0]))
 
     if not vecs:
         raise SystemExit(f"nothing exported — no caches for variant {a.variant!r}")
+    if len(declared) > 1:
+        # Concatenating caches is exactly where two encoders would meet, and the
+        # export would carry one label over both. Refuse instead.
+        raise SystemExit(
+            "the caches for this variant declare more than one encoder: "
+            + ", ".join(sorted(declared))
+            + "\nRe-embed them with one. Mixing an export with its own original "
+              "flatters label share and narrowcast's geometric check cannot see "
+              "it (0 of 21 such pairs, SPACE_CHECK_FINDINGS.md).")
     if keep is not None:
         missing = sorted(keep - set(labels))
         if missing:
@@ -81,7 +95,13 @@ def main():
                   f"{a.variant} catalogue and NOT exported: {', '.join(missing[:8])}"
                   + (" ..." if len(missing) > 8 else ""))
     X = np.vstack(vecs)
-    np.savez_compressed(a.out, descriptor=X, label=np.asarray(labels, dtype=str))
+    # Carried through from the caches rather than taken from --variant: the point
+    # is to describe the vectors, and the caches are what produced them. Falls
+    # back to the variant name for caches written before the field existed.
+    out = {"descriptor": X, "label": np.asarray(labels, dtype=str),
+           "encoder": (declared.pop() if len(declared) == 1
+                       else encoder_identity(a.variant))}
+    np.savez_compressed(a.out, **out)
     print(f"{a.out}: {X.shape}, {len(set(labels))} labels")
 
 

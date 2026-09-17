@@ -41,6 +41,7 @@ import numpy as np
 import pandas as pd
 
 from plantid.data.curation import curated_name
+from plantid.features.pretrained import encoder_identity
 
 
 def group_of(label: str) -> str:
@@ -111,18 +112,6 @@ def embed_manifest(manifest: Path, variant: str, root: Path | None = None,
         # `bioclip2` and `bioclip2` via Core ML are different encoders here.
         "encoder": encoder_identity(variant, coreml),
     }
-
-
-def encoder_identity(variant: str, coreml=None) -> str:
-    """The string that has to match between any two pools measured together.
-
-    The export matters as much as the variant. A Core ML int4 build of BioCLIP-2
-    lands at cosine 0.79-0.82 from its torch original -- close enough that
-    narrowcast's geometric check cannot see the difference, far enough that mixing
-    them cost three points of label share once. So the artifact name is part of
-    the identity, not a footnote to it.
-    """
-    return variant if coreml is None else f"{variant}+coreml:{Path(coreml).stem}"
 
 
 def main():

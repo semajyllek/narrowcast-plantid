@@ -85,7 +85,8 @@ def eval_species_names(cache_dir=DATA_PROCESSED, manifest="inat_observations.par
 
 
 def main(variant: str = "bioclip2", cache_dir=DATA_PROCESSED, batch_size: int = 64):
-    from plantid.features.pretrained import embed_images, load_encoder
+    from plantid.features.pretrained import (embed_images, encoder_identity,
+                                          load_encoder)
 
     bg = pd.read_parquet(cache_dir / BACKGROUND_MANIFEST)
     bg = bg[bg["local_path"].notna()].reset_index(drop=True)
@@ -105,6 +106,10 @@ def main(variant: str = "bioclip2", cache_dir=DATA_PROCESSED, batch_size: int = 
         emb = embed_images(paths, model, preprocess, device, batch_size=batch_size, desc=f"bg[{organ}]")
         np.savez_compressed(
             cache_path(organ, variant, cache_dir),
+            # Declared so a pool embedded here can never be measured
+            # against one from a different encoder without a refusal;
+            # narrowcast's geometric check sees 0 of 21 such pairs.
+            encoder=encoder_identity(variant),
             descriptor=emb,
             image_id=np.asarray(sub["image_id"], dtype=str),
             species_id=np.asarray(sub["species_id"], dtype=str),

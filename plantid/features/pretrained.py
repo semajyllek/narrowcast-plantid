@@ -65,6 +65,28 @@ ENCODERS = {
 BATCH_SIZE = 64
 
 
+def encoder_identity(variant: str, coreml=None) -> str:
+    """The string that has to match between any two pools measured together.
+
+    Every npz this project writes should carry it, because narrowcast compares
+    two declarations and refuses a mismatch -- and that comparison is the *only*
+    thing that catches the failure it exists for. `SPACE_CHECK_FINDINGS.md`
+    measures narrowcast's geometric check catching **0 of 21** export or
+    quantization pairs, including torch BioCLIP-2 against its own Core ML int4 at
+    every organ: a faithful export lands at cosine 0.79-0.82 from its original,
+    which is exactly what makes it faithful and exactly why geometry cannot see
+    it.
+
+    **The export is part of the identity, not a footnote to it.** `bioclip2` and
+    `bioclip2` run through a Core ML artifact are different encoders here; mixing
+    them flattered label share by three points once, silently.
+    """
+    if coreml is None:
+        return variant
+    from pathlib import Path as _P
+    return f"{variant}+coreml:{_P(coreml).stem}"
+
+
 def _device():
     import torch
 

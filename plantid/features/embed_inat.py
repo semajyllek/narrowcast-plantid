@@ -41,7 +41,8 @@ def main(variant: str = "bioclip2", cache_dir=DATA_PROCESSED, batch_size: int = 
     re-embedding thousands of unchanged photos to add a few hundred is pure
     waste — and would make the cache depend on when it was built.
     """
-    from plantid.features.pretrained import embed_images, load_encoder
+    from plantid.features.pretrained import (embed_images, encoder_identity,
+                                          load_encoder)
 
     paths = photo_paths(cache_dir)
     path = cache_path(variant, cache_dir)
@@ -63,7 +64,12 @@ def main(variant: str = "bioclip2", cache_dir=DATA_PROCESSED, batch_size: int = 
 
     all_paths = known_paths + todo
     all_emb = np.vstack([known_emb, new_emb]) if known_emb is not None else new_emb
-    np.savez_compressed(path, descriptor=all_emb, path=np.asarray(all_paths, dtype=str))
+    # Declared so a pool embedded here can never be measured against one from a
+    # different encoder without a refusal; narrowcast's geometric check sees 0 of
+    # 21 such pairs (`SPACE_CHECK_FINDINGS.md`).
+    np.savez_compressed(path, descriptor=all_emb,
+                        path=np.asarray(all_paths, dtype=str),
+                        encoder=encoder_identity(variant))
     print(f"{path.name}: {all_emb.shape} covering {len(all_paths)} photos", flush=True)
 
 

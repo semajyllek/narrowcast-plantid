@@ -76,8 +76,55 @@ def test_narrowcast_buckets_relatives_as_near_ood(sets):
     rows = sources.from_scores(tmp)
     ds = B.load_scored(rows)
     assert ds.counts["near_ood"] > 0, "unlisted congener did not bucket as near_ood"
-    assert ds.counts["distant_ood"] > 0
+    # The far-OOD set is drawn from the same place as everything else, so
+    # `build_scores` flags it regional and narrowcast buckets it `regional_ood`
+    # rather than `distant_ood` -- the deployment-realistic bucket, and the one
+    # the operating point is then anchored to. `distant_ood` is correctly empty:
+    # nothing here is global filler.
+    assert ds.counts["regional_ood"] > 0
+    assert ds.counts["distant_ood"] == 0
     # Rubus armeniacus shares a genus with the listed Rubus ursinus -> near
     near_labels = {str(c) for c, b in zip(rows.label, ds.bucket) if b == "near_ood"}
     assert "Rubus armeniacus" in near_labels
     assert "Pinus ponderosa" not in near_labels
+
+
+def test_far_ood_is_flagged_regional_and_near_ood_is_not(sets):
+    """narrowcast cannot derive geography; this is where the claim is made. Only
+    the far-OOD rows are deployment-plausible-but-unlisted — the near-OOD ones are
+    congeners, which is a different bucket with a different split key."""
+    inl, near, far, bg = sets
+    p = rs.build_scores(inl, near, far, bg)
+    assert "regional" in p and len(p["regional"]) == len(p["label"])
+    flagged = {str(l) for l, r in zip(p["label"], p["regional"]) if r}
+    assert "Pinus ponderosa" in flagged
+    assert "Rubus armeniacus" not in flagged
+
+
+def test_inputs_declaring_different_encoders_are_refused(sets, tmp_path):
+    """The point where separately embedded pools are combined is the point where a
+    Core ML pool would meet a torch one. Declaration is the only check that sees
+    it: the geometric one catches 0 of 21 such pairs."""
+    inl, near, far, bg = sets
+    def tagged(src, enc, name):
+        z = dict(np.load(src, allow_pickle=True))
+        z["encoder"] = enc
+        out = tmp_path / name
+        np.savez(out, **z)
+        return out
+    a = tagged(inl, "plantclef24", "a.npz")
+    b = tagged(near, "plantclef24+coreml:pc24_cml4", "b.npz")
+    with pytest.raises(SystemExit, match="different encoders"):
+        rs.build_scores(a, b, far, bg)
+    # and agreeing declarations pass, carrying through to the output
+    c = tagged(near, "plantclef24", "c.npz")
+    out = rs.build_scores(a, c, far, bg)
+    assert out["encoder"] == "plantclef24"
+
+
+def test_the_same_file_in_two_roles_is_refused(sets):
+    """Its rows would be scored twice, doubling that bucket and putting one
+    observation on both sides of narrowcast's split."""
+    inl, near, far, bg = sets
+    with pytest.raises(SystemExit, match="more than one role"):
+        rs.build_scores(inl, far, far, bg)

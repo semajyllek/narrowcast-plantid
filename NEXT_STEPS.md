@@ -67,18 +67,23 @@ declaring its encoder and flagging its regional rows.
 
 ## Do this first
 
-### Write the `encoder` field from the remaining npz producers
+~~Write the `encoder` field from the remaining npz producers~~ — **done**. Every
+npz this project writes now declares what produced it:
+`plantid/features/pretrained.encoder_identity` is the canonical definition,
+`store.save_descriptors`, `embed_catalog`, `embed_background`, `embed_inat`,
+`regional_embed` and `export_for_narrowcast` all write it, and the two points
+where separately embedded pools are combined — `regional_scores.build_scores`
+and `export_for_narrowcast` — refuse inputs whose declarations disagree.
+`export_for_narrowcast` carries the caches' own declaration through rather than
+taking it from `--variant`, because the point is to describe the vectors.
 
-The one piece of the declaration mechanism with no producer. `regional_embed.py`
-does it; `analysis/export_for_narrowcast.py`, `plantid/features/embed_catalog.py`,
-`embed_background.py`, `embed_inat.py` and `features/store.py` do not. Until they
-do, anything built from those files falls back to the geometric warning that
-catches **0 of 21** export pairs — i.e. to nothing, for the failure that matters.
+**The caches on disk predate the field**, so they declare nothing and the checks
+fall back to the geometric warning that sees 0 of 21 export pairs. That is the
+one loose end: re-embedding is expensive and not obviously worth it on its own,
+but anything re-embedded from here carries the declaration, and a pool mixed with
+one that does will be caught.
 
-Use `regional_embed.encoder_identity(variant, coreml)`: the export is part of the
-identity, not a footnote to it. `plantclef24` and `plantclef24+coreml:…` are
-different encoders for this purpose, and that is precisely the distinction the
-geometry cannot see.
+Nothing else is blocked. What follows is data collection.
 
 ## Then
 

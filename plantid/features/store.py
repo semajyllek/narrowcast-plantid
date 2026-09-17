@@ -55,6 +55,14 @@ def compute_descriptors(index: pd.DataFrame, organ: str) -> dict:
 
 def save_descriptors(data: dict, organ: str, variant: str | None = None, cache_dir: Path = DATA_PROCESSED) -> Path:
     path = _cache_path(organ, variant, cache_dir)
+    # Every npz this project writes declares what produced it, because narrowcast
+    # compares two declarations and refuses a mismatch -- and that comparison is
+    # the only thing that catches an export measured against its own original
+    # (`SPACE_CHECK_FINDINGS.md`: the geometric check sees 0 of 21 such pairs).
+    # Not overwritten if the caller already supplied one.
+    if variant and "encoder" not in data:
+        from plantid.features.pretrained import encoder_identity
+        data = {**data, "encoder": encoder_identity(variant)}
     np.savez_compressed(path, **data)
     return path
 
