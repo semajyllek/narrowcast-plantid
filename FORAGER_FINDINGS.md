@@ -80,3 +80,34 @@ fourth, written by someone who had spent the previous hour documenting the other
 three. The lesson is not that the rule is hard to remember — it is that a
 first-whitespace-token default is *invisible* when it is wrong, because it always
 returns something plausible.
+
+## What the numbers here no longer trace to
+
+*Added after `narrowcast` commit "Force declared hazards into both halves of the
+split".* Two things above became stale on the same change, in different ways.
+
+**The split changed underneath these measurements.** A declared hazard used to
+reach the test half or not, by shuffle — *Conium* did in 6 of 8 splits, *Cicuta*
+in 2 of 8. It is now stratified into both halves, halved at the cluster. So a
+rerun of the table above reports roughly **half as many hemlock test rows** and a
+correspondingly wider interval, and the thresholds move too: the hazard's rows
+now sit in the calibration set as well, which changes the composition
+`fit_thresholds` sees. The *direction* of the finding is not at risk — `p_ood` is
+still the lever — but the 4.5% point estimate and its [0.1%, 22.8%] interval are
+measurements of the old split and should be re-measured before being quoted
+again.
+
+**One number here has never had a findings entry.** `NEXT_STEPS.md` cites this
+file for *"pooled over 8 splits and 672 hemlock rows, the `forage` profile takes
+Conium maculatum to 0.00% named-from-your-list, against 3.27% under `identify`,
+for ~17 points of label share."* That measurement is not in this document, and a
+search of every findings doc and of both repositories' history does not find it.
+It appears to have been run and reported in conversation without being written
+down, which is precisely the failure `CLAUDE.md`'s "every number traces to a
+findings doc" rule exists to prevent — and it is now doubly unsafe to quote,
+since the pooling over 8 splits was pooling over exactly the coin flip that has
+since been removed.
+
+Treat it as unrecorded, not as established. Re-running it under the new split is
+cheap — the bundles and the `--profile` flag both exist — and it is the first
+thing that should go in this file next.
