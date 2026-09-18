@@ -19,7 +19,9 @@
 
 import Foundation
 
-struct Bundle: Decodable {
+// Named `CascadeBundle`, not `Bundle`: Foundation already has a `Bundle` and
+// shadowing it breaks `Bundle.main` in the same file.
+struct CascadeBundle: Decodable {
     struct B64: Decodable { let b64: String; let shape: [Int] }
     struct CoreMLSpec: Decodable { let package: String; let input: String
                                    let side: Int; let output: String; let dim: Int }
@@ -40,7 +42,7 @@ struct Bundle: Decodable {
     let never_answer: [String]
 }
 
-func floats(_ a: Bundle.B64) -> [Float] {
+func floats(_ a: CascadeBundle.B64) -> [Float] {
     guard let d = Data(base64Encoded: a.b64) else { return [] }
     return d.withUnsafeBytes { Array($0.bindMemory(to: Float.self)) }  // little-endian
 }
@@ -50,13 +52,13 @@ struct Answer { let rank: Rank; let text: String?; let labelConf: Double
                 let groupConf: Double; let novelty: Double }
 
 final class Cascade {
-    private let b: Bundle
+    private let b: CascadeBundle
     private let coef: [Float], intercept: [Float]
     private let keep: [Int]          // indices of answerable classes (not __OTHER__)
     private let groupOf: [String]    // per kept class
     private let uniqueGroups: [String]
 
-    init(_ b: Bundle) {
+    init(_ b: CascadeBundle) {
         self.b = b
         coef = floats(b.coef); intercept = floats(b.intercept)
         keep = b.classes.indices.filter { b.classes[$0] != b.reject_class }
@@ -122,5 +124,19 @@ final class Cascade {
         let text: String? = rank == .label ? predLabel : (rank == .group ? predGroup : nil)
         return Answer(rank: rank, text: text, labelConf: labelConf,
                       groupConf: groupConf, novelty: novelty)
+    }
+}
+
+extension Cascade {
+    /// Load from `bundle.json` in the app bundle. One obvious entry point.
+    static func load(resource: String = "bundle") throws -> Cascade {
+        guard let url = Foundation.Bundle.main.url(forResource: resource,
+                                                   withExtension: "json") else {
+            throw NSError(domain: "Cascade", code: 1, userInfo:
+                [NSLocalizedDescriptionKey: "\(resource).json not in the app bundle"])
+        }
+        let b = try JSONDecoder().decode(CascadeBundle.self,
+                                         from: try Data(contentsOf: url))
+        return Cascade(b)
     }
 }
