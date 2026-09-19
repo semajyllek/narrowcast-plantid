@@ -26,6 +26,7 @@
 //
 // The model output is Float16 (1 x 768). Widen it to [Float] before calling this.
 
+import CoreML     // MLMultiArray, for `widen` at the bottom
 import Foundation
 
 // Named `CascadeBundle`, not `Bundle`: Foundation already has a `Bundle` and
