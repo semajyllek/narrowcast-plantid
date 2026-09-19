@@ -11,11 +11,20 @@
 // What the encoder does and what you must not repeat
 // --------------------------------------------------
 // The .mlpackage carries the 1/255 scale, the channel normalisation and the final
-// L2 inside its graph. Outside it, all you do is resize and centre-crop to
-// `coreml.side` with `preprocess.interpolation`, and hand over RGB. Normalising
-// again, or skipping the crop, puts the vector in a different space from the one
-// the head was fitted on — the failure mode that shows cosine ~1.0 against itself
-// while agreeing with nothing.
+// L2 inside its graph. Outside it, all you do is:
+//
+//     resize the SHORT side to 518, bicubic, with INTEGER TRUNCATION of the
+//     other side  —  oh = Int(518 * h / w)  —  then centre-crop 518x518.
+//
+// The truncation is not a detail: rounding instead gives cosine 0.988–0.998 to
+// the vectors this bundle's head was fitted on, where truncating gives exactly
+// 1.00000. Measured on six real Oregon photographs.
+//
+// Normalising again, or skipping the crop, puts the vector in a different space
+// from the one the head was fitted on — the failure mode that shows cosine ~1.0
+// against itself while agreeing with nothing.
+//
+// The model output is Float16 (1 x 768). Widen it to [Float] before calling this.
 
 import Foundation
 
@@ -69,7 +78,8 @@ final class Cascade {
         uniqueGroups = Array(Set(groupOf)).sorted()
     }
 
-    /// `embedding` is the .mlpackage's output: already unit-norm.
+    /// `embedding` is the .mlpackage's output widened from Float16: already
+    /// unit-norm, so do not normalise it again.
     func callAsFunction(_ embedding: [Float]) -> Answer {
         let d = b.coreml.dim, n = b.classes.count
 
@@ -138,5 +148,16 @@ extension Cascade {
         let b = try JSONDecoder().decode(CascadeBundle.self,
                                          from: try Data(contentsOf: url))
         return Cascade(b)
+    }
+}
+
+/// The model emits Float16; this widens it. `MLMultiArray.dataPointer` bound to
+/// `Float` would reinterpret the bits and produce garbage that still looks like
+/// numbers, so go through `Float16` explicitly.
+func widen(_ m: MLMultiArray) -> [Float] {
+    precondition(m.dataType == .float16, "expected Float16, got \(m.dataType)")
+    let n = m.count
+    return m.dataPointer.withMemoryRebound(to: Float16.self, capacity: n) { p in
+        (0..<n).map { Float(p[$0]) }
     }
 }

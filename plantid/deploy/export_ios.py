@@ -20,14 +20,18 @@ left outside is **resize and centre-crop to `side`, with the recorded
 interpolation**. Hand it an RGB buffer of that size and the output is the unit
 vector the head expects.
 
-## What this artifact rests on, declared rather than assumed
+## What this artifact rests on, read rather than assumed
 
-The head was fitted on vectors from the **torch** encoder. The app will produce
-vectors from the **Core ML int8 export**. `ENCODER_DECISION.md` measures cosine
-0.9996 between them, which is why int8 was chosen over int4 -- but 0.9996 is not
-1.0, and the thresholds were fitted on the torch side. The JSON records the
-encoder identity as a Core ML one (`…+coreml:…`) and states the cosine, so a
-reader can see what the numbers rest on instead of inferring it.
+The head was fitted on *some* encoder's vectors and the app will use the one
+shipped here. Whether those are the same thing is the question, and this file
+**reads the bundle's own declaration** rather than asserting an answer -- an
+earlier draft hardcoded "torch embeddings" and was wrong, since Oregon's cached
+vectors turned out to come from the Core ML q8 export. That is the fabricated
+provenance this project removed from `export_for_narrowcast`; it should not
+reappear here.
+
+`rests_on.agree` is the useful field: true when the bundle's declared encoder
+appears in the shipped identity, null when the bundle never recorded one.
 """
 
 import argparse
@@ -126,12 +130,21 @@ def build_payload(bundle: Path, preprocess: dict, encoder: str,
             "n_test": m.get("n_test"),
         },
         "rests_on": {
-            "head_fitted_on": "torch embeddings",
-            "app_will_use": "the Core ML export named above",
-            "cosine_torch_to_coreml": cosine_to_torch,
-            "note": "the thresholds were fitted on the torch side; the export is "
-                    "a different encoder by this project's own definition, which "
-                    "is why the identity above says so",
+            # What the *bundle* says produced the vectors its head was fitted on.
+            # Not asserted: read from the manifest, and null when the bundle never
+            # recorded one. An earlier draft of this file hardcoded "torch
+            # embeddings" and was wrong -- the Oregon vectors came from the Core ML
+            # q8 export -- which is the same fabricated-provenance mistake this
+            # project removed from `export_for_narrowcast` two commits earlier.
+            "head_fitted_on_encoder": manifest.get("encoder"),
+            "app_will_use": coreml_name,
+            "agree": None if not manifest.get("encoder") else
+                     manifest["encoder"] in encoder,
+            "cosine_to_reference": cosine_to_torch,
+            "note": "if `agree` is false or null, the head was fitted on vectors "
+                    "from something other than the encoder shipped here, and the "
+                    "thresholds may not transfer. narrowcast cannot verify either "
+                    "name; it compares two declarations.",
         },
     }
 
@@ -146,8 +159,9 @@ def main():
                          "own transform is what the preprocessing is read off")
     ap.add_argument("--out", required=True)
     ap.add_argument("--cosine-to-torch", type=float, default=None,
-                    help="measured agreement between this export and the torch "
-                         "encoder, recorded in the artifact (ENCODER_DECISION.md)")
+                    help="measured agreement between this export and whatever "
+                         "reference the bundle's head was fitted on, recorded in "
+                         "the artifact for the reader (ENCODER_DECISION.md)")
     a = ap.parse_args()
 
     from plantid.deploy.coreml import preprocess_spec

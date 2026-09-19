@@ -158,11 +158,33 @@ def test_a_bundle_without_a_group_map_is_refused(tmp_path):
         build_payload(out, PRE, "e", "E.mlpackage")
 
 
-def test_the_payload_states_what_it_rests_on(tmp_path):
-    out, _ = _bundle(tmp_path)
+def test_the_payload_reads_provenance_rather_than_asserting_it(tmp_path):
+    """An earlier draft hardcoded `head_fitted_on: "torch embeddings"` and was
+    wrong — Oregon's cached vectors came from the Core ML q8 export. The same
+    fabricated-provenance mistake this project removed from
+    `export_for_narrowcast`. What the bundle declares is what gets reported."""
+    out, _ = _bundle(tmp_path)          # built with encoder-name "plantclef24"
     p = build_payload(out, PRE, "plantclef24+coreml:pc24_q8", "E.mlpackage",
                       cosine_to_torch=0.9996)
     assert p["encoder"] == "plantclef24+coreml:pc24_q8"
-    assert p["rests_on"]["cosine_torch_to_coreml"] == 0.9996
+    assert p["rests_on"]["head_fitted_on_encoder"] == "plantclef24"
+    assert p["rests_on"]["agree"] is True
+    assert p["rests_on"]["cosine_to_reference"] == 0.9996
     assert "L2" in p["coreml"]["inside_the_graph"]
     assert p["preprocess"]["side"] == 518
+
+
+def test_a_disagreeing_encoder_is_reported_not_hidden(tmp_path):
+    out, _ = _bundle(tmp_path)
+    p = build_payload(out, PRE, "bioclip2+coreml:something_else", "E.mlpackage")
+    assert p["rests_on"]["agree"] is False
+
+
+def test_an_unrecorded_encoder_reports_null_not_a_guess(tmp_path):
+    out, _ = _bundle(tmp_path)
+    m = json.loads((out / "manifest.json").read_text())
+    m["encoder"] = None
+    (out / "manifest.json").write_text(json.dumps(m))
+    p = build_payload(out, PRE, "plantclef24+coreml:x", "E.mlpackage")
+    assert p["rests_on"]["head_fitted_on_encoder"] is None
+    assert p["rests_on"]["agree"] is None
