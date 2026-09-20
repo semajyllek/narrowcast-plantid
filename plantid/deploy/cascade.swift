@@ -139,12 +139,17 @@ final class Cascade {
 }
 
 extension Cascade {
-    /// Load from `bundle.json` in the app bundle. One obvious entry point.
-    static func load(resource: String = "bundle") throws -> Cascade {
-        guard let url = Foundation.Bundle.main.url(forResource: resource,
-                                                   withExtension: "json") else {
+    /// Load from `bundle.json`. Defaults to the app bundle.
+    ///
+    /// `bundle:` exists for tests. A unit test's own resources live in
+    /// `Foundation.Bundle(for: type(of: self))`, not in `.main` — `.main` is the
+    /// host app — so a test that ships its own fixture has to say which.
+    static func load(resource: String = "bundle",
+                     bundle: Foundation.Bundle = .main) throws -> Cascade {
+        guard let url = bundle.url(forResource: resource,
+                                   withExtension: "json") else {
             throw NSError(domain: "Cascade", code: 1, userInfo:
-                [NSLocalizedDescriptionKey: "\(resource).json not in the app bundle"])
+                [NSLocalizedDescriptionKey: "\(resource).json not in \(bundle)"])
         }
         let b = try JSONDecoder().decode(CascadeBundle.self,
                                          from: try Data(contentsOf: url))
