@@ -68,6 +68,66 @@ field guide and it will decline nearly everything, correctly.
 The near-OOD gate does not rescue this: fitted at `p_ood` 0.5 and 0.8 it moves
 coverage by 0.5 points and 0.0. Consistent with `NEAR_OOD_FINDINGS.md`'s null.
 
+## Retracted in place: "pick twenty" is the wrong default
+
+*Added after measuring the thing the section above assumed.* Everything above is
+correct and the conclusion drawn from it was wrong, because it optimised in-list
+accuracy — a number nobody experiences — instead of **correct identifications per
+plant photographed**, which is the product.
+
+Accuracy does fall with K, gracefully:
+
+| K | species top-1 |
+|---|---|
+| 10 | 0.971 |
+| 20 | 0.973 |
+| 40 | 0.931 |
+| 160 | 0.881 |
+| 416 | 0.821 |
+| **961 (whole bank, measured)** | **0.773** |
+
+But coverage rises far faster than accuracy falls, because plant photography is
+long-tailed:
+
+| K | share of what you photograph | top-1 | **correct per 100 photographed** |
+|---|---|---|---|
+| 20 | 11.0% | 0.973 | **10.7** |
+| 80 | 27.6% | 0.917 | 25.3 |
+| 320 | 53.5% | 0.837 | 44.8 |
+| **961** | **78.0%** | **0.773** | **60.3** |
+
+**Shipping the whole bank is roughly six times more useful than the user picking
+twenty.** The crowding finding does not forbid this: it is about *composition* —
+a set packed with congeners against a varied one at the same K — and a regional
+flora at K=961 is the varied case. What was measured here is the ordinary K
+effect, and it loses the argument to coverage.
+
+### And the coarse rank comes alive
+
+At K=20 with roughly one species per family, `group_share` was ~0: there was
+nothing to retreat to, so the cascade's middle answer was dead weight. At K=961,
+**172 of 489 genera hold more than one species**, and:
+
+| answer | accuracy over 6,059 held-out photographs |
+|---|---|
+| species, top-1 | 0.773 |
+| **genus** | **0.846** |
+| **species in top 5** | **0.936** |
+
+So the honest product is not one name. It is a name when the model can defend
+one, a genus when it cannot, and a short list when it can only narrow — and that
+shortlist is right 94% of the time, which is exactly what a person with a field
+guide can finish.
+
+### Where user-chosen lists still belong
+
+Not as the default, but as a mode. A forager who wants "is this the edible one or
+the lethal one" is asking a different question from "what is this", and for that
+question the narrow model is right: it was 0.972 closed-set top-1 and declined
+almost everything else. That is the `--never-answer` and `forage` profile
+territory this project already built. **Default to the whole bank; offer the
+narrow list as a deliberate choice.**
+
 ## Honest limits
 
 - **60% of the bank has the full 8 exemplars**; 15 species have only 2. The app
