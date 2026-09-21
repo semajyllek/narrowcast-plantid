@@ -67,29 +67,28 @@ declaring its encoder and flagging its regional rows.
 
 ## Do this first
 
-~~Write the `encoder` field from the remaining npz producers~~ — **done**. Every
-npz this project writes now declares what produced it:
-`plantid/features/pretrained.encoder_identity` is the canonical definition,
-`store.save_descriptors`, `embed_catalog`, `embed_background`, `embed_inat`,
-`regional_embed` and `export_for_narrowcast` all write it, and the two points
-where separately embedded pools are combined — `regional_scores.build_scores`
-and `export_for_narrowcast` — refuse inputs whose declarations disagree.
-`export_for_narrowcast` carries the caches' own declaration through rather than
-taking it from `--variant`, because the point is to describe the vectors.
+### Grow the catalogue from a field guide
 
-**The caches on disk predate the field**, so they declare nothing and
-`export_for_narrowcast` correctly writes **no** `encoder` rather than repeating
-`--variant`, which there is only a filename selector and would be a claim the
-script cannot vouch for. A fabricated declaration would be worse than none:
-narrowcast passes when two declarations agree, so two invented labels would
-disable the geometric check as well. Exports from today's caches therefore fall
-back to geometry, which sees 0 of 21 export pairs.
+**24 species is the binding constraint on the app, not accuracy.** On the device
+the bundle is 91.4% correct with precision 1.000 — but it knows 24 of Oregon's
+4,570 species, and its thresholds were fitted assuming 1 in 5 inputs is unknown.
+On a real walk it is more like 19 in 20, and at that operating point the same
+bundle answers 3.6% of what it sees.
 
-That is the one loose end. Re-embedding is expensive and not obviously worth it
-on its own, but anything re-embedded from here carries the declaration, and a
-pool mixed with one that does will be caught.
+`plantid/data/booklist.py` is the path in: a list of names from a regional field
+guide — common or scientific, one per line — resolved against the regional survey
+to a species list the fetch pipeline takes. It resolves locally first, so
+anything it accepts is a plant that **actually occurs in the region**, and it
+**reports ambiguity rather than resolving it**. On a test page from a PNW guide,
+16 of 20 names resolved and the two it refused were `buttercup` (6 *Ranunculus*)
+and `camas` — which matches both edible *Camassia* and *Toxicoscordion*, death
+camas, whose bulbs are lethal and look similar. Guessing the most-photographed
+one there would have put a label in the catalogue that does not mean what the
+book meant.
 
-Nothing else is blocked. What follows is data collection.
+Then the existing chain: `regional_fetch` → `regional_embed` → `regional_scores`
+→ `narrowcast audit` → `plantid/deploy/export_ios.py`. The app reads `bundle.json`,
+so swapping a bigger catalogue in is replacing one file.
 
 ## Then
 
