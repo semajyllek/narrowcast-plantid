@@ -66,8 +66,36 @@ on disk.
    models — fitting locally means fitting on data that resembles deployment
    (`NARROW_THESIS_FINDINGS.md`). Not done; the vectors exist.
 
-## What was not measured
+## Measured on the device
 
-The 2.6 points are **macOS** CoreGraphics. The iPad's scaler differs again, by an
-unknown amount, and measuring it needs all 618 photographs run on the device.
-Quote 2.6 as a lower bound on the deployed cost, not as the deployed cost.
+*Added after running all 618 photographs on an iPad (A16), 157 ms each,
+108 seconds total.*
+
+| preprocessing | names a species | correct when it does | overall correct |
+|---|---|---|---|
+| torchvision bicubic (head fitted on this) | 93.4% | 99.8% | **93.2%** |
+| macOS CoreGraphics | 90.6% | 100.0% | 90.6% |
+| **iOS CoreGraphics — the deployed pipeline** | **91.4%** | **100.0%** | **91.4%** |
+
+**The deployed cost is 1.8 points, not the 2.6 the Mac predicted.** iOS's scaler
+lands slightly closer to torchvision's bicubic than macOS's does, so the earlier
+figure was pessimistic — which is the right direction for a lower bound to be
+wrong in, and the reason it was labelled one.
+
+**Precision on the device is 100.0%: 565 species answers, none of them wrong.**
+The preprocessing mismatch is spent entirely on declining more (8.6% against
+6.6%), never on answering wrongly. Nothing was answered at the family rank at
+all, which matches the bundle's measured `group_share` of ~0 — this label set has
+one species per family almost everywhere, so there is no coarse rank to retreat
+to.
+
+That settles the open question in favour of leaving it alone: re-fitting the head
+on device-preprocessed vectors would recover under two points of coverage and
+cannot improve a precision that is already 1.000.
+
+## What is still not measured
+
+The 618 photographs are GBIF field images, which is the corpus everything here is
+drawn from. **A phone camera in one's own hands remains untested** — the axis
+`DOMAIN_SHIFT_FINDINGS.md` calls the last one. The app is now the cheapest
+instrument for measuring it.
