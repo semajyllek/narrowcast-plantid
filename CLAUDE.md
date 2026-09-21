@@ -33,7 +33,8 @@ is superseded, since nothing consumes a `--manifest` of paths any more, and the
 Read this first, then **[`DISPOSITION.md`](DISPOSITION.md)** for where the whole
 body of work is going — it argues the tool was the wrong deliverable and the
 finding is the right one, and it lists what is safe to delete and what is not.
-Then `ROADMAP.md` for the plan and the `*_FINDINGS.md` docs for evidence. The newest are `PREPROCESS_FINDINGS` (the encoder minds the resampling filter
+Then `ROADMAP.md` for the plan and the `*_FINDINGS.md` docs for evidence. The newest are `MULTIPHOTO_FINDINGS` (three photographs of one plant beat every
+other lever measured here), `PREPROCESS_FINDINGS` (the encoder minds the resampling filter
 more than the compute backend, and more than a flipped plant), `SPACE_CHECK_FINDINGS` (the embedding-space check is blind to the
 failure it was written for), the re-measured `FORAGER_FINDINGS`,
 `DOMAIN_SHIFT_FINDINGS` and `HEADROOM_FINDINGS`. **Git history is the chronological record** — commit messages carry the
