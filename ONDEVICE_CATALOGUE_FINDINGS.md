@@ -128,6 +128,46 @@ almost everything else. That is the `--never-answer` and `forage` profile
 territory this project already built. **Default to the whole bank; offer the
 narrow list as a deliberate choice.**
 
+## The whole-bank model, built
+
+901 species over 467 genera, exported and parity-checked. Two things learned in
+building it that the scoping section had wrong.
+
+**Fit on photographs, not on averaged exemplars.** The eight-exemplars-per-species
+constraint exists for *on-device* fitting; a shipped whole-bank head is fitted
+once and can use everything. Training on all photographs of the same eight plants
+— 15,713 rows against 6,593 — takes top-1 from 0.773 to **0.812** and, more
+importantly, sharpens the posteriors: median max probability 0.048 → 0.759 at
+`C = 100`. Diffuse posteriors were making the cascade decline answers it actually
+had.
+
+**`identify` is the right declared profile here.** `standard` costs a wrong answer
+−4 and names 47.1%; `identify` costs −2 and names 58.3% at 93.5% precision. A
+misnamed garden plant costs curiosity, not health — which is exactly the reason
+that profile was written down, and the first time anything has selected it.
+
+### What it does, per 100 plants photographed in Oregon
+
+| outcome | per 100 |
+|---|---|
+| named to the right species | **37** |
+| named to the wrong species | 9 |
+| answered at genus only | 6 |
+| not in the bank at all | 22 |
+| declined | ~26 |
+
+Against **11 correct per 100** for a user-chosen twenty. And if the app showed a
+five-name shortlist rather than one answer, **74 of 100 shortlists would contain
+the right species** — which is the number that should probably drive the
+interface, because a person holding a field guide can finish a shortlist and
+cannot finish a decline.
+
+### Sizes
+
+`bundle.json` grows from 106 KB to 3.8 MB — 902 classes × 768 dimensions is most
+of it — against an unchanged 87 MB encoder. Parity against
+`narrowcast.predict.Bundle` holds over 3,000 rows with zero disagreements.
+
 ## Honest limits
 
 - **60% of the bank has the full 8 exemplars**; 15 species have only 2. The app
