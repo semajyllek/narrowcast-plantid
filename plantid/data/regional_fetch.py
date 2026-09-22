@@ -48,6 +48,8 @@ HEADERS = {"User-Agent": "plantid-research/0.1 (species identification evaluatio
 MAX_PX = 512
 SLEEP = 0.2
 RETRIES = 4
+PAGE = 300          # GBIF's per-request cap
+MAX_SCAN = 3000     # stop scanning a species rather than page forever
 BACKOFF = 3.0
 
 # Licences that permit redistribution in a commercial product. Anything else is
@@ -109,12 +111,40 @@ def occurrences(species: str, want: int, state_province=None, country="US",
     `scientificName` search admits synonyms, and a record filed under a name the
     catalogue does not use is a label mismatch, not a hard example.
     """
+    # **Paged, and that is not an optimisation.** This used to take a single page
+    # of `want * 3` records and keep whatever survived the synonym and licence
+    # filters. GBIF returns a page in no useful order, and for a common species
+    # the first sixty records are often one dataset under one licence -- so when
+    # that licence was non-redistributable, almost nothing survived.
+    #
+    # The effect was backwards and invisible: *Polystichum munitum* has 7,652
+    # Oregon observations and yielded ONE usable plant, *Gaultheria shallon*
+    # 6,511 and yielded two, while obscure species got ten. Across the region the
+    # correlation between how often a plant is photographed and how many distinct
+    # plants were fetched was **-0.171** -- the bank was thinnest exactly where a
+    # user is most likely to point their phone, and 75 species were dropped from
+    # the model entirely for thinness.
     params = {"scientificName": species, "mediaType": "StillImage",
               "hasCoordinate": "true", "country": country,
-              "basisOfRecord": basis, "limit": max(want * 3, 30)}
+              "basisOfRecord": basis, "limit": PAGE}
     if state_province:
         params["stateProvince"] = state_province
-    results = _get(GBIF_OCC, params).get("results", [])
+
+    results, offset = [], 0
+    while offset < MAX_SCAN:
+        page = _get(GBIF_OCC, {**params, "offset": offset})
+        recs = page.get("results", [])
+        results += recs
+        # enough *distinct, usable* occurrences is the stopping condition, not
+        # enough records scanned
+        usable = {str(r.get("key")) for r in results
+                  if r.get("species") == species
+                  and (not open_only
+                       or parse_licence(r.get("license")) in REDISTRIBUTABLE)
+                  and (r.get("media") or [])}
+        if len(usable) >= want or page.get("endOfRecords") or not recs:
+            break
+        offset += PAGE
 
     out = []
     for rec in results:
