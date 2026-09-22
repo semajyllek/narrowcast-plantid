@@ -68,3 +68,40 @@ The 478 plants come from GBIF contributors, whose several photographs of one
 occurrence were taken deliberately to document it. A user taking three quick
 phone photographs may capture less variety, and the effect would then be smaller.
 The direction is not in doubt; the magnitude on a phone is.
+
+## When averaging hurts: the photographs must be of the same thing
+
+*Added after a field case.* Three photographs of one bigleaf maple, averaged, and
+the model answered **mistletoe**. Taken apart:
+
+| photograph | what it shows | top answer |
+|---|---|---|
+| 1 | a moss-covered trunk filling the frame | *Phoradendron leucarpum* 30% |
+| 2 | branches and leaves | *Acer platanoides* 27% |
+| 3 | backlit canopy | *Acer platanoides* 31% |
+| **averaged** | | ***Phoradendron* 28%**, maple 21% |
+| 2 + 3 only | | *Acer platanoides* 31% |
+
+The first photograph is of **bark and moss**, not of a maple — and the
+centre-crop keeps only the middle square of a 3024×4032 portrait, which is
+trunk. Answering "mistletoe" to a mossy branch is defensible; *Phoradendron* is a
+parasite that grows on trees, so its training images are pictures of exactly this.
+
+**Averaging assumes the photographs are of the same subject.** Where one is of
+the host rather than the plant, it drags the mean toward whatever that host looks
+like. The earlier measurement drew its groups from GBIF occurrences, where a
+contributor's several images are of one organism by construction, so the failure
+could not appear.
+
+Two things follow for an interface:
+
+- **Ask for the leaf, the flower, the fruit — not the tree.** The measured gain
+  assumes three views of the plant, not three views of the scene.
+- **Disagreement between photographs is a signal worth surfacing**, and it is
+  free: score each one as well as the average, and when the top answers differ,
+  say so rather than presenting a confident mean.
+
+The genus rank rescued this case: summed over species, *Acer* took 36% against
+*Phoradendron*'s 28%, so the coarse answer was right where the fine one was not.
+That is the section of the card that had nothing to do at K=20 and is earning its
+place at K=970.
