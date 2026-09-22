@@ -15,14 +15,21 @@ This is the real thing instead, and it cost an afternoon.
 On the 12 of 14 species the model was *able* to name — two had been dropped by a
 fetch bug this test uncovered, see below — three photographs of each, averaged:
 
+Over all 14 species, three photographs each, after the fetch bug below was
+fixed and the model rebuilt:
+
 | | top-1 | top-5 |
 |---|---|---|
-| **ours, 87 MB, offline, 157 ms** | **75%** | **100%** |
-| iNaturalist, vision only | 67% | 83% |
-| iNaturalist, vision + coordinates | **92%** | 92% |
+| ours, **before** the repair | 9/14 | 12/14 (2 species absent) |
+| **ours, after — 87 MB, offline, 157 ms** | **11/14** | **12/14** |
+| iNaturalist, vision only | 10/14 | 12/14 |
+| iNaturalist, vision + coordinates | **13/14** | — |
 
-**n = 12 species. One species is 8 points.** Read the ordering, not the gap: what
-this supports is "comparable to iNaturalist's vision model", not "better than".
+**n = 14 species. One species is 7 points.** Read the ordering, not the gap: this
+supports "comparable to iNaturalist's vision model", not "better than". The
+repair was not free either — *Acer macrophyllum* and *Pteridium aquilinum* were
+correct before and are not after, which is what adding 69 classes costs, and is
+also inside the noise at this n.
 
 ## Three things it established
 
